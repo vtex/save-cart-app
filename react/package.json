@@ -1,0 +1,13 @@
+{
+  "name": "vtex.save-cart",
+  "version": "0.0.1",
+  "dependencies": {
+    "vtex-tachyons": "^0.1.0",
+    "tachyons-svg": "^1.0.1",
+    "axios": "^0.17.1",
+    "graphql-tag": "2.6.0",
+    "apollo-client": "2.0.4",
+    "bluebird": "^3.4.7",
+    "qs": "^6.4.0"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "stack": "nodejs",
+  "memory": 512,
+  "ttl": 300,
+  "timeout": 40,
+  "routes": {
+    "saveMerchantHandler": {
+      "path": "/mutation/saveMerchant"
+    },
+    "merchantInfoHandler": {
+      "path": "/query/merchantInfo"
+    },
+    "nameSaveCartHandler":{
+      "path": "/save-cart/name",
+      "public": true
+    },
+    "saveCartHandler": {
+      "path": "/save-cart/save",
+      "public": true
+    },
+    "removeCartHandler": {
+      "path": "/save-cart/remove",
+      "public": true
+    },
+    "useCartHandler": {
+      "path": "/save-cart/use",
+      "public": true
+    },
+    "listCartHandler": {
+      "path": "/save-cart/list",
+      "public": true
+    },
+    "postBackHandler": {
+      "path": "/save-cart/postback",
+      "public": true
+    }
+  }
+}

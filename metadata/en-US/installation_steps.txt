@@ -1,0 +1,5 @@
+[
+  "Purchase the extension",
+  "Enable extension",
+  "Done!"
+]

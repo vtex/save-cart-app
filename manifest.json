@@ -1,0 +1,31 @@
+{
+  "name": "save-cart",
+  "vendor": "vtex",
+  "version": "0.0.1",
+  "title": "Save Cart",
+  "description": "Save Cart",
+  "settingsSchema": {},
+  "registries": [
+    "smartcheckout"
+  ],
+  "categories": [
+    "smartcheckout"
+  ],
+  "dependencies": {
+    "vtex.masterdata-graphql": "0.x",
+    "vtex.extension-store": "0.x"
+  },
+  "builders": {
+    "react": "0.x",
+    "service-js": "1.x"
+  },
+  "scripts": {
+    "postreleasy": "vtex publish"
+  },
+  "supportWorkspaces": true,
+  "policies": [
+    {
+      "name": "full-access"
+    }
+  ]
+}

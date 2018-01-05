@@ -1,0 +1,241 @@
+@import '~tachyons-svg/css/tachyons-svg.min.css';
+
+/* Media Queries */
+@custom-media --breakpoint-not-small screen and (min-width: 30em);
+@custom-media --breakpoint-medium screen and (min-width: 30em) and (max-width: 60em);
+@custom-media --breakpoint-large screen and (min-width: 60em);
+
+.font-display,
+.font-body {
+  font-family: 'Fabriga', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+/* Overwrite font weights for Fabriga */
+.fw1 { font-weight: 300; }
+.fw2 { font-weight: normal; }
+.fw3 { font-weight: 500; }
+.fw4 { font-weight: bold; }
+.fw5 { font-weight: 900; }
+
+/* Flexbox utilities */
+.flex-zero { flex: 0 0; }
+
+.flex-one { flex: 1 1; }
+
+.flex-shrink-none { flex-shrink: 0}
+
+@media screen and (min-width: 30em) {
+  .flex-zero-ns { flex: 0 0; }
+
+  .flex-one-ns { flex: 1 1; }
+
+  .flex-shrink-none-ns { flex-shrink: 0}
+}
+
+@media screen and (min-width: 30em) and (max-width: 60em) {
+  .flex-zero-m { flex: 0 0; }
+
+  .flex-one-m { flex: 1 1; }
+
+  .flex-shrink-none-m { flex-shrink: 0}
+}
+
+@media screen and (min-width: 60em) {
+  .flex-zero-ls { flex: 0 0; }
+
+  .flex-one-ls { flex: 1 1; }
+
+  .flex-shrink-none-ls { flex-shrink: 0}
+}
+
+/* NEW WIDTH w5 subscale (16 + 4rem) */
+.w5-1 { width: 20rem; }
+
+@media screen and (min-width: 30em) {
+  .w5-1-ns { width: 20rem; }
+}
+
+@media screen and (min-width: 30em) and (max-width: 60em) {
+  .w5-1-m { width: 20rem; }
+}
+
+@media screen and (min-width: 60em) {
+  .w5-1-l { width: 20rem; }
+}
+
+
+/* NEW COLORS */
+:root {
+
+  --primary:  #3791E6;
+  --light-primary:  #4FC3F7;
+  --dark-primary:  #0277BD;
+  --washed-primary:  #E1F5FE;
+
+  --secondary:  #8BC34A;
+  --light-secondary:  #9CCC65;
+  --dark-secondary:  #558B2F;
+  --washed-secondary:  #F1F8E9;
+
+  --clean-blue:  #EEF3F9;
+  --dark-orange: #EDB431;
+
+}
+
+/**
+ * NOTE: These are shared with the `vtex.extension-store` app. We should
+ * probably put these shared styles in a separate repo so that different
+ * apps related to the store can share them.
+ */
+
+/* Colors */
+.dark-primary { color: var(--dark-primary); }
+.primary { color: var(--primary); }
+.light-primary { color: var(--light-primary); }
+.washed-primary { color: var(--washed-primary); }
+.dark-secondary { color: var(--dark-secondary); }
+.secondary { color: var(--secondary); }
+.light-secondary { color: var(--light-secondary); }
+.washed-secondary { color: var(--washed-secondary); }
+
+.clean-blue { color: var(--clean-blue); }
+.dark-orange { color: var(--dark-orange); }
+
+/* Background Color */
+.bg-dark-primary { background-color: var(--dark-primary); }
+.bg-primary { background-color: var(--primary); }
+.bg-light-primary { background-color: var(--light-primary); }
+.bg-washed-primary { background-color: var(--washed-primary); }
+.bg-dark-secondary { background-color: var(--dark-secondary); }
+.bg-secondary { background-color: var(--secondary); }
+.bg-light-secondary { background-color: var(--light-secondary); }
+.bg-washed-secondary { background-color: var(--washed-secondary); }
+
+.bg-clean-blue { background-color: var(--clean-blue); }
+
+/* Border Color */
+.b--dark-primary { border-color: var(--dark-primary); }
+.b--primary { border-color: var(--primary); }
+.b--light-primary { border-color: var(--light-primary); }
+.b--washed-primary { border-color: var(--washed-primary); }
+.b--dark-secondary { border-color: var(--dark-secondary); }
+.b--secondary { border-color: var(--secondary); }
+.b--light-secondary { border-color: var(--light-secondary); }
+.b--washed-secondary { border-color: var(--washed-secondary); }
+
+.b--clean-blue { border-color: var(--clean-blue); }
+.b--dark-orange { border-color: var(--dark-orange); }
+
+/* Hover Color */
+.hover-dark-primary:hover,
+.hover-dark-primary:focus { color: var(--dark-primary); }
+.hover-primary:hover,
+.hover-primary:focus { color: var(--primary); }
+.hover-light-primary:hover,
+.hover-light-primary:focus { color: var(--light-primary); }
+.hover-washed-primary:hover,
+.hover-washed-primary:focus { color: var(--washed-primary); }
+.hover-dark-secondary:hover,
+.hover-dark-secondary:focus { color: var(--dark-secondary); }
+.hover-secondary:hover,
+.hover-secondary:focus { color: var(--secondary); }
+.hover-light-secondary:hover,
+.hover-light-secondary:focus { color: var(--light-secondary); }
+.hover-washed-secondary:hover,
+.hover-washed-secondary:focus { color: var(--washed-secondary); }
+
+.hover-clean-blue:hover,
+.hover-clean-blue:focus { color: var(--clean-blue); }
+
+/* Hover Background Color */
+.hover-bg-dark-primary:hover,
+.hover-bg-dark-primary:focus { background-color: var(--dark-primary); }
+.hover-bg-primary:hover,
+.hover-bg-primary:focus { background-color: var(--primary); }
+.hover-bg-light-primary:hover,
+.hover-bg-light-primary:focus { background-color: var(--light-primary); }
+.hover-bg-washed-primary:hover,
+.hover-bg-washed-primary:focus { background-color: var(--washed-primary); }
+.hover-bg-dark-secondary:hover,
+.hover-bg-dark-secondary:focus { background-color: var(--dark-secondary); }
+.hover-bg-secondary:hover,
+.hover-bg-secondary:focus { background-color: var(--secondary); }
+.hover-bg-light-secondary:hover,
+.hover-bg-light-secondary:focus { background-color: var(--light-secondary); }
+.hover-bg-washed-secondary:hover,
+.hover-bg-washed-secondary:focus { background-color: var(--washed-secondary); }
+
+.hover-bg-clean-blue:hover,
+.hover-bg-clean-blue:focus { background-color: var(--clean-blue); }
+
+/* Stroke colors */
+.stroke-dark-primary { stroke: var(--dark-primary); }
+.stroke-primary { stroke: var(--primary); }
+.stroke-light-primary { stroke: var(--light-primary); }
+.stroke-washed-primary { stroke: var(--washed-primary); }
+.stroke-dark-secondary { stroke: var(--dark-secondary); }
+.stroke-secondary { stroke: var(--secondary); }
+.stroke-light-secondary { stroke: var(--light-secondary); }
+.stroke-washed-secondary { stroke: var(--washed-secondary); }
+
+.stroke-clean-blue { stroke: var(--clean-blue); }
+
+/* Fill colors */
+.fill-dark-primary { fill: var(--dark-primary); }
+.fill-primary { fill: var(--primary); }
+.fill-light-primary { fill: var(--light-primary); }
+.fill-washed-primary { fill: var(--washed-primary); }
+.fill-dark-secondary { fill: var(--dark-secondary); }
+.fill-secondary { fill: var(--secondary); }
+.fill-light-secondary { fill: var(--light-secondary); }
+.fill-washed-secondary { fill: var(--washed-secondary); }
+
+.fill-clean-blue { fill: var(--clean-blue); }
+
+
+/* Switch button */
+
+.es-switch-slider {
+  background-color: #eb4d5c;
+  height: 3rem;
+  width: 6rem;
+  transition: .4s;
+  -webkit-transition: .4s;
+}
+
+.es-switch-slider > div {
+  height: 2.5rem;
+  width: 2.5rem;
+  left: 5px;
+  transition: .4s;
+  -webkit-transition: .4s;
+}
+
+.es-switch-input:checked + .es-switch-slider {
+  background-color: #95C323;
+}
+
+.es-switch-input:checked + .es-switch-slider > div {
+  -webkit-transform: translateX(48px);
+  -ms-transform: translateX(48px);
+  transform: translateX(48px);
+}
+
+@media screen and (min-width: 30em) {
+  .es-switch-slider {
+    height: 2rem;
+    width: 4rem;
+  }
+
+  .es-switch-slider > div {
+    height: 1.5rem;
+    width: 1.5rem;
+    left: 3px;
+  }
+
+  .es-switch-input:checked + .es-switch-slider > div {
+    -webkit-transform: translateX(33px);
+    -ms-transform: translateX(33px);
+    transform: translateX(33px);
+  }
+}
