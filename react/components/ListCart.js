@@ -8,10 +8,9 @@ class ListCart extends Component {
     }
 
     render() {
-        const { handleRemoveCart } = this.props
-        
+        const { handleRemoveCart, handleUseCart } = this.props        
         const items = this.props.items.map(item => {
-            return <Cart key={item.orderFormId} item={item} handleRemoveCart={handleRemoveCart} />
+            return <Cart key={item.orderFormId} item={item} handleRemoveCart={handleRemoveCart} handleUseCart={handleUseCart} />
         })
 
         return (
@@ -28,6 +27,7 @@ class ListCart extends Component {
 
 ListCart.propTypes = {
     handleRemoveCart: PropTypes.func,
+    handleUseCart: PropTypes.func
 }
 
 export default ListCart

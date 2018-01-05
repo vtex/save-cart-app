@@ -1,20 +1,16 @@
 import * as compose from 'koa-compose'
 import timer from '../utils/timer'
 
-import fillProfileInfo from './steps/fillProfileInfo'
-import fillShippingInfo from './steps/fillShippingInfo'
+import getOrderForm from './steps/getOrderForm'
 import fillMarketingData from './steps/setMarketingData'
-import fillPayment from './steps/fillPayment'
 import saveOrderHook from './steps/saveOrderHook'
 
 /**
  * Array com os passos do pipeline a serem executados.
  */
 const steps = [
-  fillProfileInfo,
-  fillShippingInfo,
+  getOrderForm,
   fillMarketingData,
-  fillPayment,
   saveOrderHook
 ].map(timer)
 
@@ -31,7 +27,7 @@ const run = compose(steps)
  * @param ctx Contexto VTEX(account: string, workspace: string, authToken: string)
  * @param logger Logger interno da VTEX
  */
-export default function processPaymentProfile(orderFormId: string, paymentData: PaymentData, ctx: ReqContext, logger: any) {
-  const state: OperationState = { orderFormId, ctx, data: { paymentData }, logger }
+export default function processPaymentProfile(orderFormId: string, ctx: ReqContext, data: OperationData, logger: any) {
+  const state: OperationState = { orderFormId, ctx, data, logger }
   return run(state)
 }

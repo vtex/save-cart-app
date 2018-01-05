@@ -2,7 +2,6 @@ import getCountryISO2 from '../utils/countryISOMapping'
 import { getAddress } from '../utils/addressMapping'
 import { map, prop } from 'ramda'
 import axios from 'axios'
-var request = require("request")
 
 const routes = {
   orderForm: (account, env = 'stable') => `http://${account}.vtexcommerce${env}.com.br/api/checkout/pub/orderForm`,
@@ -65,13 +64,6 @@ export default ({ account, authToken }: ReqContext) => {
       const url = routes.orderFormHooks(account, orderFormId)
       return axios.post(url, hook, { headers }).then(prop('data'))
     },
-    //Seta o tipo de pagamento no order form
-    setOrderFormPaymentType: (orderFormId: string, orderTotal: number, tokens: PaymentTokenResponse[]) => {
-      const url = routes.orderFormPayment(account, orderFormId)
-      const payments = map(({ bin, paymentSystem, token }) => ({ paymentSystem, bin, tokenId: token, referenceValue: orderTotal }), tokens)
-
-      return axios.post(url, { payments, expectedOrderFormSections }, { headers }).then(prop('data'))
-    },
     //Salva os dados customizados
     saveCustomData: (orderFormId: string, field: string, value: any) => {
       const url = routes.orderFormCustomData(account, orderFormId, 'save-cart', field)
@@ -82,104 +74,6 @@ export default ({ account, authToken }: ReqContext) => {
     setIgnoreProfile: (orderFormId: string, ignoreProfileData: boolean) => {
       const url = routes.orderFormIgnoreProfile(account, orderFormId)
       return axios.patch(url, { ignoreProfileData, expectedOrderFormSections }, { headers }).then(prop('data'))
-    },
-    /**
-     * Atualiza o orderForm com os dados de identificação do usuário
-     *
-     * @param orderFormId Identificador do orderForm
-     * @param personalInfo Dados de identificação do usuário
-     */
-    updateOrderFormProfile: (orderFormId: string, personalInfo: PersonalInfo): PromiseLike<any> => {
-      const url = routes.orderFormProfile(account, orderFormId)
-      const fullName = personalInfo.fullName.split(' ')
-      let firstName = fullName[0]
-      let lastName = ''
-
-      if (fullName.length > 1) { lastName = fullName[1] }
-
-      const payload = {
-        expectedOrderFormSections,
-        email: personalInfo.recipientEmailAddress,
-        document: personalInfo.nationalId && personalInfo.nationalId != null && personalInfo.nationalId != 'null' ? personalInfo.nationalId : '',
-        documentType: '',
-        firstName: firstName,
-        lastName: lastName,
-        phone: personalInfo.recipientPhone,
-        isCorporate: false,
-      }
-      return axios.post(url, payload, { headers }).then(prop('data'))
-    },
-    /**
-     * Atualiza o orderForm com os dados de entrega do usuário
-     *
-     * @param orderFormId Identificador do orderForm
-     * @param addr Dados de entrega do usuário
-     * @param receiverName Nome da pessoa que irá receber a entrega
-     */
-    updateShipping: (orderFormId: string, addr: Address, receiverName: string) => {
-      const url = routes.orderFormShipping(account, orderFormId)
-
-      const testFields = addr.line5 && addr.line5 != null && addr.line5 != 'null' && addr.line4 && addr.line4 != null && addr.line4 != 'null'
-      let street = testFields ? addr.line5 : addr.line1
-      street = street.replace('–', '-')
-      const number = testFields ? addr.line4 : ''
-      const state = addr.subdivision.substring(addr.subdivision.indexOf('-') + 1, addr.subdivision.length)
-      const postalCode = addr.postalCode && addr.postalCode != null && addr.postalCode != 'null' ? addr.postalCode : ''
-      const country = getCountryISO2(addr.country)
-      const addressMapping = getAddress(state, addr.city, postalCode, country)
-
-      const payload = {
-        expectedOrderFormSections,
-        orderFormId,
-        address: {
-          addressType: 'residential',
-          postalCode: addressMapping.postalCode,
-          country: country,
-          receiverName: receiverName,
-          city: addressMapping.city,
-          state: addressMapping.state,
-          street: street,
-          number: number,
-          complement: addr.line2,
-          neighborhood: addr.line3 && addr.line3 != null && addr.line3 != 'null' ? addr.line3 : '',
-        },
-        clearAddressIfPostalCodeNotFound: false
-      }
-      return axios.post(url, payload, { headers }).then(prop('data'))
-    },
-    /**
-     * Adiciona ao orderForm os dados de pagamento criptografados
-     *
-     * @param orderFormId Identificador do orderForm
-     * @param token Token que identifica o cartão
-     * @param bin Primeiros dígitos do cartão
-     * @param paymentSystem Sistema de pagamento
-     * @param paymentSystemName Nome do Sistema de pagamento
-     * @param lastDigits Últimos dígitos do cartão
-     */
-    addOrderFormPaymentToken: (orderFormId: string, { token, bin, paymentSystem, paymentSystemName, lastDigits }: PaymentTokenResponse): any => {
-      const url = routes.orderFormPaymentToken(account, orderFormId)
-      const payload = {
-        expectedOrderFormSections,
-        paymentToken: {
-          tokenId: token,
-          cardNumber: `************${lastDigits}`,
-          bin,
-          paymentSystem,
-          paymentSystemName,
-        },
-      }
-      return axios.put(url, payload, { headers }).then(prop('data'))
-    },
-    /**
-     * Remove os dados de pagamentos do orderForm
-     *
-     * @param orderFormId Identificador do orderForm
-     * @param token Token que identifica o cartão
-     */
-    removeOrderFormPaymentToken: (orderFormId: string, tokenId: string) => {
-      const url = routes.orderFormPaymentTokenId(account, orderFormId, tokenId)
-      return axios.delete(url, { headers, data: { expectedOrderFormSections } })
     },
     /**
      * Obtém o orderForm pelo identificador
@@ -195,9 +89,10 @@ export default ({ account, authToken }: ReqContext) => {
         Authorization: `bearer ${authToken}`,
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
+        'Accept-Encoding': 'gzip, deflate',
         Cookie: cookie
       }
-      return axios.post(url, payload, { headers }).then(prop('data'))
+      return axios.post(url, payload, { headers, withCredentials: true }).then(prop('data'))
     }
   }
 }

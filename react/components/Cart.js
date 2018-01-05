@@ -14,7 +14,7 @@ class Cart extends Component {
         return (
             <li className="fl w-100 items-center lh-copy pa3 bb b--black-10 overflow-hidden">
                 <div className="fl w-20">
-                    <a className="btn btn-success hover-silver dib tc pr3 ph3">
+                    <a className="btn btn-success dib tc pr3 ph3" onClick={() => this.props.handleUseCart(item.orderFormId)}>
                         <i className="fa fa-shopping-cart"></i>
                         <span className="f6 db">Usar</span>
                     </a>
@@ -27,7 +27,7 @@ class Cart extends Component {
                 </div>
 
                 <div className="fl w-20 pt1">
-                    <a className="item-link-remove" title="remover">
+                    <a className="item-link-remove" title="Remover">
                         <i className="icon icon-remove item-remove-ico fr" onClick={() => this.props.handleRemoveCart(item.orderFormId)}>
                         </i>
                         <span className="hide item-remove-text" >Remover</span>
@@ -46,6 +46,7 @@ class Cart extends Component {
 
 Cart.propTypes = {
     handleRemoveCart: PropTypes.func,
+    handleUseCart: PropTypes.func
 }
 
 export default Cart

@@ -10,7 +10,8 @@ import {
     createUrlUseCart,
     createUrlListCarts,
     getNameApp,
-    createItemListCarts
+    createItemListCarts,
+    getCookie
 } from './utils'
 
 class SaveCart extends Component {
@@ -93,7 +94,7 @@ class SaveCart extends Component {
     openMyCarts() {
         const { orderForm } = this.state
 
-        if (orderForm.loggedIn || (orderForm.userType && orderForm.userType === 'callcenteroperator')) {
+        if (orderForm && (orderForm.loggedIn || (orderForm.userType && orderForm.userType === 'callcenteroperator'))) {
             return true
         }
 
@@ -107,16 +108,13 @@ class SaveCart extends Component {
     }
 
     saveCart(name) {
-        event.preventDefault()
-
         this.clearMessages()
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
         const data = {
             userProfileId: this.getUserProfileId(orderForm),
             orderFormId: orderForm.orderFormId,
-            name: name,
-            cookie: document.cookie
+            name: name
         }
 
         axios.post(createUrlSaveCart(account, workspace), qs.stringify(data))
@@ -153,16 +151,19 @@ class SaveCart extends Component {
     }
 
     useCart(orderFormId) {
+        console.log('parabens vc usou o carrinho ' + orderFormId)
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
-
+        const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
         const data = {
             userProfileId: this.getUserProfileId(orderForm),
-            orderFormId: orderFormId            
+            orderFormId: orderFormId,
+            vtexIdclientAutCookie: vtexIdclientAutCookie
         }
 
         axios.post(createUrlUseCart(account, workspace), qs.stringify(data))
             .then(response => {
+                //aqui fazer algo que atualize a tela e coloque o novo orderForm
                 console.log(response.data)
             })
             .catch((error) => {
@@ -174,8 +175,13 @@ class SaveCart extends Component {
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
         const userProfileId = orderForm ? this.getUserProfileId(orderForm) : ''
+        const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
+        const data = {
+            userProfileId: userProfileId,
+            vtexIdclientAutCookie: vtexIdclientAutCookie
+        }
 
-        return axios.get(`${createUrlListCarts(account, workspace)}?userProfileId=${userProfileId}`)
+        return axios.post(`${createUrlListCarts(account, workspace)}`, data)
             .then(response => response.data)
             .catch((error) => {
                 this.handleUpdateError(error.response)
@@ -270,7 +276,7 @@ class SaveCart extends Component {
                             </button>
                         </div>
                     </section>
-                    <ListCart items={items} handleRemoveCart={this.removeCart} />
+                    <ListCart items={items} handleRemoveCart={this.removeCart} handleUseCart={this.useCart} />
                 </Modal>
             </div>
         )

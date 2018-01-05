@@ -1,18 +1,14 @@
 import colossus from './resources/colossus'
-import resolvePaymentInfo from './resources/resolvePaymentInfo'
 import processPaymentProfile from './pipeline'
 import checkoutClient from './clients/checkout'
 
 import { prop } from 'ramda'
 import { enableIoExtensions } from './resources/portal'
-import { getOrderPaymentTransaction, getOrder, getOrderList } from './resources/orders'
 import { getDataUser } from './resources/decryptTokenUser'
 import { parseQuery } from './utils/url'
 import { orderStatus } from './utils/orderStatus'
 import { notFound } from './utils/status'
-import { createDataToExpress, createPersonalInfo } from './utils/methods'
 import { VBaseApp, VBaseUser } from './vbase'
-import { AUTHORIZATION_CODE } from './constants'
 import { formatPrice } from './utils/price'
 
 import * as parse from 'co-body'
@@ -52,6 +48,10 @@ const setDefaultHeaders = (res) => {
   res.set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, authorization")
   res.set('Cache-Control', 'no-cache')
   res.set('Content-Type', 'application/json')
+}
+
+const createCookie = (orderFormId, vtexIdclientAutCookie) => {
+  return `checkout.vtex.com=__ofid=${orderFormId}; ${vtexIdclientAutCookie}`
 }
 
 /**
@@ -199,7 +199,6 @@ export default {
               userInfo.carts.push({
                 orderFormId: body.orderFormId,
                 name: body.name,
-                cookie: body.cookie,
                 date: date.toISOString()
               })
 
@@ -216,7 +215,6 @@ export default {
               carts: [{
                 orderFormId: body.orderFormId,
                 name: body.name,
-                cookie: body.cookie,
                 date: date.toISOString()
               }]
             })
@@ -267,11 +265,15 @@ export default {
             res.status = 200
             res.body = { data: 'OK' }
             return
+          } else {
+            res.status = 400
+            res.body = { errorMessage: 'O carrinho informado não existe para esse usuário!' }
+            return
           }
         }
 
         res.status = 400
-        res.body = { errorMessage: 'O carrinho informado não existe para esse usuário!' }
+        res.body = { errorMessage: 'O usuário não possui carrinhos para exclusão!' }
       } catch (err) {
         const errorMessage = 'Error remove cart'
         const { status, body, details } = errorResponse(err)
@@ -297,10 +299,37 @@ export default {
       try {
         setDefaultHeaders(res)
 
-      } catch (err) {
-        const errorMessage = 'Error replaceCart'
-        const { status, body, details } = errorResponse(err)
+        const vbaseUser = VBaseUser(authToken, account, workspace, body.userProfileId)
+        const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
+        
+        if (userResponse && Object.keys(userResponse).length !== 0) {
+          const userInfo = JSON.parse(userResponse.toString())
+          const indexCart = userInfo.carts.findIndex(val => val.orderFormId === body.orderFormId)
 
+          if (userInfo.carts && indexCart < 0) {
+            res.status = 400
+            res.body = { errorMessage: 'O carrinho informado não existe para esse usuário!' }
+            return
+          }
+        } else {
+          res.status = 400
+          res.body = { errorMessage: 'O usuário não possui carrinho para ser utilizado!' }
+          return
+        }
+
+        const operationData = {
+          userProfileId: body.userProfileId,
+          cookie: createCookie(body.orderFormId, body.vtexIdclientAutCookie)
+        }
+
+        await processPaymentProfile(body.orderFormId, ioContext, operationData, logger)
+
+        res.status = 200
+        res.body = { data: 'OK' }
+      } catch (err) {
+        const errorMessage = 'Error use Cart'
+        const { status, body, details } = errorResponse(err)
+        console.log(err.response)
         if (err.response) {
           res.set('Content-Type', 'application/json')
           res.status = status
@@ -317,15 +346,13 @@ export default {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
       const logger = colossus(account, workspace, authToken)
+      const body = await parse(req)
 
       try {
         setDefaultHeaders(res)
 
-        const { url } = req
-        const { userProfileId } = parseQuery(url)
-
-        if (userProfileId && userProfileId != '') {
-          const vbaseUser = VBaseUser(authToken, account, workspace, userProfileId)
+        if (body.userProfileId && body.userProfileId != '') {
+          const vbaseUser = VBaseUser(authToken, account, workspace, body.userProfileId)
           const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
           let listCarts = []
           let messageRemoveCarts = ''
@@ -333,14 +360,15 @@ export default {
           if (userResponse && Object.keys(userResponse).length !== 0) {
             const userInfo = JSON.parse(userResponse.toString())
             const checkout = checkoutClient(ioContext)
-            //console.log('userInfo', userInfo)
+            console.log('userInfo', userInfo)
             let totalCartsExpired = 0
 
             for (const key in userInfo.carts) {
               if (userInfo.carts.hasOwnProperty(key)) {
                 const item = userInfo.carts[key];
-                const orderForm = await checkout.getOrderForm(item.orderFormId, item.cookie)
-                //console.log(orderForm)
+                const cookie = createCookie(item.orderFormId, body.vtexIdclientAutCookie)
+                const orderForm = await checkout.getOrderForm(item.orderFormId, cookie)
+                console.log(JSON.stringify(orderForm, null, 2))
                 if (orderForm && orderForm.items && orderForm.items.length > 0) {
                   const products = orderForm.items.map(item => {
                     return {
@@ -353,7 +381,7 @@ export default {
                   })
 
                   listCarts.push({
-                    orderFormId: item.orderFormId,
+                    orderFormId: orderForm.orderFormId,
                     name: item.name,
                     products: products
                   })
@@ -380,7 +408,7 @@ export default {
       } catch (err) {
         const errorMessage = 'Error list carts'
         const { status, body, details } = errorResponse(err)
-        console.log(err.response.data)
+        console.log(err.response)
         if (err.response) {
           res.set('Content-Type', 'application/json')
           res.status = status
@@ -401,8 +429,34 @@ export default {
       try {
         setDefaultHeaders(res)
 
+        const { url } = req
+        const { userProfileId, orderFormId } = parseQuery(url)
+        const { status } = await parse.json(req)
+
         res.status = 200
-        res.body = { data: 'OK' }
+        if (!orderStatus[status]) {
+          return
+        }
+
+        const vbaseUser = VBaseUser(authToken, account, workspace, userProfileId)
+        const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
+
+        if (userResponse && Object.keys(userResponse).length !== 0) {
+          const userInfo = JSON.parse(userResponse.toString())
+          const indexCart = userInfo.carts.findIndex(val => val.orderFormId === orderFormId)
+
+          if (userInfo.carts && indexCart >= 0) {
+            userInfo.carts.splice(indexCart, 1)
+
+            vbaseUser.saveFile(userInfo)
+            res.status = 200
+            res.body = { data: 'OK' }
+            return
+          }
+        }
+
+        res.status = 400
+        res.body = { errorMessage: 'O carrinho informado não existe para esse usuário!' }
       } catch (err) {
         const errorMessage = 'Error postBack'
         const { status, body, details } = errorResponse(err)

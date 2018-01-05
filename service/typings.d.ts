@@ -14,64 +14,6 @@ declare module "ramda" {
     export = R
 }
 
-interface MerchantInfo {
-    primaryProductionMode: string,
-    primaryCheckoutId: string,
-    primaryConsumerKey: string,
-    primaryPrivateKey: string,
-    primaryCompanyLegalName: string,
-    primaryDoingBusAs: string,
-    primaryWebsiteURL: string,
-    primaryCountryCode: string,
-    primaryPhoneNumber: string,
-    primaryEmail: string,
-    primaryCity: string,
-    primaryCountry: string,
-    primaryAddressLine1: string,
-    primaryPostalCode: string
-}
-
-interface PaymentData {
-    card: Card,
-    transactionId: string,
-    personalInfo: PersonalInfo,
-    shippingAddress: Address,
-    walletId: string,
-    currencyCode: string,
-    total: number,
-    preCheckoutTransactionId?: string
-}
-
-interface PersonalInfo {
-    fullName: string,
-    nationalId: string,
-    recipientPhone: string,
-    recipientEmailAddress?: string
-}
-
-interface Card {
-    brandId: string,
-    brandName: string,
-    accountNumber: string,
-    cardHolderName: string,
-    expiryMonth: string,
-    expiryYear: string,
-    billingAddress: Address,
-    lastFour?: string
-}
-
-interface Address {
-    city: string,
-    country: string,
-    subdivision: string,
-    line1: string,
-    line2: string,
-    line3?: string,
-    line4?: string,
-    line5?: string,
-    postalCode: string
-}
-
 interface ReqContext {
     account: string,
     workspace: string,
@@ -86,33 +28,13 @@ interface OperationState {
     orderFormId: string,
     ctx: ReqContext,
     data?: OperationData,
-    response?: [PaymentTokenResponse],
     logger: Logger,
-}
-
-interface PaymentTokenResponse {
-    token: string,
-    bin: string,
-    lastDigits: string,
-    paymentSystem: string,
-    paymentSystemName: string
 }
 
 interface OperationData {
     orderForm?: any,
-    paymentData?: PaymentData,
-    paymentToken?: string,
-    tokenCard?: string
-}
-
-interface SessionResponse {
-    createPaymentSession: {
-        id: string
-    }
-}
-
-interface TokenizeResponse {
-    createPaymentTokens: PaymentTokenResponse[]
+    userProfileId: string,
+    cookie: string
 }
 
 type ProcessPaymentStep = (state: OperationState, next: () => Promise<void>) => Promise<void>

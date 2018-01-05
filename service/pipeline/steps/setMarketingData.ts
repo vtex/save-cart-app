@@ -19,6 +19,7 @@ const addMarketingTag = (tag, marketingData) => {
 export default async function setMarketingData(state: OperationState, next: () => Promise<void>) {
   const { orderFormId, ctx, data: { orderForm: { marketingData } } } = state
 
+  console.log('marketingData', marketingData)
   const checkout = checkoutClient(ctx)
   const newMarketingData = addMarketingTag('save-cart', marketingData)
   let orderForm
