@@ -1,6 +1,6 @@
 {
   "name": "vtex.save-cart",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
     "vtex-tachyons": "^0.1.0",
     "tachyons-svg": "^1.0.1",
