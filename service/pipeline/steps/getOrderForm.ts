@@ -11,7 +11,7 @@ export default async function getOrderForm(state: OperationState, next: () => Pr
     } catch (error) {
         throw error
     }
-
+    console.log('order form que veio', orderForm)
     state.data.orderForm = orderForm
     await next()
 }

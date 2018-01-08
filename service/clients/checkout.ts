@@ -1,7 +1,7 @@
 import getCountryISO2 from '../utils/countryISOMapping'
 import { getAddress } from '../utils/addressMapping'
 import { map, prop } from 'ramda'
-import axios from 'axios'
+import http from 'axios'
 
 const routes = {
   orderForm: (account, env = 'stable') => `http://${account}.vtexcommerce${env}.com.br/api/checkout/pub/orderForm`,
@@ -41,39 +41,86 @@ export default ({ account, authToken }: ReqContext) => {
     Accept: 'application/json',
   }
 
-  const expectedOrderFormSections = ['items', 'customData', 'clientProfileData', 'paymentData', 'marketingData']
+  const expectedOrderFormSections = ['items', 'customData', 'clientProfileData', 'paymentData', 'marketingData', 'storePreferencesData']
 
   return {
     /**
      * Inclui os dados de marketing no orderForm
-     *
-     * @param orderFormId Identificador do orderForm
-     * @param marketingData Dados do marketing
+     * 
+     * @param {string} orderFormId Identificador do orderForm
+     * @param {any} marketingData Dados do marketing
      */
-    saveMarketingData: (orderFormId: string, marketingData: any) => {
+    saveMarketingData: (orderFormId: string, marketingData: any, cookie: string) => {
       const url = routes.marketingData(account, orderFormId)
-      return axios.post(url, { ...marketingData, expectedOrderFormSections }, { headers }).then(prop('data'))
+      const headers = {
+        Accept: 'application/json',
+        Authorization: `bearer ${authToken}`,
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+        'Accept-Encoding': 'gzip, deflate',
+        Cookie: cookie
+      }
+
+      return http.post(url, { ...marketingData, expectedOrderFormSections }, { headers, withCredentials: true }).then(prop('data'))
     },
-    /**
-     * Atualiza os dados do hook para o orderForm
-     *
-     * @param orderFormId Identificador do orderForm
-     * @param hook Dados do hook
-     */
+    //Atualiza os dados do order hook
     updateOrderHook: (orderFormId: string, hook: any) => {
       const url = routes.orderFormHooks(account, orderFormId)
-      return axios.post(url, hook, { headers }).then(prop('data'))
+      return http.post(url, hook, { headers }).then(prop('data'))
     },
     //Salva os dados customizados
     saveCustomData: (orderFormId: string, field: string, value: any) => {
-      const url = routes.orderFormCustomData(account, orderFormId, 'save-cart', field)
+      const url = routes.orderFormCustomData(account, orderFormId, 'masterpass', field)
       const strValue = typeof value === 'string' ? value : JSON.stringify(value)
-      return axios.put(url, { value: strValue, expectedOrderFormSections }, { headers }).then(prop('data'))
+      return http.put(url, { value: strValue, expectedOrderFormSections }, { headers }).then(prop('data'))
     },
     //Seta no order form que o profile é ignorado
     setIgnoreProfile: (orderFormId: string, ignoreProfileData: boolean) => {
       const url = routes.orderFormIgnoreProfile(account, orderFormId)
-      return axios.patch(url, { ignoreProfileData, expectedOrderFormSections }, { headers }).then(prop('data'))
+      return http.patch(url, { ignoreProfileData, expectedOrderFormSections }, { headers }).then(prop('data'))
+    },
+    //Atualiza o order form com os dados do usuário
+    updateOrderFormProfile: (orderFormId: string, personalInfo: PersonalInfo): PromiseLike<any> => {
+      const url = routes.orderFormProfile(account, orderFormId)
+      const fullName = personalInfo.fullName.split(' ')
+      let firstName = fullName[0]
+      let lastName = ''
+
+      if (fullName.length > 1) { lastName = fullName[1] }
+
+      const payload = {
+        expectedOrderFormSections,
+        email: personalInfo.recipientEmailAddress,
+        document: personalInfo.nationalId,
+        documentType: 'cpf',
+        firstName: firstName,
+        lastName: lastName,
+        phone: personalInfo.recipientPhone,
+        isCorporate: false,
+      }
+
+      return http.post(url, payload, { headers }).then(prop('data'))
+    },
+    //Atualiza os dados de entrega do usuário
+    updateShipping: (orderFormId: string, addr: Address, receiverName: string) => {
+      const url = routes.orderFormShipping(account, orderFormId)
+      const payload = {
+        expectedOrderFormSections,
+        orderFormId,
+        address: {
+          addressType: 'residential',
+          postalCode: addr.postalCode,
+          country: getCountryISO2(addr.country),
+          receiverName: receiverName,
+          city: addr.city,
+          state: addr.subdivision,
+          street: addr.line5,
+          number: addr.line4,
+          complement: addr.line2,
+          neighborhood: addr.line3,
+        },
+      }
+      return http.post(url, payload, { headers }).then(prop('data'))
     },
     /**
      * Obtém o orderForm pelo identificador
@@ -82,7 +129,7 @@ export default ({ account, authToken }: ReqContext) => {
      */
     getOrderForm: (orderFormId: string, cookie: string): any => {
       const url = routes.orderFormId(account, orderFormId)
-      const expectedOrderFormSections = ['items', 'totalizers', 'storePreferencesData']
+      //const expectedOrderFormSections = ['items', 'totalizers', 'storePreferencesData']
       const payload = { expectedOrderFormSections }
       const headers = {
         Accept: 'application/json',
@@ -92,7 +139,7 @@ export default ({ account, authToken }: ReqContext) => {
         'Accept-Encoding': 'gzip, deflate',
         Cookie: cookie
       }
-      return axios.post(url, payload, { headers, withCredentials: true }).then(prop('data'))
+      return http.post(url, payload, { headers, withCredentials: true }).then(prop('data'))
     }
   }
 }

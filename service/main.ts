@@ -295,7 +295,7 @@ export default {
       const { account, workspace, authToken } = ioContext
       const logger = colossus(account, workspace, authToken)
       const body = await parse(req)
-
+      console.log('ioContext', authToken)
       try {
         setDefaultHeaders(res)
 
@@ -329,7 +329,7 @@ export default {
       } catch (err) {
         const errorMessage = 'Error use Cart'
         const { status, body, details } = errorResponse(err)
-        console.log(err.response)
+        console.log(err)
         if (err.response) {
           res.set('Content-Type', 'application/json')
           res.status = status
@@ -360,15 +360,15 @@ export default {
           if (userResponse && Object.keys(userResponse).length !== 0) {
             const userInfo = JSON.parse(userResponse.toString())
             const checkout = checkoutClient(ioContext)
-            console.log('userInfo', userInfo)
+            
             let totalCartsExpired = 0
-
+            
             for (const key in userInfo.carts) {
               if (userInfo.carts.hasOwnProperty(key)) {
                 const item = userInfo.carts[key];
                 const cookie = createCookie(item.orderFormId, body.vtexIdclientAutCookie)
                 const orderForm = await checkout.getOrderForm(item.orderFormId, cookie)
-                console.log(JSON.stringify(orderForm, null, 2))
+                
                 if (orderForm && orderForm.items && orderForm.items.length > 0) {
                   const products = orderForm.items.map(item => {
                     return {
@@ -381,7 +381,7 @@ export default {
                   })
 
                   listCarts.push({
-                    orderFormId: orderForm.orderFormId,
+                    orderFormId: item.orderFormId,
                     name: item.name,
                     products: products
                   })
@@ -408,7 +408,7 @@ export default {
       } catch (err) {
         const errorMessage = 'Error list carts'
         const { status, body, details } = errorResponse(err)
-        console.log(err.response)
+        console.log('error ', err)
         if (err.response) {
           res.set('Content-Type', 'application/json')
           res.status = status
@@ -437,7 +437,7 @@ export default {
         if (!orderStatus[status]) {
           return
         }
-
+        console.log('Pagamento com sucesso, ' + userProfileId + ' - ' + orderFormId)
         const vbaseUser = VBaseUser(authToken, account, workspace, userProfileId)
         const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
 

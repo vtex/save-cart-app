@@ -17,15 +17,13 @@ const addMarketingTag = (tag, marketingData) => {
  * @param next Próxima função a ser executada
  */
 export default async function setMarketingData(state: OperationState, next: () => Promise<void>) {
-  const { orderFormId, ctx, data: { orderForm: { marketingData } } } = state
-
-  console.log('marketingData', marketingData)
+  const { orderFormId, ctx, data: { cookie } } = state
   const checkout = checkoutClient(ctx)
-  const newMarketingData = addMarketingTag('save-cart', marketingData)
+  const newMarketingData = addMarketingTag('savecart', {})
   let orderForm
 
   try {
-    orderForm = await checkout.saveMarketingData(orderFormId, newMarketingData)
+    orderForm = await checkout.saveMarketingData(orderFormId, newMarketingData, cookie)
   } catch (error) {
     throw error
   }

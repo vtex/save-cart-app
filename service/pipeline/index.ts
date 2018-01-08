@@ -9,7 +9,6 @@ import saveOrderHook from './steps/saveOrderHook'
  * Array com os passos do pipeline a serem executados.
  */
 const steps = [
-  getOrderForm,
   fillMarketingData,
   saveOrderHook
 ].map(timer)

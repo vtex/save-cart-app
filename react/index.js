@@ -11,7 +11,8 @@ import {
     createUrlListCarts,
     getNameApp,
     createItemListCarts,
-    getCookie
+    getCookie,
+    setCookie
 } from './utils'
 
 class SaveCart extends Component {
@@ -78,7 +79,7 @@ class SaveCart extends Component {
     }
 
     handleUpdateError(error) {
-        const message = error.data.errorMessage
+        const message = error && error.data ? error.data.errorMessage : 'Não foi possível se comunicar com o sistema de Profile.'
 
         this.setState({ error: message })
     }
@@ -122,7 +123,7 @@ class SaveCart extends Component {
                 let items = this.state.items
                 const item = createItemListCarts(orderForm, name)
                 items.push(item)
-                this.setState({ items: items })
+                this.setState({ items: items, nameCart: '' })
                 this.handleUpdateSuccess('Carrinho salvo com sucesso!')
             })
             .catch((error) => {
@@ -151,7 +152,6 @@ class SaveCart extends Component {
     }
 
     useCart(orderFormId) {
-        console.log('parabens vc usou o carrinho ' + orderFormId)
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
         const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
@@ -163,8 +163,10 @@ class SaveCart extends Component {
 
         axios.post(createUrlUseCart(account, workspace), qs.stringify(data))
             .then(response => {
-                //aqui fazer algo que atualize a tela e coloque o novo orderForm
-                console.log(response.data)
+                setCookie('checkout.vtex.com', '', -1)
+                setCookie('checkout.vtex.com', `__ofid=${orderFormId}`, 30)
+
+                location.reload()
             })
             .catch((error) => {
                 this.handleUpdateError(error.response)
@@ -209,7 +211,7 @@ class SaveCart extends Component {
                     window.checkout.loading(false)
                 }).catch(error => {
                     window.checkout.loading(false)
-                    console.log(error)
+                    this.handleUpdateError(error.response)
                 })
         } else {
             Promise.resolve(window.vtexid.start())
@@ -222,7 +224,7 @@ class SaveCart extends Component {
     }
 
     updateNameCart({ target: { value } }) {
-        this.setState({ nameCart: value.trim() })
+        this.setState({ nameCart: value })
     }
 
     render() {
@@ -248,6 +250,11 @@ class SaveCart extends Component {
                                     <div className="w-100 pt3">
                                         <div className="w-80-ns center br2 pv3 ph3 bg-washed-green green">
                                             {messageSuccess}
+                                            <a className="item-link-remove" title="Remover" onClick={this.clearMessages}>
+                                                <i className="icon icon-remove item-remove-ico fr" >
+                                                </i>
+                                                <span className="hide item-remove-text" >Remover</span>
+                                            </a>
                                         </div>
                                     </div>
                                 )
@@ -260,6 +267,11 @@ class SaveCart extends Component {
                                     <div className="w-100 pt3">
                                         <div className="w-80-ns center br2 pv3 ph3 bg-washed-red red">
                                             {error}
+                                            <a className="item-link-remove" title="Remover" onClick={this.clearMessages}>
+                                                <i className="icon icon-remove item-remove-ico fr" >
+                                                </i>
+                                                <span className="hide item-remove-text" >Remover</span>
+                                            </a>
                                         </div>
                                     </div>
                                 )
@@ -269,7 +281,7 @@ class SaveCart extends Component {
                         <div className="pa3 black-80">
                             <div>
                                 <label htmlFor="comment" className="f6 b db mb2">Nome: </label>
-                                <textarea id="comment" onChange={this.updateNameCart} name="comment" className="db border-box hover-black w-100 ba b--black-20 pa2 br2 mb2" ></textarea>
+                                <textarea id="comment" onChange={this.updateNameCart} name="comment" className="db border-box hover-black w-100 ba b--black-20 pa2 br2 mb2" value={this.state.nameCart} ></textarea>
                             </div>
                             <button disabled={disabled} className={`btn btn-primary ${classes}`} onClick={() => this.saveCart(this.state.nameCart)}>
                                 Salvar
