@@ -139,7 +139,7 @@ export default {
 
       try {
         setDefaultHeaders(res)
-
+        
         const vbaseApp = VBaseApp(authToken, account, workspace)
         const merchantResponse = await vbaseApp.getFile().then(prop('data')).catch(notFound())
 
@@ -180,7 +180,7 @@ export default {
           return
         }
 
-        const body = await parse.json(req)
+        const body = await parse(req)
         const vbaseApp = VBaseApp(authToken, account, workspace)
         const merchantResponse = await vbaseApp.getFile().then(prop('data')).catch(notFound())
 
@@ -258,7 +258,7 @@ export default {
           return
         }
 
-        const body = await parse.json(req)
+        const body = await parse(req)
         const vbaseUser = VBaseUser(authToken, account, workspace, body.userProfileId)
         const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
 
@@ -309,7 +309,7 @@ export default {
           res.status = 200
           return
         }
-        const body = await parse.json(req)
+        const body = await parse(req)
         const vbaseUser = VBaseUser(authToken, account, workspace, body.userProfileId)
         const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
 
@@ -364,7 +364,7 @@ export default {
           res.status = 200
           return
         }
-        const body = await parse.json(req)
+        const body = await parse(req)
 
         if (body.userProfileId && body.userProfileId != '') {
           const vbaseUser = VBaseUser(authToken, account, workspace, body.userProfileId)
