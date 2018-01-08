@@ -46,8 +46,8 @@ const errorResponse = (err) => {
 const setDefaultHeaders = (res) => {
   res.set('Access-Control-Allow-Origin', '*')
   res.set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, authorization")
-  res.set('Cache-Control', 'no-cache')
   res.set('Content-Type', 'application/json')
+  res.set('Cache-Control', 'no-cache')
 }
 
 const createCookie = (orderFormId, vtexIdclientAutCookie) => {
@@ -67,9 +67,9 @@ export default {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
       const logger = colossus(account, workspace, authToken)
-      const { data: { merchant } } = await parse.json(req)
 
       try {
+        const { data: { merchant } } = await parse.json(req)
         const vbase = VBaseApp(authToken, account, workspace)
 
         vbase.saveFile({ ...merchant })
@@ -172,11 +172,15 @@ export default {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
       const logger = colossus(account, workspace, authToken)
-      const body = await parse(req)
 
       try {
         setDefaultHeaders(res)
+        if (req.method === 'OPTIONS') {
+          res.status = 200
+          return
+        }
 
+        const body = await parse.json(req)
         const vbaseApp = VBaseApp(authToken, account, workspace)
         const merchantResponse = await vbaseApp.getFile().then(prop('data')).catch(notFound())
 
@@ -246,11 +250,15 @@ export default {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
       const logger = colossus(account, workspace, authToken)
-      const body = await parse(req)
 
       try {
         setDefaultHeaders(res)
+        if (req.method === 'OPTIONS') {
+          res.status = 200
+          return
+        }
 
+        const body = await parse.json(req)
         const vbaseUser = VBaseUser(authToken, account, workspace, body.userProfileId)
         const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
 
@@ -294,14 +302,17 @@ export default {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
       const logger = colossus(account, workspace, authToken)
-      const body = await parse(req)
-      console.log('ioContext', authToken)
+
       try {
         setDefaultHeaders(res)
-
+        if (req.method === 'OPTIONS') {
+          res.status = 200
+          return
+        }
+        const body = await parse.json(req)
         const vbaseUser = VBaseUser(authToken, account, workspace, body.userProfileId)
         const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
-        
+
         if (userResponse && Object.keys(userResponse).length !== 0) {
           const userInfo = JSON.parse(userResponse.toString())
           const indexCart = userInfo.carts.findIndex(val => val.orderFormId === body.orderFormId)
@@ -329,7 +340,7 @@ export default {
       } catch (err) {
         const errorMessage = 'Error use Cart'
         const { status, body, details } = errorResponse(err)
-        console.log(err)
+
         if (err.response) {
           res.set('Content-Type', 'application/json')
           res.status = status
@@ -346,10 +357,14 @@ export default {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
       const logger = colossus(account, workspace, authToken)
-      const body = await parse(req)
 
       try {
         setDefaultHeaders(res)
+        if (req.method === 'OPTIONS') {
+          res.status = 200
+          return
+        }
+        const body = await parse.json(req)
 
         if (body.userProfileId && body.userProfileId != '') {
           const vbaseUser = VBaseUser(authToken, account, workspace, body.userProfileId)
@@ -360,15 +375,15 @@ export default {
           if (userResponse && Object.keys(userResponse).length !== 0) {
             const userInfo = JSON.parse(userResponse.toString())
             const checkout = checkoutClient(ioContext)
-            
+
             let totalCartsExpired = 0
-            
+
             for (const key in userInfo.carts) {
               if (userInfo.carts.hasOwnProperty(key)) {
                 const item = userInfo.carts[key];
                 const cookie = createCookie(item.orderFormId, body.vtexIdclientAutCookie)
                 const orderForm = await checkout.getOrderForm(item.orderFormId, cookie)
-                
+
                 if (orderForm && orderForm.items && orderForm.items.length > 0) {
                   const products = orderForm.items.map(item => {
                     return {
@@ -408,7 +423,7 @@ export default {
       } catch (err) {
         const errorMessage = 'Error list carts'
         const { status, body, details } = errorResponse(err)
-        console.log('error ', err)
+
         if (err.response) {
           res.set('Content-Type', 'application/json')
           res.status = status
@@ -428,6 +443,11 @@ export default {
 
       try {
         setDefaultHeaders(res)
+
+        if (req.method === 'OPTIONS') {
+          res.status = 200
+          return
+        }
 
         const { url } = req
         const { userProfileId, orderFormId } = parseQuery(url)

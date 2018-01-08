@@ -12,7 +12,8 @@ import {
     getNameApp,
     createItemListCarts,
     getCookie,
-    setCookie
+    setCookie,
+    axiosConfig
 } from './utils'
 
 class SaveCart extends Component {
@@ -182,11 +183,11 @@ class SaveCart extends Component {
             userProfileId: userProfileId,
             vtexIdclientAutCookie: vtexIdclientAutCookie
         }
-
+        
         return axios.post(`${createUrlListCarts(account, workspace)}`, data)
             .then(response => response.data)
-            .catch((error) => {
-                this.handleUpdateError(error.response)
+            .catch(error => { 
+                console.log(error)
             })
     }
 
@@ -211,7 +212,7 @@ class SaveCart extends Component {
                     window.checkout.loading(false)
                 }).catch(error => {
                     window.checkout.loading(false)
-                    this.handleUpdateError(error.response)
+                    //this.handleProfileError(error)
                 })
         } else {
             Promise.resolve(window.vtexid.start())
