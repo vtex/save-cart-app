@@ -80,8 +80,10 @@ class SaveCart extends Component {
     }
 
     handleUpdateError(error) {
-        const message = error && error.data ? error.data.errorMessage : 'Não foi possível se comunicar com o sistema de Profile.'
-
+        let message = error && error.data ? error.data.errorMessage : 'Não foi possível se comunicar com o sistema de Profile.'
+        if (error.data && error.data.error && error.data.error.message) {
+            message = error.data.error.message
+        }
         this.setState({ error: message })
     }
 
@@ -154,7 +156,14 @@ class SaveCart extends Component {
 
     useCart(orderFormId) {
         const { account, workspace } = window.__RUNTIME__
-        const { orderForm } = this.state
+        const { orderForm, items } = this.state
+
+        // if (!items.some(val => val.orderFormId === orderForm.orderFormId)) {
+        //     if (confirm('Deseja salvar o carrinho atual?') == true) {
+        //         return
+        //     }
+        // }
+
         const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
         const data = {
             userProfileId: this.getUserProfileId(orderForm),
@@ -183,10 +192,10 @@ class SaveCart extends Component {
             userProfileId: userProfileId,
             vtexIdclientAutCookie: vtexIdclientAutCookie
         }
-        
+
         return axios.post(`${createUrlListCarts(account, workspace)}`, data)
             .then(response => response.data)
-            .catch(error => { 
+            .catch(error => {
                 console.log(error)
             })
     }
