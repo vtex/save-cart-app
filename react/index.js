@@ -191,6 +191,10 @@ class SaveCart extends Component {
     }
 
     verifyCart(orderFormId) {
+<<<<<<< HEAD
+=======
+        const { account, workspace } = window.__RUNTIME__
+>>>>>>> f53e5fb4e4892243c86bf1bd6cd8069052b8b8f4
         const { orderForm, items } = this.state
 
         if (document.getElementById(`accordion-use-${orderFormId}`).checked) {
@@ -345,6 +349,7 @@ class SaveCart extends Component {
                         </div>
                     </section>
                     <ListCart items={items} handleRemoveCart={this.removeCart} handleUseCart={this.useCart} handleVerifyCart={this.verifyCart} />
+<<<<<<< HEAD
                     <section>
                         <div className="pa3 black-80">
                             <div class="f6 link dim br3 ph3 pv2 mb2 dib white bg-black pointer" onClick={() => this.createNewCart()}>
@@ -352,6 +357,8 @@ class SaveCart extends Component {
                             </div>
                         </div>
                     </section>
+=======
+>>>>>>> f53e5fb4e4892243c86bf1bd6cd8069052b8b8f4
                 </Modal>
             </div>
         )
