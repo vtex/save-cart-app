@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import Cart from './Cart'
+import Item from './Item'
 
 class ListCart extends Component {
     constructor(props) {
@@ -10,7 +10,7 @@ class ListCart extends Component {
     render() {
         const { handleRemoveCart, handleUseCart, handleVerifyCart } = this.props
         const items = this.props.items.map(item => {
-            return <Cart key={item.orderFormId} item={item} handleRemoveCart={handleRemoveCart} handleUseCart={handleUseCart} handleVerifyCart={handleVerifyCart} />
+            return <Item key={item.orderFormId} item={item} handleRemoveCart={handleRemoveCart} handleUseCart={handleUseCart} handleVerifyCart={handleVerifyCart} />
         })
 
         return (
