@@ -16,7 +16,7 @@ class Cart extends Component {
                 <input id={`accordion-use-${item.orderFormId}`} type="checkbox" name="tabs" className="accordion-use-cart" />
                 <div className="fl w-100 mb2 accordion-content-use-cart">
                     <p className="tc pa1">Deseja usar o carrinho <b>'</b>{item.name}<b>'</b> sem salvar o carrinho atual? </p>
-                    <a className="btn btn-danger pr3 ph3 fl w-30 ma1 db center fn" onClick={() => this.props.handleUseCart(item.orderFormId)}>
+                    <a className="btn btn-danger pr3 ph3 fl mw4 ma1 db center fn mb1" onClick={() => this.props.handleUseCart(item.orderFormId)}>
                         <span className="f6">Continuar</span>
                     </a>
                 </div>

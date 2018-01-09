@@ -14,7 +14,7 @@ class ListCart extends Component {
         })
 
         return (
-            <section className="overflow-hidden overflow-y-scroll">
+            <section className="overflow-hidden overflow-y-scroll h5">
                 <ul className="list pl0 mt0 center overflow-hidden">
                     {
                         items

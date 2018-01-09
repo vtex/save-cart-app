@@ -185,7 +185,7 @@ class SaveCart extends Component {
 
         if (items.some(val => val.orderFormId === orderForm.orderFormId)) {
             document.getElementById(`accordion-use-${orderFormId}`).checked = false
-            useCart(orderFormId)
+            this.useCart(orderFormId)
         } else {
             document.getElementById(`accordion-use-${orderFormId}`).checked = true
         }
