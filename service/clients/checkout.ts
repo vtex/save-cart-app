@@ -129,7 +129,6 @@ export default ({ account, authToken }: ReqContext) => {
      */
     getOrderForm: (orderFormId: string, cookie: string): any => {
       const url = routes.orderFormId(account, orderFormId)
-      //const expectedOrderFormSections = ['items', 'totalizers', 'storePreferencesData']
       const payload = { expectedOrderFormSections }
       const headers = {
         Accept: 'application/json',

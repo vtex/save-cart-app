@@ -141,5 +141,6 @@ export function setCookie(name, value, days) {
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
     expires = "; expires=" + date.toUTCString();
   }
-  document.cookie = name + "=" + value + expires + "; path=/";
+  console.log('document.domain', document.domain)
+  document.cookie = `${name}=${value}${expires}; domain=.${document.domain}; path=/`
 }

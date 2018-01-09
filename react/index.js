@@ -4,6 +4,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Modal from './components/Modal'
 import ListCart from './components/ListCart'
+import Loading from './components/Loading'
 import {
     createUrlSaveCart,
     createUrlRemoveCart,
@@ -26,17 +27,20 @@ class SaveCart extends Component {
             items: [],
             nameCart: '',
             error: '',
-            messageSuccess: ''
+            messageSuccess: '',
+            enabledLoading: false
         }
 
         this.listenOrderFormUpdated = this.listenOrderFormUpdated.bind(this)
         this.handleUpdateError = this.handleUpdateError.bind(this)
         this.handleUpdateSuccess = this.handleUpdateSuccess.bind(this)
         this.clearMessages = this.clearMessages.bind(this)
+        this.activeLoading = this.activeLoading.bind(this)
         this.openMyCarts = this.openMyCarts.bind(this)
         this.saveCart = this.saveCart.bind(this)
         this.removeCart = this.removeCart.bind(this)
         this.useCart = this.useCart.bind(this)
+        this.verifyCart = this.verifyCart.bind(this)
         this.listCarts = this.listCarts.bind(this)
         this.openModal = this.openModal.bind(this)
         this.closeModal = this.closeModal.bind(this)
@@ -72,7 +76,6 @@ class SaveCart extends Component {
     }
 
     handleProfileError(error) {
-        console.log('SaveCart/index/handleProfileError', error.response)
         window.vtex.checkout.MessageUtils.showMessage({
             status: 'fatal',
             text: `Não foi possível se comunicar com o sistema de Profile. <br/>${error}`,
@@ -80,8 +83,10 @@ class SaveCart extends Component {
     }
 
     handleUpdateError(error) {
-        const message = error && error.data ? error.data.errorMessage : 'Não foi possível se comunicar com o sistema de Profile.'
-
+        let message = error && error.data ? error.data.errorMessage : 'Não foi possível se comunicar com o sistema de Profile.'
+        if (error.data && error.data.error && error.data.error.message) {
+            message = error.data.error.message
+        }
         this.setState({ error: message })
     }
 
@@ -93,13 +98,15 @@ class SaveCart extends Component {
         this.setState({ error: '', messageSuccess: '' })
     }
 
+    activeLoading(active) {
+        this.setState({ enabledLoading: active })
+    }
+
     openMyCarts() {
         const { orderForm } = this.state
-
-        if (orderForm && (orderForm.loggedIn || (orderForm.userType && orderForm.userType === 'callcenteroperator'))) {
+        if (orderForm != null && (orderForm.loggedIn && orderForm.userProfileId != null || (orderForm.userType && orderForm.userType === 'callcenteroperator'))) {
             return true
         }
-
         return false
     }
 
@@ -111,6 +118,7 @@ class SaveCart extends Component {
 
     saveCart(name) {
         this.clearMessages()
+        this.activeLoading(true)
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
         const data = {
@@ -121,6 +129,7 @@ class SaveCart extends Component {
 
         axios.post(createUrlSaveCart(account, workspace), qs.stringify(data))
             .then(response => {
+                this.activeLoading(false)
                 let items = this.state.items
                 const item = createItemListCarts(orderForm, name)
                 items.push(item)
@@ -128,12 +137,13 @@ class SaveCart extends Component {
                 this.handleUpdateSuccess('Carrinho salvo com sucesso!')
             })
             .catch((error) => {
+                this.activeLoading(false)
                 this.handleUpdateError(error.response)
             })
     }
 
     removeCart(orderFormId) {
-        event.preventDefault()
+        this.activeLoading(true)
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
 
@@ -144,17 +154,20 @@ class SaveCart extends Component {
 
         axios.post(createUrlRemoveCart(account, workspace), qs.stringify(data))
             .then(response => {
+                this.activeLoading(false)
                 this.removeItem(orderFormId)
                 this.handleUpdateSuccess('Carrinho removido com sucesso!')
             })
             .catch((error) => {
+                this.activeLoading(false)
                 this.handleUpdateError(error.response)
             })
     }
 
     useCart(orderFormId) {
+        this.activeLoading(true)
         const { account, workspace } = window.__RUNTIME__
-        const { orderForm } = this.state
+        const { orderForm, items } = this.state
         const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
         const data = {
             userProfileId: this.getUserProfileId(orderForm),
@@ -164,14 +177,32 @@ class SaveCart extends Component {
 
         axios.post(createUrlUseCart(account, workspace), qs.stringify(data))
             .then(response => {
+                this.activeLoading(false)
                 setCookie('checkout.vtex.com', '', -1)
                 setCookie('checkout.vtex.com', `__ofid=${orderFormId}`, 30)
 
                 location.reload()
             })
             .catch((error) => {
+                this.activeLoading(false)
                 this.handleUpdateError(error.response)
             })
+    }
+
+    verifyCart(orderFormId) {
+        const { orderForm, items } = this.state
+
+        if (document.getElementById(`accordion-use-${orderFormId}`).checked) {
+            document.getElementById(`accordion-use-${orderFormId}`).checked = false
+            return
+        }
+
+        if (items.some(val => val.orderFormId === orderForm.orderFormId)) {
+            document.getElementById(`accordion-use-${orderFormId}`).checked = false
+            this.useCart(orderFormId)
+        } else {
+            document.getElementById(`accordion-use-${orderFormId}`).checked = true
+        }
     }
 
     listCarts() {
@@ -183,12 +214,10 @@ class SaveCart extends Component {
             userProfileId: userProfileId,
             vtexIdclientAutCookie: vtexIdclientAutCookie
         }
-        
+
         return axios.post(`${createUrlListCarts(account, workspace)}`, data)
             .then(response => response.data)
-            .catch(error => { 
-                console.log(error)
-            })
+            .catch(error => { throw error })
     }
 
     removeItem(orderFormId) {
@@ -210,9 +239,14 @@ class SaveCart extends Component {
 
                     this.setState({ isModalOpen: true, items: response.listCarts })
                     window.checkout.loading(false)
-                }).catch(error => {
+                })
+                .catch(error => {
                     window.checkout.loading(false)
-                    //this.handleProfileError(error)
+                    if (error.response && error.response.data && error.response.data.errorMessage && error.response.data.errorMessage != "") {
+                        this.handleProfileError(error.response.data.errorMessage)
+                    } else {
+                        this.handleProfileError(error)
+                    }
                 })
         } else {
             Promise.resolve(window.vtexid.start())
@@ -242,7 +276,7 @@ class SaveCart extends Component {
                 <Modal show={this.state.isModalOpen} onClose={this.closeModal}>
                     <section className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
                         <button onClick={this.closeModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-                        <h4 className="f4 white mv0 mt0-m">Cadastrar e listar carrinhos</h4>
+                        <h4 className="f4 white mv0 mt0-m">Cadastrar e listar carrinhos <Loading visible={this.state.enabledLoading}/></h4>
                     </section>
                     <section className="bb b--black-50">
                         {
@@ -282,14 +316,14 @@ class SaveCart extends Component {
                         <div className="pa3 black-80">
                             <div>
                                 <label htmlFor="comment" className="f6 b db mb2">Nome: </label>
-                                <textarea id="comment" onChange={this.updateNameCart} name="comment" className="db border-box hover-black w-100 ba b--black-20 pa2 br2 mb2" value={this.state.nameCart} ></textarea>
+                                <textarea id="comment" onChange={this.updateNameCart} name="comment" className="db border-box hover-black w-100 ba b--black-20 pa2 br2 mb2" value={this.state.nameCart} placeholder="Digite o nome do carrinho"></textarea>
                             </div>
                             <button disabled={disabled} className={`btn btn-primary ${classes}`} onClick={() => this.saveCart(this.state.nameCart)}>
                                 Salvar
                             </button>
                         </div>
                     </section>
-                    <ListCart items={items} handleRemoveCart={this.removeCart} handleUseCart={this.useCart} />
+                    <ListCart items={items} handleRemoveCart={this.removeCart} handleUseCart={this.useCart} handleVerifyCart={this.verifyCart} />
                 </Modal>
             </div>
         )

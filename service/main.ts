@@ -4,7 +4,6 @@ import checkoutClient from './clients/checkout'
 
 import { prop } from 'ramda'
 import { enableIoExtensions } from './resources/portal'
-import { getDataUser } from './resources/decryptTokenUser'
 import { parseQuery } from './utils/url'
 import { orderStatus } from './utils/orderStatus'
 import { notFound } from './utils/status'
@@ -302,7 +301,7 @@ export default {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
       const logger = colossus(account, workspace, authToken)
-
+      
       try {
         setDefaultHeaders(res)
         if (req.method === 'OPTIONS') {
