@@ -8,13 +8,13 @@ class ListCart extends Component {
     }
 
     render() {
-        const { handleRemoveCart, handleUseCart } = this.props        
+        const { handleRemoveCart, handleUseCart, handleVerifyCart } = this.props
         const items = this.props.items.map(item => {
-            return <Cart key={item.orderFormId} item={item} handleRemoveCart={handleRemoveCart} handleUseCart={handleUseCart} />
+            return <Cart key={item.orderFormId} item={item} handleRemoveCart={handleRemoveCart} handleUseCart={handleUseCart} handleVerifyCart={handleVerifyCart} />
         })
 
         return (
-            <section className="overflow-hidden">
+            <section className="overflow-hidden overflow-y-scroll">
                 <ul className="list pl0 mt0 center overflow-hidden">
                     {
                         items
@@ -27,7 +27,8 @@ class ListCart extends Component {
 
 ListCart.propTypes = {
     handleRemoveCart: PropTypes.func,
-    handleUseCart: PropTypes.func
+    handleUseCart: PropTypes.func,
+    handleVerifyCart: PropTypes.func
 }
 
 export default ListCart

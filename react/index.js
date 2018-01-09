@@ -37,6 +37,7 @@ class SaveCart extends Component {
         this.saveCart = this.saveCart.bind(this)
         this.removeCart = this.removeCart.bind(this)
         this.useCart = this.useCart.bind(this)
+        this.verifyCart = this.verifyCart.bind(this)
         this.listCarts = this.listCarts.bind(this)
         this.openModal = this.openModal.bind(this)
         this.closeModal = this.closeModal.bind(this)
@@ -72,7 +73,6 @@ class SaveCart extends Component {
     }
 
     handleProfileError(error) {
-        console.log('SaveCart/index/handleProfileError', error.response)
         window.vtex.checkout.MessageUtils.showMessage({
             status: 'fatal',
             text: `Não foi possível se comunicar com o sistema de Profile. <br/>${error}`,
@@ -97,11 +97,9 @@ class SaveCart extends Component {
 
     openMyCarts() {
         const { orderForm } = this.state
-
-        if (orderForm && (orderForm.loggedIn || (orderForm.userType && orderForm.userType === 'callcenteroperator'))) {
+        if (orderForm != null && (orderForm.loggedIn && orderForm.userProfileId != null || (orderForm.userType && orderForm.userType === 'callcenteroperator'))) {
             return true
         }
-
         return false
     }
 
@@ -157,13 +155,6 @@ class SaveCart extends Component {
     useCart(orderFormId) {
         const { account, workspace } = window.__RUNTIME__
         const { orderForm, items } = this.state
-
-        // if (!items.some(val => val.orderFormId === orderForm.orderFormId)) {
-        //     if (confirm('Deseja salvar o carrinho atual?') == true) {
-        //         return
-        //     }
-        // }
-
         const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
         const data = {
             userProfileId: this.getUserProfileId(orderForm),
@@ -183,6 +174,23 @@ class SaveCart extends Component {
             })
     }
 
+    verifyCart(orderFormId) {
+        const { account, workspace } = window.__RUNTIME__
+        const { orderForm, items } = this.state
+
+        if (document.getElementById(`accordion-use-${orderFormId}`).checked) {
+            document.getElementById(`accordion-use-${orderFormId}`).checked = false
+            return
+        }
+
+        if (items.some(val => val.orderFormId === orderForm.orderFormId)) {
+            document.getElementById(`accordion-use-${orderFormId}`).checked = false
+            useCart(orderFormId)
+        } else {
+            document.getElementById(`accordion-use-${orderFormId}`).checked = true
+        }
+    }
+
     listCarts() {
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
@@ -195,9 +203,7 @@ class SaveCart extends Component {
 
         return axios.post(`${createUrlListCarts(account, workspace)}`, data)
             .then(response => response.data)
-            .catch(error => {
-                console.log(error)
-            })
+            .catch(error => { throw error })
     }
 
     removeItem(orderFormId) {
@@ -219,9 +225,14 @@ class SaveCart extends Component {
 
                     this.setState({ isModalOpen: true, items: response.listCarts })
                     window.checkout.loading(false)
-                }).catch(error => {
+                })
+                .catch(error => {
                     window.checkout.loading(false)
-                    //this.handleProfileError(error)
+                    if (error.response && error.response.data && error.response.data.errorMessage && error.response.data.errorMessage != "") {
+                        this.handleProfileError(error.response.data.errorMessage)
+                    } else {
+                        this.handleProfileError(error)
+                    }
                 })
         } else {
             Promise.resolve(window.vtexid.start())
@@ -291,14 +302,14 @@ class SaveCart extends Component {
                         <div className="pa3 black-80">
                             <div>
                                 <label htmlFor="comment" className="f6 b db mb2">Nome: </label>
-                                <textarea id="comment" onChange={this.updateNameCart} name="comment" className="db border-box hover-black w-100 ba b--black-20 pa2 br2 mb2" value={this.state.nameCart} ></textarea>
+                                <textarea id="comment" onChange={this.updateNameCart} name="comment" className="db border-box hover-black w-100 ba b--black-20 pa2 br2 mb2" value={this.state.nameCart} placeholder="Digite o nome do carrinho"></textarea>
                             </div>
                             <button disabled={disabled} className={`btn btn-primary ${classes}`} onClick={() => this.saveCart(this.state.nameCart)}>
                                 Salvar
                             </button>
                         </div>
                     </section>
-                    <ListCart items={items} handleRemoveCart={this.removeCart} handleUseCart={this.useCart} />
+                    <ListCart items={items} handleRemoveCart={this.removeCart} handleUseCart={this.useCart} handleVerifyCart={this.verifyCart} />
                 </Modal>
             </div>
         )

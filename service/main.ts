@@ -4,7 +4,6 @@ import checkoutClient from './clients/checkout'
 
 import { prop } from 'ramda'
 import { enableIoExtensions } from './resources/portal'
-import { getDataUser } from './resources/decryptTokenUser'
 import { parseQuery } from './utils/url'
 import { orderStatus } from './utils/orderStatus'
 import { notFound } from './utils/status'
