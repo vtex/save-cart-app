@@ -10,6 +10,7 @@ import {
     createUrlRemoveCart,
     createUrlUseCart,
     createUrlListCarts,
+    createUrlOrderForm,
     getNameApp,
     createItemListCarts,
     getCookie,
@@ -262,6 +263,26 @@ class SaveCart extends Component {
         this.setState({ nameCart: value })
     }
 
+    createNewCart() {
+        this.activeLoading(true)
+        const { account, workspace } = window.__RUNTIME__
+        const url = createUrlOrderForm(account, workspace)
+
+        axios.get(url)
+            .then(response => {
+                this.activeLoading(false)
+                const orderForm = response.data
+                setCookie('checkout.vtex.com', '', -1)
+                setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30)
+
+                location.reload()
+            })
+            .catch(error => {
+                this.activeLoading(false)
+                this.handleUpdateError(error.response)
+            })
+    }
+
     render() {
         const { buttonName, items, error, messageSuccess } = this.state
         const DISABLED_CLASSES = 'bg--light-silver white'
@@ -276,7 +297,7 @@ class SaveCart extends Component {
                 <Modal show={this.state.isModalOpen} onClose={this.closeModal}>
                     <section className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
                         <button onClick={this.closeModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-                        <h4 className="f4 white mv0 mt0-m">Cadastrar e listar carrinhos <Loading visible={this.state.enabledLoading}/></h4>
+                        <h4 className="f4 white mv0 mt0-m">Cadastrar e listar carrinhos <Loading visible={this.state.enabledLoading} /></h4>
                     </section>
                     <section className="bb b--black-50">
                         {
@@ -324,6 +345,13 @@ class SaveCart extends Component {
                         </div>
                     </section>
                     <ListCart items={items} handleRemoveCart={this.removeCart} handleUseCart={this.useCart} handleVerifyCart={this.verifyCart} />
+                    <section>
+                        <div className="pa3 black-80">
+                            <div class="f6 link dim br3 ph3 pv2 mb2 dib white bg-black pointer" onClick={() => this.createNewCart()}>
+                                Novo Carrinho
+                            </div>
+                        </div>
+                    </section>
                 </Modal>
             </div>
         )

@@ -139,6 +139,17 @@ export default ({ account, authToken }: ReqContext) => {
         Cookie: cookie
       }
       return http.post(url, payload, { headers, withCredentials: true }).then(prop('data'))
+    },
+    getBlankOrderForm: (): any => {
+      const url = routes.orderForm(account)
+      const payload = { expectedOrderFormSections }
+      const headers = {
+        Accept: 'application/json',
+        Authorization: `bearer ${authToken}`,
+        'Content-Type': 'application/json'
+      }
+      return http.post(url, payload, { headers }).then(prop('data'))
     }
+
   }
 }

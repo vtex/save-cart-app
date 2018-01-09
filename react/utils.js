@@ -76,6 +76,10 @@ export function createUrlListCarts(account, workspace) {
   return `${baseUrl(account, workspace)}/list`
 }
 
+export function createUrlOrderForm(account, workspace) {
+  return `${baseUrl(account, workspace)}/orderform`
+}
+
 /**
  * Obtém o order form, executa os passos de validação e redireciona para a tela de pagamento caso a validação
  * tenha sucesso
@@ -141,6 +145,5 @@ export function setCookie(name, value, days) {
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
     expires = "; expires=" + date.toUTCString();
   }
-  console.log('document.domain', document.domain)
   document.cookie = `${name}=${value}${expires}; domain=.${document.domain}; path=/`
 }
