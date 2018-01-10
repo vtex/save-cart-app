@@ -4,11 +4,16 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Modal from './components/Modal'
 import ListCart from './components/ListCart'
+import Loading from './components/Loading'
+import Tabs from './components/Tabs'
+import Tab from './components/Tab'
+import Button from './components/Button'
 import {
     createUrlSaveCart,
     createUrlRemoveCart,
     createUrlUseCart,
     createUrlListCarts,
+    createUrlOrderForm,
     getNameApp,
     createItemListCarts,
     getCookie,
@@ -26,13 +31,15 @@ class SaveCart extends Component {
             items: [],
             nameCart: '',
             error: '',
-            messageSuccess: ''
+            messageSuccess: '',
+            enabledLoading: false
         }
 
         this.listenOrderFormUpdated = this.listenOrderFormUpdated.bind(this)
         this.handleUpdateError = this.handleUpdateError.bind(this)
         this.handleUpdateSuccess = this.handleUpdateSuccess.bind(this)
         this.clearMessages = this.clearMessages.bind(this)
+        this.activeLoading = this.activeLoading.bind(this)
         this.openMyCarts = this.openMyCarts.bind(this)
         this.saveCart = this.saveCart.bind(this)
         this.removeCart = this.removeCart.bind(this)
@@ -95,6 +102,10 @@ class SaveCart extends Component {
         this.setState({ error: '', messageSuccess: '' })
     }
 
+    activeLoading(active) {
+        this.setState({ enabledLoading: active })
+    }
+
     openMyCarts() {
         const { orderForm } = this.state
         if (orderForm != null && (orderForm.loggedIn && orderForm.userProfileId != null || (orderForm.userType && orderForm.userType === 'callcenteroperator'))) {
@@ -111,6 +122,7 @@ class SaveCart extends Component {
 
     saveCart(name) {
         this.clearMessages()
+        this.activeLoading(true)
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
         const data = {
@@ -121,6 +133,7 @@ class SaveCart extends Component {
 
         axios.post(createUrlSaveCart(account, workspace), qs.stringify(data))
             .then(response => {
+                this.activeLoading(false)
                 let items = this.state.items
                 const item = createItemListCarts(orderForm, name)
                 items.push(item)
@@ -128,12 +141,13 @@ class SaveCart extends Component {
                 this.handleUpdateSuccess('Carrinho salvo com sucesso!')
             })
             .catch((error) => {
+                this.activeLoading(false)
                 this.handleUpdateError(error.response)
             })
     }
 
     removeCart(orderFormId) {
-        event.preventDefault()
+        this.activeLoading(true)
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
 
@@ -144,15 +158,18 @@ class SaveCart extends Component {
 
         axios.post(createUrlRemoveCart(account, workspace), qs.stringify(data))
             .then(response => {
+                this.activeLoading(false)
                 this.removeItem(orderFormId)
                 this.handleUpdateSuccess('Carrinho removido com sucesso!')
             })
             .catch((error) => {
+                this.activeLoading(false)
                 this.handleUpdateError(error.response)
             })
     }
 
     useCart(orderFormId) {
+        this.activeLoading(true)
         const { account, workspace } = window.__RUNTIME__
         const { orderForm, items } = this.state
         const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
@@ -164,18 +181,20 @@ class SaveCart extends Component {
 
         axios.post(createUrlUseCart(account, workspace), qs.stringify(data))
             .then(response => {
+                this.activeLoading(false)
                 setCookie('checkout.vtex.com', '', -1)
-                setCookie('checkout.vtex.com', `__ofid=${orderFormId}`, 30)
+                setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `.${document.domain}`)
+                setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `${document.domain}`)
 
                 location.reload()
             })
             .catch((error) => {
+                this.activeLoading(false)
                 this.handleUpdateError(error.response)
             })
     }
 
     verifyCart(orderFormId) {
-        const { account, workspace } = window.__RUNTIME__
         const { orderForm, items } = this.state
 
         if (document.getElementById(`accordion-use-${orderFormId}`).checked) {
@@ -248,11 +267,29 @@ class SaveCart extends Component {
         this.setState({ nameCart: value })
     }
 
+    createNewCart() {
+        this.activeLoading(true)
+        const { account, workspace } = window.__RUNTIME__
+        const url = createUrlOrderForm(account, workspace)
+
+        axios.get(url)
+            .then(response => {
+                this.activeLoading(false)
+                const orderForm = response.data
+                setCookie('checkout.vtex.com', '', -1)
+                setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `.${document.domain}`)
+                setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `${document.domain}`)
+
+                location.reload()
+            })
+            .catch(error => {
+                this.activeLoading(false)
+                this.handleUpdateError(error.response)
+            })
+    }
+
     render() {
         const { buttonName, items, error, messageSuccess } = this.state
-        const DISABLED_CLASSES = 'bg--light-silver white'
-        const disabled = this.state.nameCart.length == 0
-        const classes = disabled ? DISABLED_CLASSES : ''
 
         return (
             <div>
@@ -260,56 +297,67 @@ class SaveCart extends Component {
                     {buttonName}
                 </button>
                 <Modal show={this.state.isModalOpen} onClose={this.closeModal}>
-                    <section className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
+                    <div className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
                         <button onClick={this.closeModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-                        <h4 className="f4 white mv0 mt0-m">Cadastrar e listar carrinhos</h4>
-                    </section>
-                    <section className="bb b--black-50">
-                        {
-                            messageSuccess && messageSuccess.length > 0
-                                ? (
-                                    <div className="w-100 pt3">
-                                        <div className="w-80-ns center br2 pv3 ph3 bg-washed-green green">
-                                            {messageSuccess}
-                                            <a className="item-link-remove" title="Remover" onClick={this.clearMessages}>
-                                                <i className="icon icon-remove item-remove-ico fr" >
-                                                </i>
-                                                <span className="hide item-remove-text" >Remover</span>
-                                            </a>
+                        <h4 className="f6 white mv0 mt0-m ttu">Meus Carrinhos<Loading visible={this.state.enabledLoading} /></h4>
+                    </div>
+                    <Tabs>
+                        <Tab name="Salvar">
+                            {
+                                messageSuccess && messageSuccess.length > 0
+                                    ? (
+                                        <div className="w-100 pt3">
+                                            <div className="w-80-ns center br2 pv3 ph3 bg-washed-green green">
+                                                {messageSuccess}
+                                                <a className="item-link-remove" title="Remover" onClick={this.clearMessages}>
+                                                    <i className="icon icon-remove item-remove-ico fr" >
+                                                    </i>
+                                                    <span className="hide item-remove-text" >Remover</span>
+                                                </a>
+                                            </div>
                                         </div>
-                                    </div>
-                                )
-                                :
-                                null
-                        }
-                        {
-                            error && error.length > 0
-                                ? (
-                                    <div className="w-100 pt3">
-                                        <div className="w-80-ns center br2 pv3 ph3 bg-washed-red red">
-                                            {error}
-                                            <a className="item-link-remove" title="Remover" onClick={this.clearMessages}>
-                                                <i className="icon icon-remove item-remove-ico fr" >
-                                                </i>
-                                                <span className="hide item-remove-text" >Remover</span>
-                                            </a>
+                                    )
+                                    :
+                                    null
+                            }
+                            {
+                                error && error.length > 0
+                                    ? (
+                                        <div className="w-100 pt3">
+                                            <div className="w-80-ns center br2 pv3 ph3 bg-washed-red red">
+                                                {error}
+                                                <a className="item-link-remove" title="Remover" onClick={this.clearMessages}>
+                                                    <i className="icon icon-remove item-remove-ico fr" >
+                                                    </i>
+                                                    <span className="hide item-remove-text" >Remover</span>
+                                                </a>
+                                            </div>
                                         </div>
-                                    </div>
-                                )
-                                :
-                                null
-                        }
-                        <div className="pa3 black-80">
-                            <div>
-                                <label htmlFor="comment" className="f6 b db mb2">Nome: </label>
-                                <textarea id="comment" onChange={this.updateNameCart} name="comment" className="db border-box hover-black w-100 ba b--black-20 pa2 br2 mb2" value={this.state.nameCart} placeholder="Digite o nome do carrinho"></textarea>
+                                    )
+                                    :
+                                    null
+                            }
+                            <div className="pa3 black-80">
+                                <div>
+                                    <label htmlFor="comment" className="f6 b db mb2">Nome: </label>
+                                    <textarea id="comment" onChange={this.updateNameCart} name="comment" className="db border-box hover-black w-100 ba b--black-20 pa2 br2 mb2" value={this.state.nameCart} placeholder="Digite o nome do carrinho"></textarea>
+                                </div>
+                                <Button classes={"f6 br3 link dim ph3 pv2 mb2 dib white bg-blue"} onClick={() => this.saveCart(this.state.nameCart)}>
+                                    Salvar
+                                </Button>
                             </div>
-                            <button disabled={disabled} className={`btn btn-primary ${classes}`} onClick={() => this.saveCart(this.state.nameCart)}>
-                                Salvar
-                            </button>
-                        </div>
-                    </section>
-                    <ListCart items={items} handleRemoveCart={this.removeCart} handleUseCart={this.useCart} handleVerifyCart={this.verifyCart} />
+                        </Tab>
+                        <Tab name="Listar">
+                            <ListCart items={items} handleRemoveCart={this.removeCart} handleUseCart={this.useCart} handleVerifyCart={this.verifyCart} />
+                        </Tab>
+                        <Tab name="Novo Carrinho">
+                            <div className="ma2">
+                                <Button classes={"f6 br3 link dim ph3 pv2 mb2 dib white bg-black"} onClick={() => this.createNewCart()}>
+                                    Novo Carrinho
+                                </Button>
+                            </div>
+                        </Tab>
+                    </Tabs>
                 </Modal>
             </div>
         )

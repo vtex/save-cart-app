@@ -13,9 +13,10 @@ class Button extends Component {
     }
 
     render() {
-        const { children } = this.props
+        const { children, classes } = this.props
+
         return (
-            <button onClick={this.handleClick} >
+            <button className={`bn pointer ${classes}`} onClick={this.handleClick}>
                 {children}
             </button>
         )

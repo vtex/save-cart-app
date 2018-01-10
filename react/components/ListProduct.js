@@ -15,7 +15,7 @@ class ListProduct extends Component {
                 <span className="f6 db black-70">{item.price}</span>
             </div>
             <div className="pr1">
-                <span className="f6 blue hover-dark-gray">{item.quantity}</span>
+                <span className="f6 black b hover-dark-gray">{item.quantity}</span>
             </div>
         </li>
     }

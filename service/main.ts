@@ -50,7 +50,7 @@ const setDefaultHeaders = (res) => {
 }
 
 const createCookie = (orderFormId, vtexIdclientAutCookie) => {
-  return `checkout.vtex.com=__ofid=${orderFormId}; ${vtexIdclientAutCookie}`
+  return `checkout.vtex.com=__ofid=${orderFormId}; ${vtexIdclientAutCookie};`
 }
 
 /**
@@ -138,7 +138,7 @@ export default {
 
       try {
         setDefaultHeaders(res)
-        
+
         const vbaseApp = VBaseApp(authToken, account, workspace)
         const merchantResponse = await vbaseApp.getFile().then(prop('data')).catch(notFound())
 
@@ -476,6 +476,40 @@ export default {
 
         res.status = 400
         res.body = { errorMessage: 'O carrinho informado não existe para esse usuário!' }
+      } catch (err) {
+        const errorMessage = 'Error postBack'
+        const { status, body, details } = errorResponse(err)
+
+        if (err.response) {
+          res.set('Content-Type', 'application/json')
+          res.status = status
+          res.body = { error: body }
+          logger.log(errorMessage, 'error', details)
+          return
+        }
+        logger.log(errorMessage, 'error', { errorMessage: err.message })
+        res.body = err
+        res.status = status
+      }
+    },
+    orderFormHandler: async (ctx) => {
+      const { request: req, response: res, vtex: ioContext } = ctx
+      const { account, workspace, authToken } = ioContext
+      const logger = colossus(account, workspace, authToken)
+
+      try {
+        setDefaultHeaders(res)
+
+        if (req.method === 'OPTIONS') {
+          res.status = 200
+          return
+        }
+
+        const checkout = checkoutClient(ioContext)
+        const orderForm = await checkout.getBlankOrderForm()
+        
+        res.status = 200
+        res.body = orderForm
       } catch (err) {
         const errorMessage = 'Error postBack'
         const { status, body, details } = errorResponse(err)

@@ -1,52 +1,11 @@
 @import '~vtex-tachyons';
 @import '~tachyons-svg/css/tachyons-svg.min.css';
 
-/**
- * In the checkout page the breakpoint is 491px, instead
- * of tachyons 60rem (which ends up usually being 480px).
- * This is making sure the masterpass button will follow
- * the same rules that the other buttons inside checkout do.
- */
-.or-divisor{
-		font-size:16px;
-    margin:-20px auto 10px;
-    padding:2px 4px;
-    background:#fff;
-	}
-
-.vc-tell-me-more{
-  text-align: right;
-  color:#ccc
-}
-
-.btn-style {
-  cursor: pointer
-}
-
-#render-checkout-buttons {
-  border: 1px solid #f4f4f4;
-  border-radius: 4px;
-  padding: 10px;
-  width: 270px;
-  float: right;
-}
-
-@media (max-width: 490px) {
-
-}
-
 @media (min-width: 980px) {
  .btn-list {
     max-width: 280px;
     border-top: 1px solid #f4f4f4;
  }
-}
-
-@media (min-width: 768px){
-  .modalStyleWidth {
-      width: 600px;
-      margin: 30px auto;
-  }
 }
 
 input.accordion-add-cart, input.accordion-use-cart {

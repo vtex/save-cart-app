@@ -76,6 +76,10 @@ export function createUrlListCarts(account, workspace) {
   return `${baseUrl(account, workspace)}/list`
 }
 
+export function createUrlOrderForm(account, workspace) {
+  return `${baseUrl(account, workspace)}/orderform`
+}
+
 /**
  * Obtém o order form, executa os passos de validação e redireciona para a tela de pagamento caso a validação
  * tenha sucesso
@@ -134,12 +138,12 @@ export function getCookie(name) {
   return unescape(cookies.substring(begin + prefix.length, end))
 }
 
-export function setCookie(name, value, days) {
+export function setCookie(name, value, days, domain) {
   var expires = "";
   if (days) {
     var date = new Date();
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
     expires = "; expires=" + date.toUTCString();
   }
-  document.cookie = name + "=" + value + expires + "; path=/";
+  document.cookie = `${name}=${value}${expires}; domain=${domain}; path=/`
 }

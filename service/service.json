@@ -33,6 +33,10 @@
     "postBackHandler": {
       "path": "/save-cart/postback",
       "public": true
+    },
+    "orderFormHandler":{
+      "path": "/save-cart/orderform",
+      "public": true
     }
   }
 }

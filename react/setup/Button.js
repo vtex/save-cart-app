@@ -50,7 +50,7 @@ class Button extends Component {
     return (
       <button
         disabled={disabled}
-        className={`w-100 font-display fw5 bn br2 pa3 pa2-ns f4 mt3 lh-copy mb4 ${classes}`}
+        className={`w-100 font-display fw5 bn br2 pa3 pa2-ns f4 mt3 lh-copy mb4 pointer ${classes}`}
         onClick={this.handleClick}
       >
         {children}
