@@ -147,3 +147,12 @@ export function setCookie(name, value, days, domain) {
   }
   document.cookie = `${name}=${value}${expires}; domain=${domain}; path=/`
 }
+
+export function getUserProfileId(orderForm) {
+  const userProfileId = orderForm.userType && orderForm.userType === 'callcenteroperator' ? orderForm.userType : orderForm.userProfileId
+  return userProfileId
+}
+
+export function userLogged(orderForm) {
+  return orderForm != null && (orderForm.loggedIn && orderForm.userProfileId != null || (orderForm.userType && orderForm.userType === 'callcenteroperator'))  
+}

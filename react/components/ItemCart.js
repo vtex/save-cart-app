@@ -4,8 +4,20 @@ import ListProduct from './ListProduct'
 import Button from './Button'
 
 class ItemCart extends Component {
-    constructor(props) {
-        super(props)
+    
+    openAccordion(name, orderFormId) {
+        let accordionClass = document.getElementById(`accordion-${name}-${orderFormId}`).classList;
+
+        if (accordionClass.contains("db")) {
+            accordionClass.remove("db");
+        } else {
+            accordionClass.add("db");
+        }
+        if (accordionClass.contains("dn")) {
+            accordionClass.remove("dn");
+        } else {
+            accordionClass.add("dn");
+        }
     }
 
     render() {
@@ -14,35 +26,36 @@ class ItemCart extends Component {
         return (
             <li className="fl w-100 items-center lh-copy pa3 bb b--black-10 overflow-hidden">
                 {/* Confirmation */}
-                <input id={`accordion-use-${item.orderFormId}`} type="checkbox" name="tabs" className="accordion-use-cart" />
-                <div className="fl w-100 mb2 accordion-content-use-cart">
+                <input type="checkbox" name="tabs" className="absolute o-0 z-0" />
+
+                <div id={`accordion-use-${item.orderFormId}`} className="fl w-100 mb2 overflow-hidden dn">
                     <p className="tc pa1">Deseja usar o carrinho <b>'</b>{item.name}<b>'</b> sem salvar o carrinho atual? </p>
                     <a className="btn btn-danger pr3 ph3 fl mw4 ma1 db center fn mb1" onClick={() => this.props.handleUseCart(item.orderFormId)}>
                         <span className="f6">Continuar</span>
                     </a>
                 </div>
 
-                <input id={`accordion-add-${item.orderFormId}`} type="checkbox" name="tabs" className="accordion-add-cart" />
+                <input type="checkbox" name="tabs" className="absolute o-0 z-0" />
 
-                <div className="fl w-60 pl4 flex-auto pointer pt1">
-                    <label htmlFor={`accordion-add-${item.orderFormId}`} className="f6 db b ttu black-70">
+                <div className="fl w-100 w-50-ns flex-auto pointer pv2">
+                    <a onClick={() => this.openAccordion('add', item.orderFormId)} className="f6 db b ttu black-70 no-underline">
                         {item.name}
-                    </label>
+                    </a>
                 </div>
 
-                <div className="fl w-20">
-                    <Button classes={"f6 br3 link dim ph3 pv2 mb2 dib white bg-mid-gray"} onClick={() => this.props.handleVerifyCart(item.orderFormId)}>
+                <div className="fl w-50 w-25-ns flex-auto pr2">
+                    <Button classes={"w-100 white bg-blue"} onClick={() => this.props.handleUseCart(item.orderFormId)}>
                         Usar
                     </Button>
                 </div>
 
-                <div className="fl w-20">
-                    <Button classes={"f6 br3 link dim ph3 pv2 mb2 dib white bg-dark-red"} onClick={() => this.props.handleRemoveCart(item.orderFormId)}>
-                        Remover
+                <div className="fl w-50 w-25-ns flex-auto pr2">
+                    <Button classes={"w-100 white bg-dark-red"} onClick={() => this.props.handleRemoveCart(item.orderFormId)}>
+                        Excluir
                     </Button>
                 </div>
 
-                <div className="fl w-100 accordion-content-add-cart">
+                <div id={`accordion-add-${item.orderFormId}`} className="fl w-100 overflow-hidden overflow-y-scroll dn">
                     {
                         <ListProduct products={item.products} />
                     }
@@ -55,7 +68,8 @@ class ItemCart extends Component {
 ItemCart.propTypes = {
     handleRemoveCart: PropTypes.func,
     handleUseCart: PropTypes.func,
-    handleVerifyCart: PropTypes.func
+    handleVerifyCart: PropTypes.func,
+    handleOpenCartAdd: PropTypes.func
 }
 
 export default ItemCart

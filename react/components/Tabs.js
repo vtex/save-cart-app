@@ -1,19 +1,20 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import Messages from './Messages'
 
 class Tabs extends Component {
     constructor(props, context) {
-        super(props, context);
+        super(props, context)
         this.state = {
             activeTabIndex: this.props.defaultActiveTabIndex
         };
-        this.handleTabClick = this.handleTabClick.bind(this);
+        this.handleTabClick = this.handleTabClick.bind(this)
     }
 
     // Toggle currently active tab
     handleTabClick(tabIndex) {
         this.setState({
-            activeTabIndex: tabIndex === this.state.activeTabIndex ? this.props.defaultActiveTabIndex : tabIndex
+            activeTabIndex: tabIndex
         });
     }
 
@@ -30,20 +31,33 @@ class Tabs extends Component {
 
     // Render current active tab content
     renderActiveTabContent() {
-        const { children } = this.props;
-        const { activeTabIndex } = this.state;
+        const { children } = this.props
+        const { activeTabIndex } = this.state
         if (children[activeTabIndex]) {
-            return children[activeTabIndex].props.children;
+            return children[activeTabIndex].props.children
         }
     }
 
     render() {
+        const { messageSuccess, messageError, clearMessage } = this.props
+        const hasmessageSuccess = messageSuccess && messageSuccess.length > 0
+        const hasmessageError = messageError && messageError.length > 0
+        const hasMessage = hasmessageSuccess || hasmessageError
+
         return (
             <div>
-                <nav className="bb tc center">
+                <nav className="bb b--black-20 tc center">
                     {this.renderChildrenWithTabsApiAsProps()}
                 </nav>
-                <div className="tabs-active-content">
+                {
+                    hasMessage ?
+                        <div className="ma2">
+                            {hasmessageSuccess ? <Messages type={'success'} clearMessage={clearMessage} message={messageSuccess} /> : null}
+                            {hasmessageError ? <Messages type={'error'} clearMessage={clearMessage} message={messageError} /> : null}
+                        </div>
+                        : null
+                }
+                <div className="ma2">
                     {this.renderActiveTabContent()}
                 </div>
             </div>
@@ -52,11 +66,17 @@ class Tabs extends Component {
 }
 
 Tabs.propTypes = {
-    defaultActiveTabIndex: PropTypes.number
+    defaultActiveTabIndex: PropTypes.number,
+    messageSuccess: PropTypes.string,
+    messageError: PropTypes.string,
+    clearMessage: PropTypes.func
 }
 
 Tabs.defaultProps = {
-    defaultActiveTabIndex: 0
+    defaultActiveTabIndex: 0,
+    messageSuccess: '',
+    messageError: '',
+    clearMessage: () => { }
 }
 
 export default Tabs

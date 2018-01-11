@@ -13,8 +13,11 @@ class Tab extends Component {
     }
 
     render() {
+        const { isActive } = this.props
+        const classes = isActive ? 'bg-light-blue' : ''
+
         return (
-            <div className="f6 f5-l link bg-animate black-80 hover-bg-light-blue dib pa3 ph4-l pointer" onClick={this.handleTabClick}>
+            <div className={`f6 f5-ns bg-animate black-80 hover-bg-light-blue dib pa3 ph4-l pointer ${classes}`} onClick={this.handleTabClick}>
                 {this.props.name}
             </div>
         )

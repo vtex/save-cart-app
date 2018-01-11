@@ -188,6 +188,12 @@ export default {
           const vbaseUser = VBaseUser(authToken, account, workspace, body.userProfileId)
           const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
           const date = new Date()
+          const operationData = {
+            userProfileId: body.userProfileId,
+            cookie: createCookie(body.orderFormId, body.vtexIdclientAutCookie)
+          }
+
+          await processPaymentProfile(body.orderFormId, ioContext, operationData, logger)
 
           if (userResponse && Object.keys(userResponse).length !== 0) {
             const userInfo = JSON.parse(userResponse.toString())
@@ -326,13 +332,6 @@ export default {
           res.body = { errorMessage: 'O usuário não possui carrinho para ser utilizado!' }
           return
         }
-
-        const operationData = {
-          userProfileId: body.userProfileId,
-          cookie: createCookie(body.orderFormId, body.vtexIdclientAutCookie)
-        }
-
-        await processPaymentProfile(body.orderFormId, ioContext, operationData, logger)
 
         res.status = 200
         res.body = { data: 'OK' }
@@ -507,7 +506,7 @@ export default {
 
         const checkout = checkoutClient(ioContext)
         const orderForm = await checkout.getBlankOrderForm()
-        
+
         res.status = 200
         res.body = orderForm
       } catch (err) {

@@ -3,10 +3,7 @@ import PropTypes from 'prop-types'
 import ItemCart from './ItemCart'
 
 class ListCart extends Component {
-    constructor(props) {
-        super(props)
-    }
-
+    
     render() {
         const { handleRemoveCart, handleUseCart, handleVerifyCart } = this.props
         const items = this.props.items.map(item => {
@@ -14,11 +11,14 @@ class ListCart extends Component {
         })
         return (
             <div className="overflow-hidden overflow-y-scroll h5">
-                <ul className="list pl0 mt0 center overflow-hidden">
-                    {
-                        items
-                    }
-                </ul>
+                {items.length > 0 ?
+                    <ul className="list pl0 mt0 center overflow-hidden">
+                        {
+                            items
+                        }
+                    </ul>
+                    : <label className="f6 center">Sua lista está vazia</label>
+                }
             </div>
         )
     }
@@ -27,8 +27,7 @@ class ListCart extends Component {
 ListCart.propTypes = {
     handleRemoveCart: PropTypes.func,
     handleUseCart: PropTypes.func,
-    handleVerifyCart: PropTypes.func,
-    enabled: PropTypes.bool
+    handleVerifyCart: PropTypes.func
 }
 
 export default ListCart

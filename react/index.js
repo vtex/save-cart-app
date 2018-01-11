@@ -8,6 +8,7 @@ import Loading from './components/Loading'
 import Tabs from './components/Tabs'
 import Tab from './components/Tab'
 import Button from './components/Button'
+import SaveCart from './components/SaveCart'
 import {
     createUrlSaveCart,
     createUrlRemoveCart,
@@ -18,10 +19,11 @@ import {
     createItemListCarts,
     getCookie,
     setCookie,
-    axiosConfig
+    getUserProfileId,
+    userLogged
 } from './utils'
 
-class SaveCart extends Component {
+class MyCarts extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -29,26 +31,28 @@ class SaveCart extends Component {
             orderForm: null,
             isModalOpen: false,
             items: [],
-            nameCart: '',
-            error: '',
+            messageError: '',
             messageSuccess: '',
             enabledLoading: false
         }
 
         this.listenOrderFormUpdated = this.listenOrderFormUpdated.bind(this)
+
         this.handleUpdateError = this.handleUpdateError.bind(this)
         this.handleUpdateSuccess = this.handleUpdateSuccess.bind(this)
         this.clearMessages = this.clearMessages.bind(this)
+
         this.activeLoading = this.activeLoading.bind(this)
-        this.openMyCarts = this.openMyCarts.bind(this)
+
         this.saveCart = this.saveCart.bind(this)
         this.removeCart = this.removeCart.bind(this)
         this.useCart = this.useCart.bind(this)
         this.verifyCart = this.verifyCart.bind(this)
         this.listCarts = this.listCarts.bind(this)
+
         this.openModal = this.openModal.bind(this)
         this.closeModal = this.closeModal.bind(this)
-        this.updateNameCart = this.updateNameCart.bind(this)
+
         this.removeItem = this.removeItem.bind(this)
     }
 
@@ -91,7 +95,7 @@ class SaveCart extends Component {
         if (error.data && error.data.error && error.data.error.message) {
             message = error.data.error.message
         }
-        this.setState({ error: message })
+        this.setState({ messageError: message })
     }
 
     handleUpdateSuccess(message) {
@@ -99,25 +103,11 @@ class SaveCart extends Component {
     }
 
     clearMessages() {
-        this.setState({ error: '', messageSuccess: '' })
+        this.setState({ messageError: '', messageSuccess: '' })
     }
 
     activeLoading(active) {
         this.setState({ enabledLoading: active })
-    }
-
-    openMyCarts() {
-        const { orderForm } = this.state
-        if (orderForm != null && (orderForm.loggedIn && orderForm.userProfileId != null || (orderForm.userType && orderForm.userType === 'callcenteroperator'))) {
-            return true
-        }
-        return false
-    }
-
-    getUserProfileId(orderForm) {
-        const userProfileId = orderForm.userType && orderForm.userType === 'callcenteroperator' ? orderForm.userType : orderForm.userProfileId
-
-        return userProfileId
     }
 
     saveCart(name) {
@@ -125,19 +115,21 @@ class SaveCart extends Component {
         this.activeLoading(true)
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
+        const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
         const data = {
-            userProfileId: this.getUserProfileId(orderForm),
+            userProfileId: getUserProfileId(orderForm),
             orderFormId: orderForm.orderFormId,
-            name: name
+            name: name,
+            vtexIdclientAutCookie: vtexIdclientAutCookie
         }
 
         axios.post(createUrlSaveCart(account, workspace), qs.stringify(data))
             .then(response => {
-                this.activeLoading(false)
                 let items = this.state.items
                 const item = createItemListCarts(orderForm, name)
                 items.push(item)
-                this.setState({ items: items, nameCart: '' })
+                this.setState({ items: items })                
+                this.activeLoading(false)
                 this.handleUpdateSuccess('Carrinho salvo com sucesso!')
             })
             .catch((error) => {
@@ -152,7 +144,7 @@ class SaveCart extends Component {
         const { orderForm } = this.state
 
         const data = {
-            userProfileId: this.getUserProfileId(orderForm),
+            userProfileId: getUserProfileId(orderForm),
             orderFormId: orderFormId
         }
 
@@ -172,20 +164,16 @@ class SaveCart extends Component {
         this.activeLoading(true)
         const { account, workspace } = window.__RUNTIME__
         const { orderForm, items } = this.state
-        const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
         const data = {
-            userProfileId: this.getUserProfileId(orderForm),
-            orderFormId: orderFormId,
-            vtexIdclientAutCookie: vtexIdclientAutCookie
+            userProfileId: getUserProfileId(orderForm),
+            orderFormId: orderFormId
         }
 
         axios.post(createUrlUseCart(account, workspace), qs.stringify(data))
             .then(response => {
-                this.activeLoading(false)
                 setCookie('checkout.vtex.com', '', -1)
-                setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `.${document.domain}`)
-                setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `${document.domain}`)
-
+                setCookie('checkout.vtex.com', `__ofid=${orderFormId}`, 30, `.${document.domain}`)
+                setCookie('checkout.vtex.com', `__ofid=${orderFormId}`, 30, `${document.domain}`)
                 location.reload()
             })
             .catch((error) => {
@@ -213,7 +201,7 @@ class SaveCart extends Component {
     listCarts() {
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
-        const userProfileId = orderForm ? this.getUserProfileId(orderForm) : ''
+        const userProfileId = orderForm ? getUserProfileId(orderForm) : ''
         const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
         const data = {
             userProfileId: userProfileId,
@@ -234,7 +222,8 @@ class SaveCart extends Component {
     }
 
     openModal() {
-        if (this.openMyCarts()) {
+        const { orderForm } = this.state
+        if (userLogged(orderForm)) {
             window.checkout.loading(true)
             Promise.resolve(this.listCarts())
                 .then(response => {
@@ -247,9 +236,13 @@ class SaveCart extends Component {
                 })
                 .catch(error => {
                     window.checkout.loading(false)
-                    if (error.response && error.response.data && error.response.data.errorMessage && error.response.data.errorMessage != "") {
-                        this.handleProfileError(error.response.data.errorMessage)
-                    } else {
+                    const response = error.response
+                    if (response && response.data && response.data.errorMessage && response.data.errorMessage != "") {
+                        this.handleProfileError(response.data.errorMessage)
+                    } if (response && response.data && response.data.error && response.data.error.message && response.data.error.message != "") {
+                        this.handleProfileError(response.data.error.message)
+                    }
+                    else {
                         this.handleProfileError(error)
                     }
                 })
@@ -263,10 +256,6 @@ class SaveCart extends Component {
         this.setState({ isModalOpen: false })
     }
 
-    updateNameCart({ target: { value } }) {
-        this.setState({ nameCart: value })
-    }
-
     createNewCart() {
         this.activeLoading(true)
         const { account, workspace } = window.__RUNTIME__
@@ -274,12 +263,9 @@ class SaveCart extends Component {
 
         axios.get(url)
             .then(response => {
-                this.activeLoading(false)
                 const orderForm = response.data
-                setCookie('checkout.vtex.com', '', -1)
                 setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `.${document.domain}`)
                 setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `${document.domain}`)
-
                 location.reload()
             })
             .catch(error => {
@@ -289,72 +275,52 @@ class SaveCart extends Component {
     }
 
     render() {
-        const { buttonName, items, error, messageSuccess } = this.state
+        const { buttonName, items, messageError, messageSuccess, orderForm } = this.state
+        const handleRemoveCart = this.removeCart
+        const handleUseCart = this.useCart
+        const handleVerifyCart = this.verifyCart
+        const handleOpenCartAdd = this.openCartAdd
+        const handleOpenCartUse = this.openCartUse
+        const optsListCart = { items, handleRemoveCart, handleUseCart, handleVerifyCart, handleOpenCartAdd, handleOpenCartUse }
+
+        const cartSaved = items.find(val => orderForm != null && val.orderFormId === orderForm.orderFormId)
 
         return (
             <div>
-                <button className="btn btn-primary fr" onClick={this.openModal} >
+                <Button classes={"mb2 white bg-blue fr"} onClick={this.openModal}>
                     {buttonName}
-                </button>
+                </Button>
                 <Modal show={this.state.isModalOpen} onClose={this.closeModal}>
                     <div className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
                         <button onClick={this.closeModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-                        <h4 className="f6 white mv0 mt0-m ttu">Meus Carrinhos<Loading visible={this.state.enabledLoading} /></h4>
+                        <h4 className="f6 white mv0 mt0-m ttu">Meus Carrinhos <Loading visible={this.state.enabledLoading} /></h4>
                     </div>
-                    <Tabs>
+                    <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
                         <Tab name="Salvar">
                             {
-                                messageSuccess && messageSuccess.length > 0
-                                    ? (
-                                        <div className="w-100 pt3">
-                                            <div className="w-80-ns center br2 pv3 ph3 bg-washed-green green">
-                                                {messageSuccess}
-                                                <a className="item-link-remove" title="Remover" onClick={this.clearMessages}>
-                                                    <i className="icon icon-remove item-remove-ico fr" >
-                                                    </i>
-                                                    <span className="hide item-remove-text" >Remover</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    )
-                                    :
-                                    null
+                                cartSaved ?
+                                    <div className="w-100 tc pa2 pa3-ns">
+                                        <label className="f6">O carrinho atual está gravado como <b>"{cartSaved.name}"</b>.</label>
+                                    </div>
+                                    : <SaveCart onClick={this.saveCart} />
                             }
-                            {
-                                error && error.length > 0
-                                    ? (
-                                        <div className="w-100 pt3">
-                                            <div className="w-80-ns center br2 pv3 ph3 bg-washed-red red">
-                                                {error}
-                                                <a className="item-link-remove" title="Remover" onClick={this.clearMessages}>
-                                                    <i className="icon icon-remove item-remove-ico fr" >
-                                                    </i>
-                                                    <span className="hide item-remove-text" >Remover</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    )
-                                    :
-                                    null
-                            }
-                            <div className="pa3 black-80">
-                                <div>
-                                    <label htmlFor="comment" className="f6 b db mb2">Nome: </label>
-                                    <textarea id="comment" onChange={this.updateNameCart} name="comment" className="db border-box hover-black w-100 ba b--black-20 pa2 br2 mb2" value={this.state.nameCart} placeholder="Digite o nome do carrinho"></textarea>
-                                </div>
-                                <Button classes={"f6 br3 link dim ph3 pv2 mb2 dib white bg-blue"} onClick={() => this.saveCart(this.state.nameCart)}>
-                                    Salvar
-                                </Button>
-                            </div>
                         </Tab>
                         <Tab name="Listar">
-                            <ListCart items={items} handleRemoveCart={this.removeCart} handleUseCart={this.useCart} handleVerifyCart={this.verifyCart} />
+                            <ListCart {...optsListCart} />
                         </Tab>
                         <Tab name="Novo Carrinho">
-                            <div className="ma2">
-                                <Button classes={"f6 br3 link dim ph3 pv2 mb2 dib white bg-black"} onClick={() => this.createNewCart()}>
-                                    Novo Carrinho
-                                </Button>
+                            <div className="tc pa2 pa3-ns">
+                                {
+                                    cartSaved ?
+                                        <Button classes={"mb2 white bg-blue"} onClick={() => this.createNewCart()}>Criar Novo Carrinho</Button>
+                                        :
+                                        <div className="overflow-auto">
+                                            <div className="fl w-100">
+                                                <p className="f6">O carrinho atual não está salvo, deseja criar um novo mesmo assim?</p>
+                                            </div>
+                                            <Button classes={"mb2 white bg-blue"} onClick={() => this.createNewCart()}>Sim</Button>
+                                        </div>
+                                }
                             </div>
                         </Tab>
                     </Tabs>
@@ -364,4 +330,4 @@ class SaveCart extends Component {
     }
 }
 
-export default SaveCart
+export default MyCarts

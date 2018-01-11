@@ -1,7 +1,6 @@
 import * as compose from 'koa-compose'
 import timer from '../utils/timer'
 
-import getOrderForm from './steps/getOrderForm'
 import fillMarketingData from './steps/setMarketingData'
 import saveOrderHook from './steps/saveOrderHook'
 

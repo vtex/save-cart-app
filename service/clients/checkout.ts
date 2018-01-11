@@ -57,12 +57,8 @@ export default ({ account, authToken }: ReqContext) => {
         Authorization: `bearer ${authToken}`,
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
-        'Accept-Encoding': 'gzip, deflate',
         Cookie: cookie
       }
-
-      console.log(JSON.stringify(headers, null, 2))
-
       return http.post(url, { ...marketingData, expectedOrderFormSections }, { headers, withCredentials: true }).then(prop('data'))
     },
     //Atualiza os dados do order hook
@@ -137,7 +133,6 @@ export default ({ account, authToken }: ReqContext) => {
         Authorization: `bearer ${authToken}`,
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
-        'Accept-Encoding': 'gzip, deflate',
         Cookie: cookie
       }
       return http.post(url, payload, { headers, withCredentials: true }).then(prop('data'))
