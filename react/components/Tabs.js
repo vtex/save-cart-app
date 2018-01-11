@@ -40,9 +40,9 @@ class Tabs extends Component {
 
     render() {
         const { messageSuccess, messageError, clearMessage } = this.props
-        const hasmessageSuccess = messageSuccess && messageSuccess.length > 0
-        const hasmessageError = messageError && messageError.length > 0
-        const hasMessage = hasmessageSuccess || hasmessageError
+        const hasMessageSuccess = messageSuccess && messageSuccess.length > 0
+        const hasMessageError = messageError && messageError.length > 0
+        const hasMessage = hasMessageSuccess || hasMessageError
 
         return (
             <div>
@@ -52,8 +52,8 @@ class Tabs extends Component {
                 {
                     hasMessage ?
                         <div className="ma2">
-                            {hasmessageSuccess ? <Messages type={'success'} clearMessage={clearMessage} message={messageSuccess} /> : null}
-                            {hasmessageError ? <Messages type={'error'} clearMessage={clearMessage} message={messageError} /> : null}
+                            {hasMessageSuccess ? <Messages type={'success'} clearMessage={clearMessage} message={messageSuccess} /> : null}
+                            {hasMessageError ? <Messages type={'error'} clearMessage={clearMessage} message={messageError} /> : null}
                         </div>
                         : null
                 }

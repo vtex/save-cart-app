@@ -21,10 +21,10 @@ class Messages extends Component {
         return (
             <div className="w-100 pt3">
                 <div className={`w-80-ns center br2 pv3 ph3 ${typeClass}`}>
-                    {message}
                     <a className="item-link-remove" onClick={clearMessage}>
                         <i className="icon icon-remove item-remove-ico fr"></i>
                     </a>
+                    {message}
                 </div>
             </div>
         )

@@ -33,7 +33,7 @@ class SaveCart extends Component {
                     <input id="comment" onChange={this.updateNameCart} name="nameCart" className="border-box hover-black w-90 ba b--black-20 pa2 br2 mb2" value={this.state.nameCart}></input>
                 </div>
                 <div className="fl w-100 w-20-ns flex-auto">
-                    <Button classes={"mb2 white bg-blue"} onClick={this.handleClick}>
+                    <Button classes={"ph3 mb2 white bg-blue"} onClick={this.handleClick}>
                         Salvar
                     </Button>
                 </div>

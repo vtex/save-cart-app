@@ -47,13 +47,13 @@ class MyCarts extends Component {
         this.saveCart = this.saveCart.bind(this)
         this.removeCart = this.removeCart.bind(this)
         this.useCart = this.useCart.bind(this)
-        this.verifyCart = this.verifyCart.bind(this)
         this.listCarts = this.listCarts.bind(this)
 
         this.openModal = this.openModal.bind(this)
         this.closeModal = this.closeModal.bind(this)
 
         this.removeItem = this.removeItem.bind(this)
+        this.currentCartSaved = this.currentCartSaved.bind(this)
     }
 
     /**
@@ -113,29 +113,35 @@ class MyCarts extends Component {
     saveCart(name) {
         this.clearMessages()
         this.activeLoading(true)
-        const { account, workspace } = window.__RUNTIME__
-        const { orderForm } = this.state
-        const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
-        const data = {
-            userProfileId: getUserProfileId(orderForm),
-            orderFormId: orderForm.orderFormId,
-            name: name,
-            vtexIdclientAutCookie: vtexIdclientAutCookie
-        }
 
-        axios.post(createUrlSaveCart(account, workspace), qs.stringify(data))
-            .then(response => {
-                let items = this.state.items
-                const item = createItemListCarts(orderForm, name)
-                items.push(item)
-                this.setState({ items: items })                
-                this.activeLoading(false)
-                this.handleUpdateSuccess('Carrinho salvo com sucesso!')
-            })
-            .catch((error) => {
-                this.activeLoading(false)
-                this.handleUpdateError(error.response)
-            })
+        if (name && name.length > 0) {
+            const { account, workspace } = window.__RUNTIME__
+            const { orderForm } = this.state
+            const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
+            const data = {
+                userProfileId: getUserProfileId(orderForm),
+                orderFormId: orderForm.orderFormId,
+                name: name,
+                vtexIdclientAutCookie: vtexIdclientAutCookie
+            }
+
+            axios.post(createUrlSaveCart(account, workspace), qs.stringify(data))
+                .then(response => {
+                    let items = this.state.items
+                    const item = createItemListCarts(orderForm, name)
+                    items.push(item)
+                    this.setState({ items: items })
+                    this.activeLoading(false)
+                    this.handleUpdateSuccess('Carrinho salvo com sucesso!')
+                })
+                .catch((error) => {
+                    this.activeLoading(false)
+                    this.handleUpdateError(error.response)
+                })
+        } else {
+            this.activeLoading(false)
+            this.setState({ messageError: 'Por favor informe o nome do carrinho a ser salvo!' })
+        }
     }
 
     removeCart(orderFormId) {
@@ -180,22 +186,6 @@ class MyCarts extends Component {
                 this.activeLoading(false)
                 this.handleUpdateError(error.response)
             })
-    }
-
-    verifyCart(orderFormId) {
-        const { orderForm, items } = this.state
-
-        if (document.getElementById(`accordion-use-${orderFormId}`).checked) {
-            document.getElementById(`accordion-use-${orderFormId}`).checked = false
-            return
-        }
-
-        if (items.some(val => val.orderFormId === orderForm.orderFormId)) {
-            document.getElementById(`accordion-use-${orderFormId}`).checked = false
-            this.useCart(orderFormId)
-        } else {
-            document.getElementById(`accordion-use-${orderFormId}`).checked = true
-        }
     }
 
     listCarts() {
@@ -274,20 +264,23 @@ class MyCarts extends Component {
             })
     }
 
+    currentCartSaved() {
+        const { orderForm, items } = this.state
+        return items.some(val => val.orderFormId === orderForm.orderFormId)
+    }
+
     render() {
         const { buttonName, items, messageError, messageSuccess, orderForm } = this.state
         const handleRemoveCart = this.removeCart
         const handleUseCart = this.useCart
-        const handleVerifyCart = this.verifyCart
-        const handleOpenCartAdd = this.openCartAdd
-        const handleOpenCartUse = this.openCartUse
-        const optsListCart = { items, handleRemoveCart, handleUseCart, handleVerifyCart, handleOpenCartAdd, handleOpenCartUse }
+        const handleCurrentCartSaved = this.currentCartSaved
+        const optsListCart = { items, handleRemoveCart, handleUseCart, handleCurrentCartSaved }
 
         const cartSaved = items.find(val => orderForm != null && val.orderFormId === orderForm.orderFormId)
 
         return (
             <div>
-                <Button classes={"mb2 white bg-blue fr"} onClick={this.openModal}>
+                <Button classes={"ph3 mb2 white bg-blue fr"} onClick={this.openModal}>
                     {buttonName}
                 </Button>
                 <Modal show={this.state.isModalOpen} onClose={this.closeModal}>
@@ -312,13 +305,13 @@ class MyCarts extends Component {
                             <div className="tc pa2 pa3-ns">
                                 {
                                     cartSaved ?
-                                        <Button classes={"mb2 white bg-blue"} onClick={() => this.createNewCart()}>Criar Novo Carrinho</Button>
+                                        <Button classes={"ph3 mb2 white bg-blue"} onClick={() => this.createNewCart()}>Criar Novo Carrinho</Button>
                                         :
                                         <div className="overflow-auto">
                                             <div className="fl w-100">
                                                 <p className="f6">O carrinho atual não está salvo, deseja criar um novo mesmo assim?</p>
                                             </div>
-                                            <Button classes={"mb2 white bg-blue"} onClick={() => this.createNewCart()}>Sim</Button>
+                                            <Button classes={"ph3 mb2 white bg-blue"} onClick={() => this.createNewCart()}>Sim</Button>
                                         </div>
                                 }
                             </div>

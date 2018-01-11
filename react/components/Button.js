@@ -16,7 +16,7 @@ class Button extends Component {
         const { children, classes } = this.props
 
         return (
-            <button className={`bn f6 br3 dim ph3 pv2 dib ${classes}`} onClick={this.handleClick}>
+            <button className={`bn f6 br3 dim pv2 dib ${classes}`} onClick={this.handleClick}>
                 {children}
             </button>
         )

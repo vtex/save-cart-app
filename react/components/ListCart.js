@@ -5,12 +5,12 @@ import ItemCart from './ItemCart'
 class ListCart extends Component {
     
     render() {
-        const { handleRemoveCart, handleUseCart, handleVerifyCart } = this.props
+        const { handleRemoveCart, handleUseCart, handleCurrentCartSaved } = this.props
         const items = this.props.items.map(item => {
-            return <ItemCart key={item.orderFormId} item={item} handleRemoveCart={handleRemoveCart} handleUseCart={handleUseCart} handleVerifyCart={handleVerifyCart} />
+            return <ItemCart key={item.orderFormId} item={item} handleRemoveCart={handleRemoveCart} handleUseCart={handleUseCart} handleCurrentCartSaved={handleCurrentCartSaved} />
         })
         return (
-            <div className="overflow-hidden overflow-y-scroll h5">
+            <div className="overflow-hidden overflow-y-scroll">
                 {items.length > 0 ?
                     <ul className="list pl0 mt0 center overflow-hidden">
                         {
@@ -27,7 +27,7 @@ class ListCart extends Component {
 ListCart.propTypes = {
     handleRemoveCart: PropTypes.func,
     handleUseCart: PropTypes.func,
-    handleVerifyCart: PropTypes.func
+    handleCurrentCartSaved: PropTypes.func
 }
 
 export default ListCart
