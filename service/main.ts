@@ -131,6 +131,9 @@ export default {
         res.status = status
       }
     },
+    /**
+     * Obtém o nome do botão da APP que está salvo nos dados de configuração da APP
+     */
     nameSaveCartHandler: async (ctx) => {
       const { response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
@@ -167,6 +170,9 @@ export default {
         res.status = status
       }
     },
+    /**
+     * Salva o carrinho atual do comprador
+     */
     saveCartHandler: async (ctx) => {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
@@ -251,6 +257,9 @@ export default {
         res.status = status
       }
     },
+    /**
+     * Remove o carrinho selecionado pelo usuário
+     */
     removeCartHandler: async (ctx) => {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
@@ -303,6 +312,9 @@ export default {
         res.status = status
       }
     },
+    /**
+     * Obtém o carrinho do usuário para ser utilizado
+     */
     useCartHandler: async (ctx) => {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
@@ -351,6 +363,9 @@ export default {
         res.status = status
       }
     },
+    /**
+     * Obtém a lista de carrinhos salvos pelo comprador
+     */
     listCartHandler: async (ctx) => {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
@@ -434,6 +449,10 @@ export default {
         res.status = status
       }
     },
+    /**
+     * Caso a compra seja efetuada com sucesso o carrinho que foi utilizado é removido da lista
+     * de carrinhos salvos do comprador
+     */
     postBackHandler: async (ctx) => {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext
@@ -455,7 +474,7 @@ export default {
         if (!orderStatus[status]) {
           return
         }
-        console.log('Pagamento com sucesso, ' + userProfileId + ' - ' + orderFormId)
+        
         const vbaseUser = VBaseUser(authToken, account, workspace, userProfileId)
         const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
 
@@ -491,6 +510,9 @@ export default {
         res.status = status
       }
     },
+    /**
+     * Obtém um novo orderForm vazio
+     */
     orderFormHandler: async (ctx) => {
       const { request: req, response: res, vtex: ioContext } = ctx
       const { account, workspace, authToken } = ioContext

@@ -10,7 +10,7 @@ class ListCart extends Component {
             return <ItemCart key={item.orderFormId} item={item} handleRemoveCart={handleRemoveCart} handleUseCart={handleUseCart} handleCurrentCartSaved={handleCurrentCartSaved} />
         })
         return (
-            <div className="overflow-hidden overflow-y-scroll">
+            <div className="overflow-y-scroll vh-50">
                 {items.length > 0 ?
                     <ul className="list pl0 mt0 center overflow-hidden">
                         {

@@ -56,26 +56,62 @@ const baseUrl = (account, workspace = 'master') => {
   return `//${workspace}--${account}.myvtex.com/save-cart`
 }
 
+/**
+ * Gera a URL que obtém o nome do botão da APP
+ * 
+ * @param {*} account Account da loja
+ * @param {*} workspace Workspace que a app está instalada
+ */
 export function createUrlNameApp(account, workspace) {
   return `${baseUrl(account, workspace)}/name`
 }
 
+/**
+ * Gera a URL que salva o carrinho
+ * 
+ * @param {*} account Account da loja
+ * @param {*} workspace Workspace que a app está instalada
+ */
 export function createUrlSaveCart(account, workspace) {
   return `${baseUrl(account, workspace)}/save`
 }
 
+/**
+ * Gera a URL que deleta o carrinho
+ * 
+ * @param {*} account Account da loja
+ * @param {*} workspace Workspace que a app está instalada
+ */
 export function createUrlRemoveCart(account, workspace) {
   return `${baseUrl(account, workspace)}/remove`
 }
 
+/**
+ * Gera a URL que usa o carrinho
+ * 
+ * @param {*} account Account da loja
+ * @param {*} workspace Workspace que a app está instalada
+ */
 export function createUrlUseCart(account, workspace) {
   return `${baseUrl(account, workspace)}/use`
 }
 
+/**
+ * Gera a URL que lista os carrinhos salvos
+ * 
+ * @param {*} account Account da loja
+ * @param {*} workspace Workspace que a app está instalada
+ */
 export function createUrlListCarts(account, workspace) {
   return `${baseUrl(account, workspace)}/list`
 }
 
+/**
+ * Gera a URL que obtém um orderForm
+ * 
+ * @param {*} account Account da loja
+ * @param {*} workspace Workspace que a app está instalada
+ */
 export function createUrlOrderForm(account, workspace) {
   return `${baseUrl(account, workspace)}/orderform`
 }
@@ -91,16 +127,21 @@ export function goToOrderForm() {
     .then(window.router.orderformRoute)
 }
 
-export function getCardsList(account, workspace, userProfileId) {
-  return axios.get(`${createUrlListCarts(account, workspace)}?userProfileId=${userProfileId}`)
-}
-
+/**
+ * Obtém o nome do botão da APP
+ */
 export function getNameApp() {
   const { account, workspace } = window.__RUNTIME__
   return axios.get(createUrlNameApp(account, workspace))
     .then(response => response.data)
 }
 
+/**
+ * Gera um item com os dados do orderForm e produtos do mesmo para ser exibido na lista da APP
+ * 
+ * @param {*} orderForm Dados do orderForm 
+ * @param {*} name Nome do carrinho
+ */
 export function createItemListCarts(orderForm, name) {
   const products = orderForm.items.map(item => {
     return {
@@ -119,6 +160,11 @@ export function createItemListCarts(orderForm, name) {
   }
 }
 
+/**
+ * Extrai o cookie do navegador
+ * 
+ * @param {*} name Nome do cookie 
+ */
 export function getCookie(name) {
   var cookies = document.cookie
   var prefix = name + "="
@@ -138,6 +184,14 @@ export function getCookie(name) {
   return unescape(cookies.substring(begin + prefix.length, end))
 }
 
+/**
+ * Cria um cookie
+ * 
+ * @param {*} name Nome do cookie
+ * @param {*} value Valor
+ * @param {*} days Dias de validade
+ * @param {*} domain Domínio
+ */
 export function setCookie(name, value, days, domain) {
   var expires = "";
   if (days) {
@@ -148,11 +202,21 @@ export function setCookie(name, value, days, domain) {
   document.cookie = `${name}=${value}${expires}; domain=${domain}; path=/`
 }
 
+/**
+ * Obtém o identificador do usuário logado
+ * 
+ * @param {*} orderForm Dados do orderForm 
+ */
 export function getUserProfileId(orderForm) {
   const userProfileId = orderForm.userType && orderForm.userType === 'callcenteroperator' ? orderForm.userType : orderForm.userProfileId
   return userProfileId
 }
 
+/**
+ * Verifica se o usuário está logado
+ * 
+ * @param {*} orderForm Dados do orderForm 
+ */
 export function userLogged(orderForm) {
   return orderForm != null && (orderForm.loggedIn && orderForm.userProfileId != null || (orderForm.userType && orderForm.userType === 'callcenteroperator'))  
 }

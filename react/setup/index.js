@@ -34,6 +34,11 @@ class SaveCartSetup extends Component {
     }
   }
 
+  /**
+   * Envia os dados do merchant para o service através do GRAPHQL
+   * 
+   * @param {*} merchantInfo Dados do merchant
+   */
   handleFormSubmit(merchantInfo) {
     const { saveMerchantMutation, updateMerchantMutation } = this.props
     const merchant = this.createFullMerchantInfo({ ...merchantInfo })
@@ -45,6 +50,9 @@ class SaveCartSetup extends Component {
     })
   }
 
+  /**
+   * Instala ou atualiza a APP na loja
+   */
   saveAppSettings() {
     if (parent) {
       const editing = this.isEditing()
@@ -59,6 +67,11 @@ class SaveCartSetup extends Component {
     }
   }
 
+  /**
+   * Extrai a mensagem de erro do objeto error
+   * 
+   * @param {*} error Error
+   */
   handleSaveMerchantError(error) {
     const { networkError } = error
     if (networkError || networkError.response) {
@@ -78,6 +91,11 @@ class SaveCartSetup extends Component {
     throw error
   }
 
+  /**
+   * Cria um objeto com os dados do merchant
+   * 
+   * @param {*} data Dados do merchant 
+   */
   createFullMerchantInfo(data) {
     return {
       primaryButtonName: data.primaryButtonName,
@@ -86,6 +104,9 @@ class SaveCartSetup extends Component {
     }
   }
 
+  /**
+   * Verifica se os dados estão em edição
+   */
   isEditing() {
     const { savedMerchantInfo: {
       primaryButtonName,

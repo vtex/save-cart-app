@@ -57,7 +57,7 @@ class MyCarts extends Component {
     }
 
     /**
-     * Esse método é chamado quando o componente é rederizado
+     * Essa função é chamado quando o componente é renderizado
      *
      * 1º - Obtém o orderForm e atualiza o state com esse valor mais a url do carrinho (callbackUrl)
      * 2º - Adiciona um evento que toda vez que o orderForm for atualizado eu atualizo o valor no state
@@ -68,6 +68,9 @@ class MyCarts extends Component {
             .then(this.listenOrderFormUpdated)
     }
 
+    /**
+     * Essa função obtém o nome do botão antes do componente ser renderizado
+     */
     componentWillMount() {
         Promise.resolve(getNameApp())
             .then(nameApp => this.setState({ buttonName: nameApp }))
@@ -83,6 +86,11 @@ class MyCarts extends Component {
         )
     }
 
+    /**
+     * Essa função exibe o modal padrão da VTEX com o erro
+     * 
+     * @param {*} error Error 
+     */
     handleProfileError(error) {
         window.vtex.checkout.MessageUtils.showMessage({
             status: 'fatal',
@@ -90,6 +98,11 @@ class MyCarts extends Component {
         })
     }
 
+    /**
+     * Essa função extrai a mensagem de erro do objeto error e atualiza o state
+     * 
+     * @param {*} error Error 
+     */
     handleUpdateError(error) {
         let message = error && error.data ? error.data.errorMessage : 'Não foi possível se comunicar com o sistema de Profile.'
         if (error.data && error.data.error && error.data.error.message) {
@@ -98,18 +111,36 @@ class MyCarts extends Component {
         this.setState({ messageError: message })
     }
 
+    /**
+     * Essa função obtém a mensagem de sucesso e atualiza o state
+     * 
+     * @param {*} message Mensagem de sucesso 
+     */
     handleUpdateSuccess(message) {
         this.setState({ messageSuccess: message })
     }
 
+    /**
+     * Essa função limpa as mensagens de erro e sucesso do state
+     */
     clearMessages() {
         this.setState({ messageError: '', messageSuccess: '' })
     }
 
+    /**
+     * Essa função habilita ou desabilita o loading
+     * 
+     * @param {*} active Se está ativo sim ou não 
+     */
     activeLoading(active) {
         this.setState({ enabledLoading: active })
     }
 
+    /**
+     * Essa função salva o carrinho atual so usuário
+     * 
+     * @param {*} name Nome do carrinho
+     */
     saveCart(name) {
         this.clearMessages()
         this.activeLoading(true)
@@ -144,6 +175,11 @@ class MyCarts extends Component {
         }
     }
 
+    /**
+     * Essa função exclui o carrinho selecionado da base de dados da APP
+     * 
+     * @param {*} orderFormId Identificador do orderForm
+     */
     removeCart(orderFormId) {
         this.activeLoading(true)
         const { account, workspace } = window.__RUNTIME__
@@ -166,6 +202,12 @@ class MyCarts extends Component {
             })
     }
 
+    /**
+     * Essa função utiliza o orderFormId do carrinho selecionado para ser o carrinho atual
+     * do usuário
+     * 
+     * @param {*} orderFormId Identificador do orderForm
+     */
     useCart(orderFormId) {
         this.activeLoading(true)
         const { account, workspace } = window.__RUNTIME__
@@ -188,6 +230,9 @@ class MyCarts extends Component {
             })
     }
 
+    /**
+     * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
+     */
     listCarts() {
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
@@ -203,6 +248,11 @@ class MyCarts extends Component {
             .catch(error => { throw error })
     }
 
+    /**
+     * Métod auxiliar para remover o carrinho dos items que estão no state
+     * 
+     * @param {*} orderFormId Identificador do orderForm
+     */
     removeItem(orderFormId) {
         let items = this.state.items
         const indexItem = items.findIndex(val => val.orderFormId === orderFormId)
@@ -211,6 +261,14 @@ class MyCarts extends Component {
         this.setState({ items: items })
     }
 
+    /**
+     * Essa função abre o modal verificando alguns passos
+     * 
+     * 1º - Verifica se o usuário está logado
+     *  - Se o usuário não estiver logado ele chama a função da vtex que realiza o login
+     *  - Se o usuário estiver logado é chamada a função que obtém a lista de carrinhos do usuário
+     *    e depois o modal é aberto
+     */
     openModal() {
         const { orderForm } = this.state
         if (userLogged(orderForm)) {
@@ -241,11 +299,17 @@ class MyCarts extends Component {
         }
     }
 
+    /**
+     * Essa função fecha o modal
+     */
     closeModal() {
         this.clearMessages()
         this.setState({ isModalOpen: false })
     }
 
+    /**
+     * Essa função cria um novo orderForm em branco
+     */
     createNewCart() {
         this.activeLoading(true)
         const { account, workspace } = window.__RUNTIME__
@@ -264,6 +328,9 @@ class MyCarts extends Component {
             })
     }
 
+    /**
+     * Essa função verifica se o carrinho atual está na lista de carrinhos no state
+     */
     currentCartSaved() {
         const { orderForm, items } = this.state
         return items.some(val => val.orderFormId === orderForm.orderFormId)

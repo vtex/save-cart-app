@@ -52,7 +52,7 @@ class ItemCart extends Component {
         const { item } = this.props
 
         return (
-            <li className="fl w-100 items-center lh-copy pa3 bb b--black-10 overflow-hidden">
+            <li className="fl w-100 items-center lh-copy pa3 bb b--black-10">
                 <div className="fl w-100 w-50-ns flex-auto pointer pv2">
                     <a onClick={() => this.openAccordion('products', item.orderFormId)} className="f6 db b ttu black-70 no-underline">
                         {item.name}
@@ -83,7 +83,7 @@ class ItemCart extends Component {
                     <Button classes={"white ph3 mh2 mb1 bg-dark-red"} onClick={() => this.openAccordion('delete', item.orderFormId)}>Não</Button>
                 </div>
 
-                <div id={`accordion-products-${item.orderFormId}`} name="accordion" className="fl w-100 overflow-hidden overflow-y-scroll dn">
+                <div id={`accordion-products-${item.orderFormId}`} name="accordion" className="fl w-100 dn">
                     <ListProduct products={item.products} />
                 </div>
             </li>
