@@ -1,7 +1,7 @@
 {
   "name": "save-cart",
   "vendor": "vtex",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "title": "Save Cart",
   "description": "Save Cart",
   "settingsSchema": {},
