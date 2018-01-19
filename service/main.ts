@@ -244,7 +244,7 @@ export default {
       } catch (err) {
         const errorMessage = 'Error saveCart'
         const { status, body, details } = errorResponse(err)
-
+        
         if (err.response) {
           res.set('Content-Type', 'application/json')
           res.status = status

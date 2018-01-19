@@ -15,12 +15,6 @@ const routes = {
  * Exporta as funções que serão utilizadas para atualizar os dados do orderForm
  */
 export default ({ account, authToken }: ReqContext) => {
-  const headers = {
-    Authorization: `bearer ${authToken}`,
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  }
-
   const expectedOrderFormSections = ['items', 'customData', 'clientProfileData', 'paymentData', 'marketingData', 'storePreferencesData']
 
   return {
@@ -35,7 +29,7 @@ export default ({ account, authToken }: ReqContext) => {
       const url = routes.marketingData(account, orderFormId)
       const headers = {
         Accept: 'application/json',
-        Authorization: `bearer ${authToken}`,
+        'Proxy-Authorization': authToken,
         'Content-Type': 'application/json',
         Cookie: cookie
       }
@@ -47,9 +41,15 @@ export default ({ account, authToken }: ReqContext) => {
      * @param orderFormId Identificador do orderForm
      * @param hook Valor do hook
      */
-    updateOrderHook: (orderFormId: string, hook: any) => {
+    updateOrderHook: (orderFormId: string, hook: any, cookie: string) => {
       const url = routes.orderFormHooks(account, orderFormId)
-      return http.post(url, hook, { headers }).then(prop('data'))
+      const headers = {
+        Accept: 'application/json',
+        'Proxy-Authorization': authToken,
+        'Content-Type': 'application/json',
+        Cookie: cookie
+      }
+      return http.post(url, hook, { headers, withCredentials: true }).then(prop('data'))
     },    
     /**
      * Obtém o orderForm pelo identificador
@@ -61,7 +61,7 @@ export default ({ account, authToken }: ReqContext) => {
       const payload = { expectedOrderFormSections }
       const headers = {
         Accept: 'application/json',
-        Authorization: `bearer ${authToken}`,
+        'Proxy-Authorization': authToken,
         'Content-Type': 'application/json',
         Cookie: cookie
       }
@@ -75,7 +75,7 @@ export default ({ account, authToken }: ReqContext) => {
       const payload = { expectedOrderFormSections }
       const headers = {
         Accept: 'application/json',
-        Authorization: `bearer ${authToken}`,
+        'Proxy-Authorization': authToken,
         'Content-Type': 'application/json'
       }
       return http.post(url, payload, { headers }).then(prop('data'))
