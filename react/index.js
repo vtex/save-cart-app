@@ -360,7 +360,7 @@ class MyCarts extends Component {
                             {
                                 cartSaved ?
                                     <div className="w-100 tc pa2 pa3-ns">
-                                        <label className="f6">O carrinho atual está gravado como <b>"{cartSaved.name}"</b>.</label>
+                                        <p className="f6">O carrinho atual está gravado como <b>"{cartSaved.name}"</b>.</p>
                                     </div>
                                     : <SaveCart onClick={this.saveCart} />
                             }

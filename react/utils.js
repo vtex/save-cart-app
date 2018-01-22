@@ -203,10 +203,10 @@ export function setCookie(name, value, days, domain) {
 }
 
 export function getCookieUser(account){
-  let cookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
-
+  let cookie = getCookie(`VtexIdclientAutCookie_${account}`)
+  console.log('cookie antes ', cookie)
   if(cookie && cookie != null && cookie != ''){
-    return cookie
+    return `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
   }
 
   cookie = `VtexIdclientAutCookie=${getCookie(`VtexIdclientAutCookie`)}`
@@ -219,7 +219,7 @@ export function getCookieUser(account){
  * @param {*} orderForm Dados do orderForm 
  */
 export function getUserProfileId(orderForm) {
-  const userProfileId = orderForm.userType && orderForm.userType === 'callcenteroperator' ? orderForm.userType : orderForm.userProfileId
+  const userProfileId = orderForm.userType && orderForm.userType != null && orderForm.userType.toLowerCase() === 'callcenteroperator' ? orderForm.userType : orderForm.userProfileId
   return userProfileId
 }
 
@@ -229,5 +229,6 @@ export function getUserProfileId(orderForm) {
  * @param {*} orderForm Dados do orderForm 
  */
 export function userLogged(orderForm) {
-  return orderForm != null && (orderForm.loggedIn && orderForm.userProfileId != null || (orderForm.userType && orderForm.userType === 'callcenteroperator'))  
+  console.log('usuário logado?', orderForm != null && (orderForm.loggedIn && orderForm.userProfileId != null || (orderForm.userType && orderForm.userType != null && orderForm.userType.toLowerCase() === 'callcenteroperator')) )
+  return orderForm != null && (orderForm.loggedIn && orderForm.userProfileId != null || (orderForm.userType && orderForm.userType != null && orderForm.userType.toLowerCase() === 'callcenteroperator'))  
 }

@@ -198,7 +198,7 @@ export default {
             userProfileId: body.userProfileId,
             cookie: createCookie(body.orderFormId, body.vtexIdclientAutCookie)
           }
-          
+
           await processPaymentProfile(body.orderFormId, ioContext, operationData, logger)
 
           if (userResponse && Object.keys(userResponse).length !== 0) {
@@ -378,7 +378,7 @@ export default {
           return
         }
         const body = await parse(req)
-
+        console.log(body)
         if (body.userProfileId && body.userProfileId != '') {
           const vbaseUser = VBaseUser(authToken, account, workspace, body.userProfileId)
           const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
@@ -431,7 +431,7 @@ export default {
           }
         } else {
           res.status = 400
-          res.body = { errorMessage: 'Não existe carrinhos salvos para o usuário!' }
+          res.body = { errorMessage: 'O usuário precisa ser informado, por favor faça o login na loja!' }
         }
       } catch (err) {
         const errorMessage = 'Error list carts'

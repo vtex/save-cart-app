@@ -17,7 +17,7 @@ class ListCart extends Component {
                             items
                         }
                     </ul>
-                    : <label className="f6 center">Sua lista está vazia</label>
+                    : <div className="tc"><p className="f6">Sua lista está vazia</p></div>
                 }
             </div>
         )
