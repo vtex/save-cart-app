@@ -209,7 +209,7 @@ export function getCookieUser(account){
     return cookie
   }
 
-  let cookie = `VtexIdclientAutCookie=${getCookie(`VtexIdclientAutCookie`)}`
+  cookie = `VtexIdclientAutCookie=${getCookie(`VtexIdclientAutCookie`)}`
   return cookie
 }
 
