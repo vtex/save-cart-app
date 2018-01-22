@@ -202,10 +202,10 @@ export function setCookie(name, value, days, domain) {
   document.cookie = `${name}=${value}${expires}; domain=${domain}; path=/`
 }
 
-export function getCookieUser(account){
+export function getCookieUser(account) {
   let cookie = getCookie(`VtexIdclientAutCookie_${account}`)
-  
-  if(cookie && cookie != null && cookie != ''){
+
+  if (cookie && cookie != null && cookie != '') {
     return `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
   }
 
@@ -229,6 +229,6 @@ export function getUserProfileId(orderForm) {
  * @param {*} orderForm Dados do orderForm 
  */
 export function userLogged(orderForm) {
-  console.log('usuário logado?', orderForm != null && (orderForm.loggedIn && orderForm.userProfileId != null || (orderForm.userType && orderForm.userType != null && orderForm.userType.toLowerCase() === 'callcenteroperator')) )
-  return orderForm != null && (orderForm.loggedIn && orderForm.userProfileId != null || (orderForm.userType && orderForm.userType != null && orderForm.userType.toLowerCase() === 'callcenteroperator'))  
+  
+  return orderForm != null && (orderForm.loggedIn && orderForm.userProfileId != null && orderForm.userProfileId != '')
 }
