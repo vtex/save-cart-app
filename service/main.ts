@@ -198,7 +198,7 @@ export default {
             userProfileId: body.userProfileId,
             cookie: createCookie(body.orderFormId, body.vtexIdclientAutCookie)
           }
-
+          
           await processPaymentProfile(body.orderFormId, ioContext, operationData, logger)
 
           if (userResponse && Object.keys(userResponse).length !== 0) {

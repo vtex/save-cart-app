@@ -202,6 +202,17 @@ export function setCookie(name, value, days, domain) {
   document.cookie = `${name}=${value}${expires}; domain=${domain}; path=/`
 }
 
+export function getCookieUser(account){
+  let cookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
+
+  if(cookie && cookie != null && cookie != ''){
+    return cookie
+  }
+
+  let cookie = `VtexIdclientAutCookie=${getCookie(`VtexIdclientAutCookie`)}`
+  return cookie
+}
+
 /**
  * Obtém o identificador do usuário logado
  * 

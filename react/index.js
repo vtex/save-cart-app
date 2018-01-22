@@ -17,10 +17,10 @@ import {
     createUrlOrderForm,
     getNameApp,
     createItemListCarts,
-    getCookie,
     setCookie,
     getUserProfileId,
-    userLogged
+    userLogged,
+    getCookieUser
 } from './utils'
 
 class MyCarts extends Component {
@@ -148,7 +148,7 @@ class MyCarts extends Component {
         if (name && name.length > 0) {
             const { account, workspace } = window.__RUNTIME__
             const { orderForm } = this.state
-            const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
+            const vtexIdclientAutCookie = getCookieUser(account)
             const data = {
                 userProfileId: getUserProfileId(orderForm),
                 orderFormId: orderForm.orderFormId,
@@ -237,7 +237,7 @@ class MyCarts extends Component {
         const { account, workspace } = window.__RUNTIME__
         const { orderForm } = this.state
         const userProfileId = orderForm ? getUserProfileId(orderForm) : ''
-        const vtexIdclientAutCookie = `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
+        const vtexIdclientAutCookie = getCookieUser(account)
         const data = {
             userProfileId: userProfileId,
             vtexIdclientAutCookie: vtexIdclientAutCookie
