@@ -204,7 +204,7 @@ export function setCookie(name, value, days, domain) {
 
 export function getCookieUser(account){
   let cookie = getCookie(`VtexIdclientAutCookie_${account}`)
-  console.log('cookie antes ', cookie)
+  
   if(cookie && cookie != null && cookie != ''){
     return `VtexIdclientAutCookie_${account}=${getCookie(`VtexIdclientAutCookie_${account}`)}`
   }

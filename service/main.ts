@@ -378,7 +378,7 @@ export default {
           return
         }
         const body = await parse(req)
-        console.log(body)
+        
         if (body.userProfileId && body.userProfileId != '') {
           const vbaseUser = VBaseUser(authToken, account, workspace, body.userProfileId)
           const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())

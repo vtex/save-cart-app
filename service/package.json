@@ -1,6 +1,6 @@
 {
   "name": "vtex.save-cart",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "dependencies": {
     "@vtex/api": "^0.35.0",
     "axios": "^0.17.1",
