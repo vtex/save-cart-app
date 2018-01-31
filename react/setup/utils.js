@@ -8,7 +8,7 @@ export function validate({ required, maxLength, validChars }, str) {
   const errors = []
   const isLengthZero = str.length === 0
   const hasValidLength = str.length <= maxLength
-  const hasOnlyValidChars = validChars.rule.test(str)
+  const hasOnlyValidChars = validChars ? validChars.rule.test(str) : true
   if (required && isLengthZero) {
     errors.push('Blank input, please fill')
   }
