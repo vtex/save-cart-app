@@ -63,9 +63,9 @@ class MyCarts extends Component {
      * 2º - Adiciona um evento que toda vez que o orderForm for atualizado eu atualizo o valor no state
      */
     componentDidMount() {
-        Promise.resolve(window.vtexjs.checkout.getOrderForm())
-            .then(orderForm => this.setState({ orderForm }))
-            .then(this.listenOrderFormUpdated)
+        // Promise.resolve(window.vtexjs.checkout.getOrderForm())
+        //     .then(orderForm => this.setState({ orderForm }))
+        //     .then(this.listenOrderFormUpdated)
     }
 
     /**
@@ -73,7 +73,10 @@ class MyCarts extends Component {
      */
     componentWillMount() {
         Promise.resolve(getNameApp())
-            .then(nameApp => this.setState({ buttonName: nameApp }))
+            .then(nameApp => {
+                console.log(nameApp)
+                this.setState({ buttonName: nameApp })
+            })
     }
 
     /**
@@ -337,6 +340,9 @@ class MyCarts extends Component {
     }
 
     render() {
+
+        return (<div><h2>hahahahahaha</h2></div>)
+
         const { buttonName, items, messageError, messageSuccess, orderForm } = this.state
         const handleRemoveCart = this.removeCart
         const handleUseCart = this.useCart

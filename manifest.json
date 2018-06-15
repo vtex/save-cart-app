@@ -1,10 +1,11 @@
 {
-  "name": "save-cart",
+  "name": "savecart",
   "vendor": "vtex",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "title": "Save Cart",
   "description": "Save Cart",
-  "settingsSchema": {},
+  "defaultLocale": "pt-BR",
+  "credentialType": "absolute",
   "registries": [
     "smartcheckout"
   ],
@@ -12,21 +13,99 @@
     "smartcheckout"
   ],
   "dependencies": {
-    "vtex.masterdata-graphql": "0.x",
-    "vtex.extension-store": "0.x"
+    "vtex.checkout": "0.x",
+    "vtex.admin": "1.x"
   },
   "builders": {
+    "graphql": "1.x",
+    "node": "3.x",
     "react": "2.x",
-    "service-js": "1.x",
     "pages": "0.x"
   },
   "scripts": {
     "postreleasy": "vtex publish"
   },
   "supportWorkspaces": true,
+  "billingOptions": {
+    "free": true
+  },
   "policies": [
     {
-      "name": "full-access"
+      "name": "read-workspace-apps"
+    },
+    {
+      "name": "colossus-write-logs"
+    },
+    {
+      "name": "vbase-read-write",
+      "attrs": {
+        "bucket": "savecart"
+      }
+    },
+    {
+      "name": "AcessaTodosPedidos"
+    },
+    {
+      "name": "AdminPortal"
+    },
+    {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "{{account}}.vtexcommercestable.com.br",
+        "path": "/*"
+      }
+    },
+    {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "vtexid.vtex.com.br",
+        "path": "/api/vtexid/pub/authenticated/user"
+      }
+    },
+    {
+      "name": "OMSViewer"
+    },
+    {
+      "name": "POWER_USER_DS"
     }
-  ]
+  ],
+  "settingsSchema": {
+		"title": "Save Cart",
+		"type": "object",
+		"properties": {
+			"adminSetup": {
+				"title": "Save Cart Settings",
+				"type": "object",
+				"properties": {
+					"cartName": {
+						"title": "Cart Name",
+						"type": "string"
+					},
+					"cartQuantity": {
+						"title": "Maximum of items in the cart",
+						"type": "number",
+						"minimum": 1
+					}
+				},
+				"required": [
+					"cartName",
+					"cartQuantity"
+				]
+			}
+		},
+		"required": [
+			"adminSetup"
+		]
+	},
+	"settingsUiSchema": {
+		"ui:order": [
+			"adminSetup"
+		],
+		"adminSetup": {
+			"ui:order": [
+				"cartName",
+				"cartQuantity"
+			]
+		}
+	}
 }

@@ -1,0 +1,8 @@
+type Query {
+    changeAdminSetup (
+		cartName: String,
+        cartQuantity: Int,
+	): ChangeSetupResponse
+
+    getSetupConfig : GetSetupConfigResponse
+}

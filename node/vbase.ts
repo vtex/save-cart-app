@@ -1,8 +1,7 @@
 import { VBase } from '@vtex/api'
-import { getUserAgent } from './utils/conf'
 
 const service: string = "save-cart"
-const userAgent: string = getUserAgent()
+const userAgent: string = "VTEX Save Cart " + process.env.VTEX_APP_VERSION //Comando para pegar a versão do app
 
 /**
  * Função que faz a interface com o VBase (O banco de dados, no qual eu persisto arquivos)

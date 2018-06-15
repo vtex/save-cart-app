@@ -1,15 +1,5 @@
 {
-  "pages": {
-    "admin/extensions/manage/settings/vtex.save-cart": {
-      "path": "/vtex.save-cart",
-      "auth": true,
-      "theme": "setup/theme"
-    }
-  },
   "extensions": {
-    "admin/extensions/manage/settings/vtex.save-cart": {
-      "component": "setup/index"
-    },
     "checkout/buttons/save-cart": {
       "component": "index"
     }
