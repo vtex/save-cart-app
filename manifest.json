@@ -16,8 +16,9 @@
     "vtex.extension-store": "0.x"
   },
   "builders": {
-    "react": "0.x",
-    "service-js": "1.x"
+    "react": "2.x",
+    "service-js": "1.x",
+    "pages": "0.x"
   },
   "scripts": {
     "postreleasy": "vtex publish"
