@@ -15,12 +15,10 @@ import _ from 'underscore'
 import saveCartMutation from './graphql/saveCart.graphql'
 
 import {
-    createUrlSaveCart,
     createUrlRemoveCart,
     createUrlUseCart,
     createUrlListCarts,
     createUrlOrderForm,
-    createItemListCarts,
     setCookie,
     getUserProfileId,
     userLogged,
@@ -30,6 +28,7 @@ import {
 class MyCarts extends Component {
   static propTypes = {
     getSetupConfig: PropTypes.object,
+    saveCartMutation: PropTypes.func,
   }
 
   constructor(props) {
@@ -40,7 +39,7 @@ class MyCarts extends Component {
       items: [],
       messageError: '',
       messageSuccess: '',
-      enabledLoading: false
+      enabledLoading: false,
     }
 
     this.listenOrderFormUpdated = this.listenOrderFormUpdated.bind(this)
@@ -91,10 +90,10 @@ class MyCarts extends Component {
    * @param {*} error Error
    */
   handleProfileError(error) {
-      window.vtex.checkout.MessageUtils.showMessage({
-          status: 'fatal',
-          text: `Não foi possível se comunicar com o sistema de Profile. <br/>${error}`,
-      })
+    window.vtex.checkout.MessageUtils.showMessage({
+      status: 'fatal',
+      text: `Não foi possível se comunicar com o sistema de Profile. <br/>${error}`,
+    })
   }
 
   /**
@@ -164,12 +163,13 @@ class MyCarts extends Component {
         cartLifeSpan: cartLifeSpan,
       }
 
-      console.log(JSON.stringify(masterDataEntry))
-
-      saveCartMutation(masterDataEntry).then((data) => {
-        console.log(data)
+      this.props.saveCartMutation({variables: {
+        cart: masterDataEntry,
+      }}).then(() => {
+        this.activeLoading(false)
       }).catch((err) => {
         console.log(err)
+        this.activeLoading(false)
       })
     }
     // const vtexIdclientAutCookie = getCookieUser(account)
@@ -417,5 +417,6 @@ class MyCarts extends Component {
 }
 
 export default compose(
-  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: true } })
+  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: true } }),
+  graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false } }),
 )(MyCarts)
