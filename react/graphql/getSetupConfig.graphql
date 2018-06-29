@@ -2,7 +2,7 @@ query getSetupConfig {
   getSetupConfig {
     adminSetup {
       cartName
-      cartQuantity
+      cartLifeSpan
     }
   }
 }

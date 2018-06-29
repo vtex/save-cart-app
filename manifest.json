@@ -78,18 +78,18 @@
 				"type": "object",
 				"properties": {
 					"cartName": {
-						"title": "Cart Name",
+						"title": "Save Cart Button Name",
 						"type": "string"
 					},
-					"cartQuantity": {
-						"title": "Maximum of items in the cart",
+					"cartLifeSpan": {
+						"title": "Lifespan (in days) of saved cart",
 						"type": "number",
 						"minimum": 1
 					}
 				},
 				"required": [
 					"cartName",
-					"cartQuantity"
+					"cartLifeSpan"
 				]
 			}
 		},
@@ -104,7 +104,7 @@
 		"adminSetup": {
 			"ui:order": [
 				"cartName",
-				"cartQuantity"
+				"cartLifeSpan"
 			]
 		}
 	}

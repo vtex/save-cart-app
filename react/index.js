@@ -18,7 +18,6 @@ import {
     createUrlUseCart,
     createUrlListCarts,
     createUrlOrderForm,
-    getNameApp,
     createItemListCarts,
     setCookie,
     getUserProfileId,
@@ -34,7 +33,8 @@ class MyCarts extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      buttonName: 'Salvar Carrinho',
+      buttonName: 'Save Cart',
+      cartLifeSpan: 7,
       orderForm: null,
       isModalOpen: false,
       items: [],
@@ -51,12 +51,12 @@ class MyCarts extends Component {
 
     this.activeLoading = this.activeLoading.bind(this)
 
-    this.saveCart = this.saveCart.bind(this)
+    this.handleSaveCart = this.handleSaveCart.bind(this)
     this.removeCart = this.removeCart.bind(this)
     this.useCart = this.useCart.bind(this)
     this.listCarts = this.listCarts.bind(this)
 
-    this.openModal = this.openModal.bind(this)
+    this.handleOpenModal = this.handleOpenModal.bind(this)
     this.handleCloseModal = this.handleCloseModal.bind(this)
 
     this.removeItem = this.removeItem.bind(this)
@@ -70,20 +70,11 @@ class MyCarts extends Component {
    * 2º - Adiciona um evento que toda vez que o orderForm for atualizado eu atualizo o valor no state
    */
   componentDidMount() {
-    Promise.resolve(window.vtexjs.checkout.getOrderForm())
-      .then(orderForm => this.setState({ orderForm }))
-      .then(this.listenOrderFormUpdated)
-  }
+    console.log(this.props.getSetupConfig.getSetupConfig)
 
-  /**
-   * Essa função obtém o nome do botão antes do componente ser renderizado
-   */
-  componentWillMount() {
-    Promise.resolve(getNameApp())
-      .then(nameApp => {
-        console.log(nameApp)
-        this.setState({ buttonName: nameApp })
-      })
+    // Promise.resolve(window.vtexjs.checkout.getOrderForm())
+    //   .then(orderForm => this.setState({ orderForm }))
+    //   .then(this.listenOrderFormUpdated)
   }
 
   /**
@@ -151,7 +142,7 @@ class MyCarts extends Component {
    *
    * @param {*} name Nome do carrinho
    */
-  saveCart(name) {
+  handleSaveCart(name) {
       this.clearMessages()
       this.activeLoading(true)
 
@@ -279,7 +270,7 @@ class MyCarts extends Component {
    *  - Se o usuário estiver logado é chamada a função que obtém a lista de carrinhos do usuário
    *    e depois o modal é aberto
    */
-  openModal() {
+  handleOpenModal() {
       const { orderForm } = this.state
       if (userLogged(orderForm)) {
           window.checkout.loading(true)
@@ -352,7 +343,7 @@ class MyCarts extends Component {
     }
 
     const { items, messageError, messageSuccess, orderForm } = this.state
-    const buttonName = this.props.getSetupConfig.getSetupConfig.adminSetup.cartName ? this.props.getSetupConfig.getSetupConfig.adminSetup.cartName : 'gravar'
+    const buttonName = this.props.getSetupConfig.getSetupConfig.adminSetup.cartName ? this.props.getSetupConfig.getSetupConfig.adminSetup.cartName : 'Save Cart'
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
     const handleCurrentCartSaved = this.currentCartSaved
@@ -365,7 +356,7 @@ class MyCarts extends Component {
 
     return (
       <div>
-        <Button classes={"ph3 mb2 white bg-blue fr"} onClick={this.openModal}>
+        <Button classes={'ph3 mb2 white bg-blue fr'} onClick={this.handleOpenModal}>
           {buttonName}
         </Button>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
@@ -374,33 +365,32 @@ class MyCarts extends Component {
             <h4 className="f6 white mv0 mt0-m ttu">Meus Carrinhos <Loading visible={this.state.enabledLoading} /></h4>
           </div>
           <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
-              <Tab name="Salvar">
-                  {
-                      cartSaved ?
-                          <div className="w-100 tc pa2 pa3-ns">
-                              <p className="f6">O carrinho atual está gravado como <b>"{cartSaved.name}"</b>.</p>
-                          </div>
-                          : <SaveCart onClick={this.saveCart} />
-                  }
-              </Tab>
-              <Tab name="Listar">
-                  <ListCart {...optsListCart} />
-              </Tab>
-              <Tab name="Novo Carrinho">
-                  <div className="tc pa2 pa3-ns">
-                      {
-                          cartSaved ?
-                              <Button classes={"ph3 mb2 white bg-blue"} onClick={() => this.createNewCart()}>Criar Novo Carrinho</Button>
-                              :
-                              <div className="overflow-auto">
-                                  <div className="fl w-100">
-                                      <p className="f6">O carrinho atual não está salvo, deseja criar um novo mesmo assim?</p>
-                                  </div>
-                                  <Button classes={"ph3 mb2 white bg-blue"} onClick={() => this.createNewCart()}>Sim</Button>
-                              </div>
-                      }
+            <Tab name="Salvar">
+              {
+                cartSaved
+                  ? <div className="w-100 tc pa2 pa3-ns">
+                    <p className="f6">O carrinho atual está gravado como <b>"{cartSaved.name}"</b>.</p>
                   </div>
-              </Tab>
+                  : <SaveCart onClick={this.handleSaveCart} />
+              }
+            </Tab>
+            <Tab name="Listar">
+              <ListCart {...optsListCart} />
+            </Tab>
+            <Tab name="Novo Carrinho">
+              <div className="tc pa2 pa3-ns">
+                {
+                  cartSaved
+                    ? <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}>Criar Novo Carrinho</Button>
+                    : <div className="overflow-auto">
+                      <div className="fl w-100">
+                        <p className="f6">O carrinho atual não está salvo, deseja criar um novo mesmo assim?</p>
+                      </div>
+                      <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}>Sim</Button>
+                    </div>
+                }
+              </div>
+            </Tab>
           </Tabs>
         </Modal>
       </div>

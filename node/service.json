@@ -10,10 +10,6 @@
     "merchantInfoHandler": {
       "path": "/query/merchantInfo"
     },
-    "nameSaveCartHandler":{
-      "path": "/save-cart/name",
-      "public": true
-    },
     "saveCartHandler": {
       "path": "/save-cart/save",
       "public": true

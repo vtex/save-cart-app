@@ -1,8 +1,7 @@
 type Query {
-    changeAdminSetup (
-		cartName: String,
-        cartQuantity: Int,
-	): ChangeSetupResponse
-
-    getSetupConfig : GetSetupConfigResponse
+  changeAdminSetup (
+    cartName: String,
+    cartLifeSpan: Int,
+  ): ChangeSetupResponse
+  getSetupConfig : GetSetupConfigResponse
 }

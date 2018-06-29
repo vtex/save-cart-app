@@ -132,45 +132,6 @@ export default {
       }
     },
     /**
-     * Obtém o nome do botão da APP que está salvo nos dados de configuração da APP
-     */
-    nameSaveCartHandler: async (ctx) => {
-      const { response: res, vtex: ioContext } = ctx
-      const { account, workspace, authToken } = ioContext
-      const logger = colossus(account, workspace, authToken)
-
-      try {
-        setDefaultHeaders(res)
-
-        const vbaseApp = VBaseApp(authToken, account, workspace)
-        const merchantResponse = await vbaseApp.getFile().then(prop('data')).catch(notFound())
-
-        if (merchantResponse && Object.keys(merchantResponse).length !== 0) {
-          const merchantInfo = JSON.parse(merchantResponse.toString())
-
-          res.status = 200
-          res.body = merchantInfo.primaryButtonName
-        } else {
-          res.status = 400
-          res.body = { errorMessage: 'O APP não está configurado.' }
-        }
-      } catch (err) {
-        const errorMessage = 'Error list carts'
-        const { status, body, details } = errorResponse(err)
-
-        if (err.response) {
-          res.set('Content-Type', 'application/json')
-          res.status = status
-          res.body = { error: body }
-          logger.log(errorMessage, 'error', details)
-          return
-        }
-        logger.log(errorMessage, 'error', { errorMessage: err.message })
-        res.body = err
-        res.status = status
-      }
-    },
-    /**
      * Salva o carrinho atual do comprador
      */
     saveCartHandler: async (ctx) => {
@@ -244,7 +205,7 @@ export default {
       } catch (err) {
         const errorMessage = 'Error saveCart'
         const { status, body, details } = errorResponse(err)
-        
+
         if (err.response) {
           res.set('Content-Type', 'application/json')
           res.status = status
@@ -378,7 +339,7 @@ export default {
           return
         }
         const body = await parse(req)
-        
+
         if (body.userProfileId && body.userProfileId != '') {
           const vbaseUser = VBaseUser(authToken, account, workspace, body.userProfileId)
           const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
@@ -474,7 +435,7 @@ export default {
         if (!orderStatus[status]) {
           return
         }
-        
+
         const vbaseUser = VBaseUser(authToken, account, workspace, userProfileId)
         const userResponse = await vbaseUser.getFile().then(prop('data')).catch(notFound())
 

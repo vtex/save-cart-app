@@ -9,5 +9,5 @@ type GetSetupConfigResponse {
 
 type AdminSetupResponse {
     cartName: String
-    cartQuantity: Int
+    cartLifeSpan: Int
 }
