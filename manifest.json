@@ -46,6 +46,13 @@
       "name": "AcessaTodosPedidos"
     },
     {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "{{account}}.vtexcommercestable.com.br",
+        "path": "/api/dataentities/cart/*"
+      }
+    },
+    {
       "name": "AdminPortal"
     },
     {
