@@ -11,6 +11,8 @@ import Tab from './components/Tab'
 import Button from './components/Button'
 import SaveCart from './components/SaveCart'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
+import _ from 'underscore'
+import saveCartMutation from './graphql/saveCart.graphql'
 
 import {
     createUrlSaveCart,
@@ -33,8 +35,6 @@ class MyCarts extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      buttonName: 'Save Cart',
-      cartLifeSpan: 7,
       orderForm: null,
       isModalOpen: false,
       items: [],
@@ -70,11 +70,9 @@ class MyCarts extends Component {
    * 2º - Adiciona um evento que toda vez que o orderForm for atualizado eu atualizo o valor no state
    */
   componentDidMount() {
-    console.log(this.props.getSetupConfig.getSetupConfig)
-
-    // Promise.resolve(window.vtexjs.checkout.getOrderForm())
-    //   .then(orderForm => this.setState({ orderForm }))
-    //   .then(this.listenOrderFormUpdated)
+    Promise.resolve(window.vtexjs.checkout.getOrderForm())
+      .then(orderForm => this.setState({ orderForm }))
+      .then(this.listenOrderFormUpdated)
   }
 
   /**
@@ -125,7 +123,7 @@ class MyCarts extends Component {
    * Essa função limpa as mensagens de erro e sucesso do state
    */
   clearMessages() {
-      this.setState({ messageError: '', messageSuccess: '' })
+    this.setState({ messageError: '', messageSuccess: '' })
   }
 
   /**
@@ -134,46 +132,71 @@ class MyCarts extends Component {
    * @param {*} active Se está ativo sim ou não
    */
   activeLoading(active) {
-      this.setState({ enabledLoading: active })
+    this.setState({ enabledLoading: active })
   }
 
   /**
    * Essa função salva o carrinho atual so usuário
    *
    * @param {*} name Nome do carrinho
+   * @param {*} cartLifeSpan Tempo de duração do carrinho
    */
-  handleSaveCart(name) {
-      this.clearMessages()
-      this.activeLoading(true)
+  handleSaveCart(name, cartLifeSpan) {
+    this.clearMessages()
+    this.activeLoading(true)
 
-      if (name && name.length > 0) {
-          const { account, workspace } = window.__RUNTIME__
-          const { orderForm } = this.state
-          const vtexIdclientAutCookie = getCookieUser(account)
-          const data = {
-              userProfileId: getUserProfileId(orderForm),
-              orderFormId: orderForm.orderFormId,
-              name: name,
-              vtexIdclientAutCookie: vtexIdclientAutCookie
+    if (name && name.length > 0) {
+      const masterDataEntry = {
+        email: this.state.orderForm.clientProfileData.email,
+        items: _.map(this.state.orderForm.items, function(item) {
+          return {
+            skuName: item.skuName,
+            id: item.id,
+            productId: item.productId,
+            imageUrl: item.imageUrl,
+            listPrice: item.listPrice,
+            price: item.price,
+            quantity: item.quantity,
+            sellingPrice: item.sellingPrice,
           }
-
-          axios.post(createUrlSaveCart(account, workspace), qs.stringify(data))
-              .then(response => {
-                  let items = this.state.items
-                  const item = createItemListCarts(orderForm, name)
-                  items.push(item)
-                  this.setState({ items: items })
-                  this.activeLoading(false)
-                  this.handleUpdateSuccess('Carrinho salvo com sucesso!')
-              })
-              .catch((error) => {
-                  this.activeLoading(false)
-                  this.handleUpdateError(error.response)
-              })
-      } else {
-          this.activeLoading(false)
-          this.setState({ messageError: 'Por favor informe o nome do carrinho a ser salvo!' })
+        }),
+        creationDate: new Date().toISOString(),
+        cartLifeSpan: cartLifeSpan,
       }
+
+      console.log(JSON.stringify(masterDataEntry))
+
+      saveCartMutation(masterDataEntry).then((data) => {
+        console.log(data)
+      }).catch((err) => {
+        console.log(err)
+      })
+    }
+    // const vtexIdclientAutCookie = getCookieUser(account)
+    // const data = {
+    //   userProfileId: getUserProfileId(orderForm),
+    //   orderFormId: orderForm.orderFormId,
+    //   name: name,
+    //   vtexIdclientAutCookie: vtexIdclientAutCookie
+    // }
+
+    //   axios.post(createUrlSaveCart(account, workspace), qs.stringify(data))
+    //       .then(response => {
+    //           let items = this.state.items
+    //           const item = createItemListCarts(orderForm, name)
+    //           items.push(item)
+    //           this.setState({ items: items })
+    //           this.activeLoading(false)
+    //           this.handleUpdateSuccess('Carrinho salvo com sucesso!')
+    //       })
+    //       .catch((error) => {
+    //           this.activeLoading(false)
+    //           this.handleUpdateError(error.response)
+    //       })
+    // } else {
+    //     this.activeLoading(false)
+    //     this.setState({ messageError: 'Por favor informe o nome do carrinho a ser salvo!' })
+    // }
   }
 
   /**
@@ -338,26 +361,21 @@ class MyCarts extends Component {
   }
 
   render() {
-    if (this.props.getSetupConfig.loading){
+    if (this.props.getSetupConfig.loading) {
       return null
     }
 
     const { items, messageError, messageSuccess, orderForm } = this.state
-    const buttonName = this.props.getSetupConfig.getSetupConfig.adminSetup.cartName ? this.props.getSetupConfig.getSetupConfig.adminSetup.cartName : 'Save Cart'
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
     const handleCurrentCartSaved = this.currentCartSaved
     const optsListCart = { items, handleRemoveCart, handleUseCart, handleCurrentCartSaved }
-
     const cartSaved = items.find(val => orderForm != null && val.orderFormId === orderForm.orderFormId)
-
-    console.log(this.props.getSetupConfig.loading)
-    console.log(this.props.getSetupConfig.getSetupConfig)
 
     return (
       <div>
         <Button classes={'ph3 mb2 white bg-blue fr'} onClick={this.handleOpenModal}>
-          {buttonName}
+          {this.props.getSetupConfig.getSetupConfig.adminSetup.cartName || 'Save Cart'}
         </Button>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
@@ -371,7 +389,7 @@ class MyCarts extends Component {
                   ? <div className="w-100 tc pa2 pa3-ns">
                     <p className="f6">O carrinho atual está gravado como <b>"{cartSaved.name}"</b>.</p>
                   </div>
-                  : <SaveCart onClick={this.handleSaveCart} />
+                  : <SaveCart onClick={this.handleSaveCart} cartLifeSpan={this.props.getSetupConfig.getSetupConfig.adminSetup.cartLifeSpan || 7} />
               }
             </Tab>
             <Tab name="Listar">

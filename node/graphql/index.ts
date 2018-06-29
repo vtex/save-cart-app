@@ -8,10 +8,16 @@ const getAppId = () => {
 
 export const resolvers = {
   Query: {
-    getSetupConfig: async function (_, __, ctx) {
+    getSetupConfig: async (_, __, ctx) => {
       const apps = new Apps(ctx.vtex)
       const filter = getAppId()
       return apps.getAppSettings(filter).then((r) => (r))
+    }
+  },
+  Mutation: {
+    saveCart: async (_, params) => {
+      console.log(params)
+      return true
     }
   }
 }

@@ -5,3 +5,7 @@ type Query {
   ): ChangeSetupResponse
   getSetupConfig : GetSetupConfigResponse
 }
+
+type Mutation {
+  saveCart(cart: Cart): Boolean!
+}

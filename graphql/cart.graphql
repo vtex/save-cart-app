@@ -1,0 +1,17 @@
+input CartItem {
+  skuName: String
+  id: String
+  productId: String
+  imageUrl: String
+  listPrice: Int
+  price: Int
+  quantity: Int
+  sellingPrice: Int
+}
+
+input Cart {
+  email: String
+  items: [CartItem]
+  creationDate: String
+  cartLifeSpan: Int
+}
