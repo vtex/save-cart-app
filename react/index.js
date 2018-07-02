@@ -13,6 +13,7 @@ import SaveCart from './components/SaveCart'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
 import _ from 'underscore'
 import saveCartMutation from './graphql/saveCart.graphql'
+import getCarts from './graphql/getCarts.graphql'
 
 import {
     createUrlRemoveCart,
@@ -22,13 +23,13 @@ import {
     setCookie,
     getUserProfileId,
     userLogged,
-    getCookieUser,
 } from './utils'
 
 class MyCarts extends Component {
   static propTypes = {
     getSetupConfig: PropTypes.object,
     saveCartMutation: PropTypes.func,
+    getCarts: PropTypes.func,
   }
 
   constructor(props) {
@@ -37,6 +38,7 @@ class MyCarts extends Component {
       orderForm: null,
       isModalOpen: false,
       items: [],
+      carts: [],
       messageError: '',
       messageSuccess: '',
       enabledLoading: false,
@@ -102,11 +104,11 @@ class MyCarts extends Component {
    * @param {*} error Error
    */
   handleUpdateError(error) {
-      let message = error && error.data ? error.data.errorMessage : 'Não foi possível se comunicar com o sistema de Profile.'
-      if (error.data && error.data.error && error.data.error.message) {
-          message = error.data.error.message
-      }
-      this.setState({ messageError: message })
+    let message = error && error.data ? error.data.errorMessage : 'Não foi possível se comunicar com o sistema de Profile.'
+    if (error.data && error.data.error && error.data.error.message) {
+      message = error.data.error.message
+    }
+    this.setState({ messageError: message })
   }
 
   /**
@@ -115,7 +117,7 @@ class MyCarts extends Component {
    * @param {*} message Mensagem de sucesso
    */
   handleUpdateSuccess(message) {
-      this.setState({ messageSuccess: message })
+    this.setState({ messageSuccess: message })
   }
 
   /**
@@ -147,6 +149,7 @@ class MyCarts extends Component {
     if (name && name.length > 0) {
       const masterDataEntry = {
         email: this.state.orderForm.clientProfileData.email,
+        cartName: name,
         items: _.map(this.state.orderForm.items, function(item) {
           return {
             skuName: item.skuName,
@@ -167,36 +170,16 @@ class MyCarts extends Component {
         cart: masterDataEntry,
       }}).then(() => {
         this.activeLoading(false)
+        this.handleUpdateSuccess('Carrinho salvo com sucesso!')
+        this.listCarts()
       }).catch((err) => {
         console.log(err)
         this.activeLoading(false)
       })
+    } else {
+      this.activeLoading(false)
+      this.setState({ messageError: 'Por favor informe o nome do carrinho a ser salvo!' })
     }
-    // const vtexIdclientAutCookie = getCookieUser(account)
-    // const data = {
-    //   userProfileId: getUserProfileId(orderForm),
-    //   orderFormId: orderForm.orderFormId,
-    //   name: name,
-    //   vtexIdclientAutCookie: vtexIdclientAutCookie
-    // }
-
-    //   axios.post(createUrlSaveCart(account, workspace), qs.stringify(data))
-    //       .then(response => {
-    //           let items = this.state.items
-    //           const item = createItemListCarts(orderForm, name)
-    //           items.push(item)
-    //           this.setState({ items: items })
-    //           this.activeLoading(false)
-    //           this.handleUpdateSuccess('Carrinho salvo com sucesso!')
-    //       })
-    //       .catch((error) => {
-    //           this.activeLoading(false)
-    //           this.handleUpdateError(error.response)
-    //       })
-    // } else {
-    //     this.activeLoading(false)
-    //     this.setState({ messageError: 'Por favor informe o nome do carrinho a ser salvo!' })
-    // }
   }
 
   /**
@@ -258,18 +241,23 @@ class MyCarts extends Component {
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
-      const { account, workspace } = window.__RUNTIME__
-      const { orderForm } = this.state
-      const userProfileId = orderForm ? getUserProfileId(orderForm) : ''
-      const vtexIdclientAutCookie = getCookieUser(account)
-      const data = {
-          userProfileId: userProfileId,
-          vtexIdclientAutCookie: vtexIdclientAutCookie
-      }
+    // const { account, workspace } = window.__RUNTIME__
+    // const { orderForm } = this.state
+    // const userProfileId = orderForm ? getUserProfileId(orderForm) : ''
+    // const vtexIdclientAutCookie = getCookieUser(account)
 
-      return axios.post(`${createUrlListCarts(account, workspace)}`, data)
-          .then(response => response.data)
-          .catch(error => { throw error })
+    this.props.getCarts({variables: {
+      email: this.state.orderForm.clientProfileData.email,
+    }}).then((result) => {
+      console.log(result)
+      this.setState({
+        carts: result.data.getCarts,
+      })
+      this.activeLoading(false)
+    }).catch((err) => {
+      console.log(err)
+      this.activeLoading(false)
+    })
   }
 
   /**
@@ -294,33 +282,28 @@ class MyCarts extends Component {
    *    e depois o modal é aberto
    */
   handleOpenModal() {
-      const { orderForm } = this.state
-      if (userLogged(orderForm)) {
-          window.checkout.loading(true)
-          Promise.resolve(this.listCarts())
-              .then(response => {
-                  if (response.messages && response.messages.length > 0) {
-                      this.setState({ error: response.messages })
-                  }
-
-                  this.setState({ isModalOpen: true, items: response.listCarts })
-                  window.checkout.loading(false)
-              })
-              .catch(error => {
-                  window.checkout.loading(false)
-                  const response = error.response
-                  if (response && response.data && response.data.errorMessage && response.data.errorMessage != "") {
-                      this.handleProfileError(response.data.errorMessage)
-                  } if (response && response.data && response.data.error && response.data.error.message && response.data.error.message != "") {
-                      this.handleProfileError(response.data.error.message)
-                  }
-                  else {
-                      this.handleProfileError(error)
-                  }
-              })
-      } else {
-          Promise.resolve(window.vtexid.start())
-      }
+    const { orderForm } = this.state
+    if (userLogged(orderForm)) {
+      window.checkout.loading(true)
+      this.listCarts()
+      this.setState({ isModalOpen: true, items: [] })
+      window.checkout.loading(false)
+     // })
+          // .catch(error => {
+          //     window.checkout.loading(false)
+          //     const response = error.response
+          //     if (response && response.data && response.data.errorMessage && response.data.errorMessage != "") {
+          //         this.handleProfileError(response.data.errorMessage)
+          //     } if (response && response.data && response.data.error && response.data.error.message && response.data.error.message != "") {
+          //         this.handleProfileError(response.data.error.message)
+          //     }
+          //     else {
+          //         this.handleProfileError(error)
+          //     }
+          // })
+    } else {
+      Promise.resolve(window.vtexid.start())
+    }
   }
 
   /**
@@ -365,11 +348,11 @@ class MyCarts extends Component {
       return null
     }
 
-    const { items, messageError, messageSuccess, orderForm } = this.state
+    const { items, carts, messageError, messageSuccess, orderForm } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
     const handleCurrentCartSaved = this.currentCartSaved
-    const optsListCart = { items, handleRemoveCart, handleUseCart, handleCurrentCartSaved }
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, handleCurrentCartSaved }
     const cartSaved = items.find(val => orderForm != null && val.orderFormId === orderForm.orderFormId)
 
     return (
@@ -419,4 +402,5 @@ class MyCarts extends Component {
 export default compose(
   graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: true } }),
   graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false } }),
+  graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
 )(MyCarts)

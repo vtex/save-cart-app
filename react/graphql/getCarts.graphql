@@ -1,0 +1,19 @@
+mutation getCarts($email: String) {
+  getCarts(email: $email) {
+    email
+    cartName
+    items {
+      skuName
+      id
+      productId
+      imageUrl
+      listPrice
+      price
+      quantity
+      sellingPrice
+    }
+    creationDate
+    cartLifeSpan
+    id
+  }
+}

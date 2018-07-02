@@ -1,7 +1,8 @@
 {
   "properties": {
     "email": { "type": "string", "title":"Email" },
-    "cart": { "type": "object", "title":"Cart" },
+    "cartName": { "type": "string", "title":"Cart Name" },
+    "items": { "type": "array", "title":"Cart" },
     "creationDate": { "type": "string", "title":"Creation Date" },
     "cartLifeSpan": { "type": "string", "title":"Cart Life Span" }
   },

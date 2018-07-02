@@ -1,8 +1,8 @@
 {
   "stack": "nodejs",
-  "memory": 512,
+  "memory": 1024,
   "ttl": 300,
-  "timeout": 40,
+  "timeout": 60,
   "routes": {
     "saveMerchantHandler": {
       "path": "/mutation/saveMerchant"

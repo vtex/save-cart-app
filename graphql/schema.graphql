@@ -7,5 +7,6 @@ type Query {
 }
 
 type Mutation {
-  saveCart(cart: Cart): Boolean!
+  saveCart(cart: Cart) : Boolean!
+  getCarts(email: String) : [CartResponse]
 }

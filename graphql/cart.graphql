@@ -11,7 +11,28 @@ input CartItem {
 
 input Cart {
   email: String
+  cartName: String
   items: [CartItem]
   creationDate: String
   cartLifeSpan: Int
+}
+
+type CartResponse {
+  email: String
+  cartName: String
+  items: [CartResponseItem]
+  creationDate: String
+  cartLifeSpan: Int,
+  id: String
+}
+
+type CartResponseItem {
+  skuName: String
+  id: String
+  productId: String
+  imageUrl: String
+  listPrice: Int
+  price: Int
+  quantity: Int
+  sellingPrice: Int
 }
