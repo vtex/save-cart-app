@@ -1,0 +1,3 @@
+mutation removeCart($id: String) @context(scope:"private") {
+  removeCart(id: $id)
+}

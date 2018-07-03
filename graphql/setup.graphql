@@ -1,13 +1,13 @@
-type ChangeSetupResponse {
+type ChangeSetupResponse @context(scope: "private") {
 	success: Boolean
 	messages: [String]
 }
 
-type GetSetupConfigResponse {
+type GetSetupConfigResponse @context(scope: "private") {
     adminSetup: AdminSetupResponse
 }
 
-type AdminSetupResponse {
+type AdminSetupResponse @context(scope: "private") {
     cartName: String
     cartLifeSpan: Int
 }

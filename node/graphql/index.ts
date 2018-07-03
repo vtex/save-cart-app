@@ -11,6 +11,7 @@ const getAppId = () => {
 const routes = {
   saveCart: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents`,
   listCarts: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/search?_fields=email,cartName,items,creationDate,cartLifeSpan,id`,
+  removeCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents/${id}`,
 }
 
 export const resolvers = {
@@ -45,7 +46,7 @@ export const resolvers = {
       const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.vtex.ds.v10+json',
-        'REST-Range': 'resources=0-100',
+        'REST-Range': 'resources=0-200',
         'authorization': `bearer ${ctx.vtex.authToken}`
       }
       const url = routes.listCarts(ctx.vtex.account)
@@ -55,6 +56,23 @@ export const resolvers = {
         headers: headers
       })
       return data
+    },
+    removeCart: async (_, params, ctx) => {
+      console.log('removeCart')
+      console.log(params)
+      const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.vtex.ds.v10+json',
+        'authorization': `bearer ${ctx.vtex.authToken}`
+      }
+      const url = routes.removeCart(ctx.vtex.account, params.id)
+      const { data } = await http({
+        method: 'delete',
+        url: url,
+        headers: headers
+      })
+      console.log(data)
+      return true
     }
   }
 }

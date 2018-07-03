@@ -1,4 +1,4 @@
-mutation getCarts($email: String) {
+mutation getCarts($email: String) @context(scope:"private") {
   getCarts(email: $email) {
     email
     cartName

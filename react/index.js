@@ -14,11 +14,11 @@ import getSetupConfig from './graphql/getSetupConfig.graphql'
 import _ from 'underscore'
 import saveCartMutation from './graphql/saveCart.graphql'
 import getCarts from './graphql/getCarts.graphql'
+import removeCart from './graphql/removeCart.graphql'
 
 import {
     createUrlRemoveCart,
     createUrlUseCart,
-    createUrlListCarts,
     createUrlOrderForm,
     setCookie,
     getUserProfileId,
@@ -30,6 +30,7 @@ class MyCarts extends Component {
     getSetupConfig: PropTypes.object,
     saveCartMutation: PropTypes.func,
     getCarts: PropTypes.func,
+    removeCart: PropTypes.func,
   }
 
   constructor(props) {
@@ -60,7 +61,6 @@ class MyCarts extends Component {
     this.handleOpenModal = this.handleOpenModal.bind(this)
     this.handleCloseModal = this.handleCloseModal.bind(this)
 
-    this.removeItem = this.removeItem.bind(this)
     this.currentCartSaved = this.currentCartSaved.bind(this)
   }
 
@@ -80,10 +80,10 @@ class MyCarts extends Component {
    * Adiciona um evento para quando o orderForm for atualizado ele atualiza o orderForm no state
    */
   listenOrderFormUpdated() {
-      // eslint-disable-next-line
-      $(window).on('orderFormUpdated.vtex', (_, orderForm) =>
-          this.setState({ orderForm })
-      )
+    // eslint-disable-next-line
+    $(window).on('orderFormUpdated.vtex', (_, orderForm) =>
+        this.setState({ orderForm })
+    )
   }
 
   /**
@@ -146,8 +146,8 @@ class MyCarts extends Component {
     this.clearMessages()
     this.activeLoading(true)
 
-    if (name && name.length > 0) {
-      const masterDataEntry = {
+    if ((name && name.length > 0) && (this.state.orderForm.items && this.state.orderForm.items.length)) {
+      const cart = {
         email: this.state.orderForm.clientProfileData.email,
         cartName: name,
         items: _.map(this.state.orderForm.items, function(item) {
@@ -167,7 +167,7 @@ class MyCarts extends Component {
       }
 
       this.props.saveCartMutation({variables: {
-        cart: masterDataEntry,
+        cart: cart,
       }}).then(() => {
         this.activeLoading(false)
         this.handleUpdateSuccess('Carrinho salvo com sucesso!')
@@ -185,28 +185,21 @@ class MyCarts extends Component {
   /**
    * Essa função exclui o carrinho selecionado da base de dados da APP
    *
-   * @param {*} orderFormId Identificador do orderForm
+   * @param {*} id Identificador do orderForm
    */
-  removeCart(orderFormId) {
-      this.activeLoading(true)
-      const { account, workspace } = window.__RUNTIME__
-      const { orderForm } = this.state
-
-      const data = {
-          userProfileId: getUserProfileId(orderForm),
-          orderFormId: orderFormId
-      }
-
-      axios.post(createUrlRemoveCart(account, workspace), qs.stringify(data))
-          .then(response => {
-              this.activeLoading(false)
-              this.removeItem(orderFormId)
-              this.handleUpdateSuccess('Carrinho removido com sucesso!')
-          })
-          .catch((error) => {
-              this.activeLoading(false)
-              this.handleUpdateError(error.response)
-          })
+  removeCart(id) {
+    this.activeLoading(true)
+    this.props.removeCart({variables: {
+      id: id,
+    }}).then(() => {
+      this.activeLoading(false)
+      this.handleUpdateSuccess('Carrinho removido com sucesso!')
+      this.listCarts()
+    }).catch((err) => {
+      console.log(err)
+      this.activeLoading(false)
+      this.handleUpdateError(err.response)
+    })
   }
 
   /**
@@ -241,11 +234,7 @@ class MyCarts extends Component {
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
-    // const { account, workspace } = window.__RUNTIME__
-    // const { orderForm } = this.state
-    // const userProfileId = orderForm ? getUserProfileId(orderForm) : ''
-    // const vtexIdclientAutCookie = getCookieUser(account)
-
+    this.activeLoading(true)
     this.props.getCarts({variables: {
       email: this.state.orderForm.clientProfileData.email,
     }}).then((result) => {
@@ -258,19 +247,6 @@ class MyCarts extends Component {
       console.log(err)
       this.activeLoading(false)
     })
-  }
-
-  /**
-   * Métod auxiliar para remover o carrinho dos items que estão no state
-   *
-   * @param {*} orderFormId Identificador do orderForm
-   */
-  removeItem(orderFormId) {
-      let items = this.state.items
-      const indexItem = items.findIndex(val => val.orderFormId === orderFormId)
-
-      items.splice(indexItem, 1)
-      this.setState({ items: items })
   }
 
   /**
@@ -403,4 +379,5 @@ export default compose(
   graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: true } }),
   graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
+  graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
 )(MyCarts)
