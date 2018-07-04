@@ -4,9 +4,9 @@ import ItemCart from './ItemCart'
 
 class ListCart extends Component {
   render() {
-    const { handleRemoveCart, handleUseCart, handleCurrentCartSaved } = this.props
+    const { handleRemoveCart, handleUseCart } = this.props
     const items = this.props.carts.map(cart => {
-      return <ItemCart key={cart.id} cart={cart} handleRemoveCart={handleRemoveCart} handleUseCart={handleUseCart} handleCurrentCartSaved={handleCurrentCartSaved} />
+      return <ItemCart key={cart.id} cart={cart} handleRemoveCart={handleRemoveCart} handleUseCart={handleUseCart} />
     })
     return (
       <div className="overflow-y-scroll vh-50">
@@ -26,7 +26,6 @@ class ListCart extends Component {
 ListCart.propTypes = {
   handleRemoveCart: PropTypes.func,
   handleUseCart: PropTypes.func,
-  handleCurrentCartSaved: PropTypes.func,
   carts: PropTypes.array,
 }
 

@@ -1,4 +1,3 @@
-import qs from 'qs'
 import axios from 'axios'
 import React, { Component } from 'react'
 import { graphql, compose } from 'react-apollo'
@@ -17,11 +16,8 @@ import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 
 import {
-    createUrlRemoveCart,
-    createUrlUseCart,
     createUrlOrderForm,
     setCookie,
-    getUserProfileId,
     userLogged,
 } from './utils'
 
@@ -60,8 +56,6 @@ class MyCarts extends Component {
 
     this.handleOpenModal = this.handleOpenModal.bind(this)
     this.handleCloseModal = this.handleCloseModal.bind(this)
-
-    this.currentCartSaved = this.currentCartSaved.bind(this)
   }
 
   /**
@@ -211,26 +205,63 @@ class MyCarts extends Component {
    *
    * @param {*} orderFormId Identificador do orderForm
    */
-  useCart(orderFormId) {
-      this.activeLoading(true)
-      const { account, workspace } = window.__RUNTIME__
-      const { orderForm, items } = this.state
-      const data = {
-          userProfileId: getUserProfileId(orderForm),
-          orderFormId: orderFormId
-      }
+  async useCart(cart) {
+    this.activeLoading(true)
+    const { orderForm } = this.state
 
-      axios.post(createUrlUseCart(account, workspace), qs.stringify(data))
-          .then(response => {
-              setCookie('checkout.vtex.com', '', -1)
-              setCookie('checkout.vtex.com', `__ofid=${orderFormId}`, 30, `.${document.domain}`)
-              setCookie('checkout.vtex.com', `__ofid=${orderFormId}`, 30, `${document.domain}`)
-              location.reload()
-          })
-          .catch((error) => {
-              this.activeLoading(false)
-              this.handleUpdateError(error.response)
-          })
+    console.log(orderForm)
+    console.log(cart)
+
+    // CLEAR CURRENT CART
+    await axios({
+      url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/items/removeAll`,
+      method: 'post',
+      data: {
+        'expectedOrderFormSections': ['items'],
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    })
+      .then(response => {
+        console.log(response)
+      })
+      .catch((error) => {
+        this.activeLoading(false)
+        this.handleUpdateError(error.response)
+      })
+
+    // ADD ITEMS TO CART
+    await axios({
+      url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/items/`,
+      method: 'post',
+      data: {
+        'expectedOrderFormSections': ['items'],
+        'orderItems': _.map(cart.items, (item) => {
+          return {
+            id: item.id,
+            quantity: item.quantity,
+            seller: '1',
+          }
+        }),
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    })
+      .then(response => {
+        console.log(response)
+      })
+      .catch((error) => {
+        this.activeLoading(false)
+        this.handleUpdateError(error.response)
+      })
+
+    this.activeLoading(false)
+    location.reload()
+    return true
   }
 
   /**
@@ -265,7 +296,7 @@ class MyCarts extends Component {
     if (userLogged(orderForm)) {
       window.checkout.loading(true)
       this.listCarts()
-      this.setState({ isModalOpen: true, items: [] })
+      this.setState({ isModalOpen: true })
       window.checkout.loading(false)
      // })
           // .catch(error => {
@@ -314,14 +345,6 @@ class MyCarts extends Component {
       })
   }
 
-  /**
-   * Essa função verifica se o carrinho atual está na lista de carrinhos no state
-   */
-  currentCartSaved() {
-      const { orderForm, items } = this.state
-      return items.some(val => val.orderFormId === orderForm.orderFormId)
-  }
-
   render() {
     if (this.props.getSetupConfig.loading) {
       return null
@@ -330,8 +353,7 @@ class MyCarts extends Component {
     const { items, carts, messageError, messageSuccess, orderForm } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
-    const handleCurrentCartSaved = this.currentCartSaved
-    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, handleCurrentCartSaved }
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart }
     const cartSaved = items.find(val => orderForm != null && val.orderFormId === orderForm.orderFormId)
 
     return (

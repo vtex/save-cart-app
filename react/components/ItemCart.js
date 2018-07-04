@@ -9,17 +9,9 @@ class ItemCart extends Component {
     this.handleVerifyItem = this.handleVerifyItem.bind(this)
   }
 
-  handleVerifyItem(orderFormId) {
-    const { handleCurrentCartSaved, handleUseCart } = this.props
+  handleVerifyItem(cartId) {
     const nameAccordion = 'use'
-
-    this.closeAccordions(nameAccordion, orderFormId)
-
-    if (handleCurrentCartSaved()) {
-      handleUseCart(orderFormId)
-    } else {
-      this.openAccordion(nameAccordion, orderFormId)
-    }
+    this.openAccordion(nameAccordion, cartId)
   }
 
   openAccordion(name, orderFormId) {
@@ -72,8 +64,8 @@ class ItemCart extends Component {
         </div>
 
         <div id={`accordion-use-${cart.id}`} name="accordion" className="fl w-100 tc pa2 mv1 ba b--blue br3 dn">
-          <p className="f6">Deseja <b>usar</b> o carrinho <b>"{cart.cartName}"</b>, sem salvar o carrinho atual?</p>
-          <Button classes={'white ph3 mh2 mb1 bg-blue '} onClick={() => this.props.handleUseCart(cart.id)}>Sim</Button>
+          <p className="f6">Deseja <b>usar</b> o carrinho <b>"{cart.cartName}"</b>, ele vai sobrescrever carrinho atual?</p>
+          <Button classes={'white ph3 mh2 mb1 bg-blue '} onClick={() => this.props.handleUseCart(cart)}>Sim</Button>
           <Button classes={'white ph3 mh2 mb1 bg-red'} onClick={() => this.openAccordion('use', cart.id)}>Não</Button>
         </div>
 
@@ -94,8 +86,8 @@ class ItemCart extends Component {
 ItemCart.propTypes = {
   handleUseCart: PropTypes.func,
   handleRemoveCart: PropTypes.func,
-  handleCurrentCartSaved: PropTypes.func,
   item: PropTypes.object,
+  cart: PropTypes.object,
 }
 
 export default ItemCart
