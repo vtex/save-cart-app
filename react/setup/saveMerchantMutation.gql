@@ -1,5 +1,0 @@
-mutation saveMerchant($merchant: MerchantInput) {
-  saveMerchant(merchant: $merchant) {
-    id
-  }
-}

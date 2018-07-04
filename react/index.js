@@ -298,19 +298,6 @@ class MyCarts extends Component {
       this.listCarts()
       this.setState({ isModalOpen: true })
       window.checkout.loading(false)
-     // })
-          // .catch(error => {
-          //     window.checkout.loading(false)
-          //     const response = error.response
-          //     if (response && response.data && response.data.errorMessage && response.data.errorMessage != "") {
-          //         this.handleProfileError(response.data.errorMessage)
-          //     } if (response && response.data && response.data.error && response.data.error.message && response.data.error.message != "") {
-          //         this.handleProfileError(response.data.error.message)
-          //     }
-          //     else {
-          //         this.handleProfileError(error)
-          //     }
-          // })
     } else {
       Promise.resolve(window.vtexid.start())
     }
