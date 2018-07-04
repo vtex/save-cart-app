@@ -3,10 +3,9 @@
     "email": { "type": "string", "title":"Email" },
     "cartName": { "type": "string", "title":"Cart Name" },
     "items": { "type": "array", "title":"Cart" },
-    "creationDate": { "type": "string", "title":"Creation Date" },
-    "cartLifeSpan": { "type": "string", "title":"Cart Life Span" }
+    "creationDate": { "type": "string", "title":"Creation Date", "format": "date-time" }
   },
-  "v-indexed": [ "email", "creationDate", "cartLifeSpan" ],
-  "v-default-fields": [ "email", "cart", "creationDate", "cartLifeSpan" ],
+  "v-indexed": [ "email", "creationDate", "cartName" ],
+  "v-default-fields": [ "email", "cartName", "items", "creationDate"],
   "v-cache": false
 }
