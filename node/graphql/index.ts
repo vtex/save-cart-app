@@ -10,7 +10,7 @@ const getAppId = () => {
 
 const routes = {
   saveCart: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents`,
-  listCarts: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/search?_fields=email,cartName,items,creationDate,cartLifeSpan,id`,
+  listCarts: (account, email) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/search?email=${email}&_schema=v4&_fields=id,email,cartName,items,creationDate`,
   removeCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents/${id}`,
 }
 
@@ -43,13 +43,14 @@ export const resolvers = {
     getCarts: async (_, params, ctx) => {
       console.log('getCarts')
       console.log(params)
+      console.log(ctx.request.headers['x-vtex-credential'])
       const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.vtex.ds.v10+json',
-        'REST-Range': 'resources=0-200',
+        'REST-Range': 'resources=0-202',
         'authorization': `bearer ${ctx.vtex.authToken}`
       }
-      const url = routes.listCarts(ctx.vtex.account)
+      const url = routes.listCarts(ctx.vtex.account, params.email)
       const { data } = await http({
         method: 'get',
         url: url,

@@ -169,9 +169,12 @@ class MyCarts extends Component {
       this.props.saveCartMutation({variables: {
         cart: cart,
       }}).then(() => {
-        this.activeLoading(false)
-        this.handleUpdateSuccess('Carrinho salvo com sucesso!')
-        this.listCarts()
+        // WAIT MASTER DATA INDEXING
+        setTimeout(() => {
+          this.activeLoading(false)
+          this.handleUpdateSuccess('Carrinho salvo com sucesso!')
+          this.listCarts()
+        }, 1500)
       }).catch((err) => {
         console.log(err)
         this.activeLoading(false)
