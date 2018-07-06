@@ -213,6 +213,26 @@ class MyCarts extends Component {
     })
   }
 
+  async clearCart(orderFormId) {
+    await axios({
+      url: `/api/checkout/pub/orderForm/${orderFormId}/items/removeAll`,
+      method: 'post',
+      data: {
+        'expectedOrderFormSections': ['items'],
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    }).then(response => {
+      console.log(response)
+    }).catch((error) => {
+      this.activeLoading(false)
+      this.handleUpdateError(error.response)
+    })
+    return true
+  }
+
   /**
    * Essa função utiliza o orderFormId do carrinho selecionado para ser o carrinho atual
    * do usuário
@@ -227,24 +247,7 @@ class MyCarts extends Component {
     console.log(cart)
 
     // CLEAR CURRENT CART
-    await axios({
-      url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/items/removeAll`,
-      method: 'post',
-      data: {
-        'expectedOrderFormSections': ['items'],
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    })
-      .then(response => {
-        console.log(response)
-      })
-      .catch((error) => {
-        this.activeLoading(false)
-        this.handleUpdateError(error.response)
-      })
+    await this.clearCart(orderForm.orderFormId)
 
     // ADD ITEMS TO CART
     await axios({
@@ -327,22 +330,13 @@ class MyCarts extends Component {
   /**
    * Essa função cria um novo orderForm em branco
    */
-  createNewCart() {
-    // this.activeLoading(true)
-    // const { account, workspace } = window.__RUNTIME__
-    // const url = createUrlOrderForm(account, workspace)
-
-    // axios.get(url)
-    //   .then(response => {
-    //     const orderForm = response.data
-    //     setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `.${document.domain}`)
-    //     setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `${document.domain}`)
-    //     location.reload()
-    //   })
-    //   .catch(error => {
-    //     this.activeLoading(false)
-    //     this.handleUpdateError(error.response)
-    //   })
+  async createNewCart() {
+    const { orderForm } = this.state
+    this.activeLoading(true)
+    await this.clearCart(orderForm.orderFormId)
+    this.activeLoading(false)
+    location.reload()
+    return true
   }
 
   render() {
