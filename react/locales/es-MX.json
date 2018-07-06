@@ -1,0 +1,43 @@
+{
+"modal.header": "Mis Cotizaciones",
+"modal.save": "Guardar", 
+"modal.list": "Listar cotizaciones",
+"modal.new": "Nueva cotización",
+"modal.name": "Nombre",
+
+
+"cart.saved": "La cotización actual está grabada como", 
+"cart.saved.success": "La cotización se salvó con éxito!",
+"cart.saved.error": "Error al  guardar la cotización!",
+"cart.saved.clear": "La cotización actual está grabada como", 
+"cart.saved.noname": "Por favor informe el nombre de la cotización que se va a salvar!",
+
+"cart.removed.success": "Cotización removida con éxito!",
+
+"cart.delete.1": "Desea", 
+"cart.delete.2": "eliminar",
+"cart.delete.3": "la cotización?",
+"cart.delete.yes": "sí", 
+"cart.delete.no": "no", 
+"Cart.delete.usar": "uso",
+"cart.delete.success": "Cotización removida con éxito!",
+
+"cart.use": "Usar", 
+"cart.overwrite": "Se sobrescribirá la cotización actual",
+"cart.quote": "la cotización",
+"quotes": "Cotizaciones",
+
+
+"cart.confirm": "La cotización se borrará, desea crear una nueva así?",
+"cart.yes": "Sí", 
+"Cart.no": "No",
+
+"list.empty": "Su cotización está vacía",
+"generic.error": "No se pudo comunicar con el sistema de perfil."
+
+
+
+
+
+
+}

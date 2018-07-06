@@ -9,7 +9,7 @@
 "cart.saved": "O cotação atual está gravado como ",
 "cart.saved.success": "Cotação salva com sucesso!",
 "cart.saved.error": "Erro ao tentar salvar cotação!",
-"cart.saved.clear": "O carrinho atual está gravado como ",
+"cart.saved.clear": "A cotação atual está gravada como ",
 "cart.saved.noname": "Por favor informe o nome da cotação a ser salva!",
 
 "cart.removed.success": "Cotação removida com sucesso!",
