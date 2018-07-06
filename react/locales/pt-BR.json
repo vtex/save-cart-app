@@ -1,5 +1,5 @@
 { 
-"modal.header": "Meu Carrinho",
+"modal.header": "Minhas Cotações",
 "modal.save": "Salvar",
 "modal.list": "Listar Cotacoes",
 "modal.new": "Nova Cotação",
@@ -20,7 +20,7 @@
 "cart.delete.yes": "sim ",
 "cart.delete.no": "não ",
 "cart.delete.usar":"usar",
-"cart.delete.success":"cart.delete.success",
+"cart.delete.success":"Cotação removida com sucesso!",
 
 "cart.use": "Usar ",
 "cart.overwrite": "Ele vai sobrescrever a cotação atual ",

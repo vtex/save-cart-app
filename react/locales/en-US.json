@@ -1,36 +1,39 @@
 { 
-"modal.header": "My cart",
+"modal.header": "My quotes",
 "modal.save": "Save",
-"modal.list": "List",
-"modal.new": "New Cart",
+"modal.list": "List Quotes",
+"modal.new": "New quote",
 "modal.name": "Name",
 
 
-"cart.saved": "O carrinho atual está gravado como ",
-"cart.saved.success": "Carrinho salvo com sucesso!",
-"cart.saved.error": "O carrinho atual está gravado como ",
-"cart.saved.clear": "O carrinho atual está gravado como ",
-"cart.saved.noname": "Por favor informe o nome do carrinho a ser salvo! ",
+"cart.saved": "This quote is saved as: ",
+"cart.saved.success": "Quote successfully saved!",
+"cart.saved.error": "Error: Something went wrong while trying to save the quote",
+"cart.saved.clear": "Current quote is saved as:",
+"cart.saved.noname": "Hey! You forgot to name your quote",
 
-"cart.removed.success": "Carrinho removido com sucesso!",
+"cart.removed.success": "Quote removed successfully",
 
-"cart.delete.1": "Deseja",
-"cart.delete.2": "excluir",
-"cart.delete.3": "o carrinho? ",
+"cart.delete.1": "Would you like",
+"cart.delete.2": "to delete",
+"cart.delete.3": "the quote? ",
 "cart.delete.yes": "yes ",
 "cart.delete.no": "no ",
+"cart.delete.usar":"use",
+"cart.delete.success":"Quote removed successfully",
 
 "cart.use": "Use ",
-"cart.overwrite": "Ele vai sobrescrever o carrinho atual ",
+"cart.overwrite": "It will overwrite the current ",
+"cart.quote":"quote",
+"quotes": "Quotes",
 
 
-
-
-"cart.confirm":"O carrinho atual não está salvo, deseja criar um novo mesmo assim?",
+"cart.confirm":"Quote will be deleted. Do you wish to proceed?",
 "cart.yes": "Sim",
 "cart.no":"Não",
 
-"list.empty":"Your list is empty"
+"list.empty":"Your quote is empty",
+"generic.error":"Something went wrong :( We were unable to communcate with the Profile system."
 
 
 
