@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import ListProduct from './ListProduct'
 import Button from './Button'
+import { FormattedMessage, injectIntl} from 'react-intl' 
+
+
 
 class ItemCart extends Component {
   constructor(props) {
@@ -53,26 +56,26 @@ class ItemCart extends Component {
 
         <div className="fl w-50 w-25-ns flex-auto pr2">
           <Button classes={'w-100 ph3 white bg-blue'} onClick={() => this.handleVerifyItem(cart.id)}>
-            Usar
+          <FormattedMessage id="cart.use"/>
           </Button>
         </div>
 
         <div className="fl w-50 w-25-ns flex-auto pr2">
           <Button classes={'w-100 ph1 white bg-red'} onClick={() => this.openAccordion('delete', cart.id)}>
-            Excluir
+            <FormattedMessage id="cart.delete.2wha"/>
           </Button>
         </div>
 
         <div id={`accordion-use-${cart.id}`} name="accordion" className="fl w-100 tc pa2 mv1 ba b--blue br3 dn">
-          <p className="f6">Deseja <b>usar</b> o carrinho <b>"{cart.cartName}"</b>, ele vai sobrescrever carrinho atual?</p>
-          <Button classes={'white ph3 mh2 mb1 bg-blue '} onClick={() => this.props.handleUseCart(cart)}>Sim</Button>
-          <Button classes={'white ph3 mh2 mb1 bg-red'} onClick={() => this.openAccordion('use', cart.id)}>Não</Button>
+          <p className="f6"><FormattedMessage id="cart.delete.1"/> <b><FormattedMessage id="cart.use"/></b><FormattedMessage id="cart.delete.3"/><b>"{cart.cartName}"</b><FormattedMessage id="cart.overwrite"/></p>
+          <Button classes={'white ph3 mh2 mb1 bg-blue '} onClick={() => this.props.handleUseCart(cart)}><FormattedMessage id="cart.delete.yes"/></Button>
+          <Button classes={'white ph3 mh2 mb1 bg-red'} onClick={() => this.openAccordion('use', cart.id)}><FormattedMessage id="cart.delete.no"/></Button>
         </div>
 
         <div id={`accordion-delete-${cart.id}`} name="accordion" className="fl w-100 tc pa2 mv1 ba b--dark-red br3 dn">
           <p className="f6">Deseja <b>excluir</b> o carrinho <b>"{cart.cartName}"</b>?</p>
-          <Button classes={'white ph3 mh2 mb1 bg-blue '} onClick={() => this.props.handleRemoveCart(cart.id)}>Sim</Button>
-          <Button classes={'white ph3 mh2 mb1 bg-red'} onClick={() => this.openAccordion('delete', cart.id)}>Não</Button>
+          <Button classes={'white ph3 mh2 mb1 bg-blue '} onClick={() => this.props.handleRemoveCart(cart.id)}><FormattedMessage id="cart.delete.yes"/></Button>
+          <Button classes={'white ph3 mh2 mb1 bg-red'} onClick={() => this.openAccordion('delete', cart.id)}><FormattedMessage id="cart.delete.no"/></Button>
         </div>
 
         <div id={`accordion-products-${cart.id}`} name="accordion" className="fl w-100 dn">

@@ -1,0 +1,40 @@
+{ 
+"modal.header": "My cart",
+"modal.save": "Save",
+"modal.list": "List",
+"modal.new": "New Cart",
+"modal.name": "Name",
+
+
+"cart.saved": "O carrinho atual está gravado como ",
+"cart.saved.success": "Carrinho salvo com sucesso!",
+"cart.saved.error": "O carrinho atual está gravado como ",
+"cart.saved.clear": "O carrinho atual está gravado como ",
+"cart.saved.noname": "Por favor informe o nome do carrinho a ser salvo! ",
+
+"cart.removed.success": "Carrinho removido com sucesso!",
+
+"cart.delete.1": "Deseja",
+"cart.delete.2": "excluir",
+"cart.delete.3": "o carrinho? ",
+"cart.delete.yes": "yes ",
+"cart.delete.no": "no ",
+
+"cart.use": "Use ",
+"cart.overwrite": "Ele vai sobrescrever o carrinho atual ",
+
+
+
+
+"cart.confirm":"O carrinho atual não está salvo, deseja criar um novo mesmo assim?",
+"cart.yes": "Sim",
+"cart.no":"Não",
+
+"list.empty":"Your list is empty"
+
+
+
+
+
+
+}

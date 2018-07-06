@@ -9,6 +9,8 @@
     "apollo-client": "2.0.4",
     "bluebird": "^3.4.7",
     "qs": "^6.4.0",
-    "underscore": "1.9.1"
+    "underscore": "1.9.1",
+
+    "react-intl": "^2.4.0"
   }
 }

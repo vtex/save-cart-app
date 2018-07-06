@@ -14,6 +14,7 @@ import _ from 'underscore'
 import saveCartMutation from './graphql/saveCart.graphql'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
+import { FormattedMessage, injectIntl} from 'react-intl' 
 
 import {
     createUrlOrderForm,
@@ -166,7 +167,7 @@ class MyCarts extends Component {
         // WAIT MASTER DATA INDEXING
         setTimeout(() => {
           this.activeLoading(false)
-          this.handleUpdateSuccess('Carrinho salvo com sucesso!')
+          this.handleUpdateSuccess(<FormattedMessage id="cart.saved.success"/>)
           this.listCarts()
         }, 1500)
       }).catch((err) => {
@@ -175,7 +176,8 @@ class MyCarts extends Component {
       })
     } else {
       this.activeLoading(false)
-      this.setState({ messageError: 'Por favor informe o nome do carrinho a ser salvo!' })
+      this.setState({ messageError: <FormattedMessage id="cart.saved.noname"/>
+    })
     }
   }
 
@@ -190,7 +192,7 @@ class MyCarts extends Component {
       id: id,
     }}).then(() => {
       this.activeLoading(false)
-      this.handleUpdateSuccess('Carrinho removido com sucesso!')
+      this.handleUpdateSuccess(<FormattedMessage id="modal.header"/>)
       this.listCarts()
     }).catch((err) => {
       console.log(err)
@@ -333,6 +335,7 @@ class MyCarts extends Component {
   }
 
   render() {
+    const intl = this.props.intl
     if (this.props.getSetupConfig.loading) {
       return null
     }
@@ -351,31 +354,31 @@ class MyCarts extends Component {
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
             <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-            <h4 className="f6 white mv0 mt0-m ttu">Meus Carrinhos <Loading visible={this.state.enabledLoading} /></h4>
+            <h4 className="f6 white mv0 mt0-m ttu"> <FormattedMessage id="modal.header"/> <Loading visible={this.state.enabledLoading} /></h4>
           </div>
           <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
-            <Tab name="Salvar">
+            <Tab name={intl.formatMessage({ id: 'modal.save' })}>
               {
                 cartSaved
                   ? <div className="w-100 tc pa2 pa3-ns">
-                    <p className="f6">O carrinho atual está gravado como <b>"{cartSaved.name}"</b>.</p>
+                    <p className="f6"><FormattedMessage id="cart.saved"/><b>"{cartSaved.name}"</b>.</p>
                   </div>
                   : <SaveCart onClick={this.handleSaveCart} cartLifeSpan={this.props.getSetupConfig.getSetupConfig.adminSetup.cartLifeSpan || 7} />
               }
             </Tab>
-            <Tab name="Listar">
+            <Tab name={intl.formatMessage({ id: 'modal.list' })}>
               <ListCart {...optsListCart} />
             </Tab>
-            <Tab name="Novo Carrinho">
+            <Tab name={intl.formatMessage({ id: 'modal.new' })}>
               <div className="tc pa2 pa3-ns">
                 {
                   cartSaved
-                    ? <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}>Criar Novo Carrinho</Button>
+                    ? <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}><FormattedMessage id="modal.new"/></Button>
                     : <div className="overflow-auto">
                       <div className="fl w-100">
-                        <p className="f6">O carrinho atual não está salvo, deseja criar um novo mesmo assim?</p>
+                        <p className="f6"><FormattedMessage id="cart.confirm"/></p>
                       </div>
-                      <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}>Sim</Button>
+                      <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}><FormattedMessage id="cart.yes"/></Button>
                     </div>
                 }
               </div>
@@ -387,9 +390,9 @@ class MyCarts extends Component {
   }
 }
 
-export default compose(
+export default injectIntl(compose(
   graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: true } }),
   graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
-)(MyCarts)
+)(MyCarts))
