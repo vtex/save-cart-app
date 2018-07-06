@@ -99,5 +99,5 @@ export function getUserProfileId(orderForm) {
  * @param {*} orderForm Dados do orderForm
  */
 export function userLogged(orderForm) {
-  return orderForm != null && (orderForm.loggedIn && orderForm.userProfileId !== null && orderForm.userProfileId !== '')
+  return orderForm != null && orderForm.loggedIn
 }
