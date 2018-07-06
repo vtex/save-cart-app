@@ -34,7 +34,7 @@ class SaveCart extends Component {
         </div>
         <div className="fl w-100 w-20-ns flex-auto">
           <Button classes={"ph3 mb2 white bg-blue"} onClick={this.handleClick}>
-            Salvar!
+            <FormattedMessage id="modal.save"/>
           </Button>
         </div>
       </div>

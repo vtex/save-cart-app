@@ -87,7 +87,7 @@ class MyCarts extends Component {
   handleProfileError(error) {
     window.vtex.checkout.MessageUtils.showMessage({
       status: 'fatal',
-      text: `Não foi possível se comunicar com o sistema de Profile. <br/>${error}`,
+      text: `<FormattedMessage id="generic.error"/> ${error}`,
     })
   }
 
@@ -97,7 +97,7 @@ class MyCarts extends Component {
    * @param {*} error Error
    */
   handleUpdateError(error) {
-    let message = error && error.data ? error.data.errorMessage : 'Não foi possível se comunicar com o sistema de Profile.'
+    let message = error && error.data ? error.data.errorMessage : <FormattedMessage id="generic.error"/>
     if (error.data && error.data.error && error.data.error.message) {
       message = error.data.error.message
     }
@@ -383,7 +383,7 @@ class MyCarts extends Component {
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
             <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-            <h4 className="f6 white mv0 mt0-m ttu">Cotações <Loading visible={this.state.enabledLoading} /></h4>
+            <h4 className="f6 white mv0 mt0-m ttu"><FormattedMessage id="quotes"/> <Loading visible={this.state.enabledLoading} /></h4>
           </div>
           <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
             <Tab name="Salvar Cotação Atual">
