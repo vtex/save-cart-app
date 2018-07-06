@@ -64,13 +64,13 @@ class ItemCart extends Component {
         </div>
 
         <div id={`accordion-use-${cart.id}`} name="accordion" className="fl w-100 tc pa2 mv1 ba b--blue br3 dn">
-          <p className="f6">Deseja <b>usar</b> o carrinho <b>"{cart.cartName}"</b>, ele vai sobrescrever carrinho atual?</p>
+          <p className="f6">Deseja <b>usar</b> a cotação <b>"{cart.cartName}"</b>, ela vai sobrescrever seu carrinho atual?</p>
           <Button classes={'white ph3 mh2 mb1 bg-blue '} onClick={() => this.props.handleUseCart(cart)}>Sim</Button>
           <Button classes={'white ph3 mh2 mb1 bg-red'} onClick={() => this.openAccordion('use', cart.id)}>Não</Button>
         </div>
 
         <div id={`accordion-delete-${cart.id}`} name="accordion" className="fl w-100 tc pa2 mv1 ba b--dark-red br3 dn">
-          <p className="f6">Deseja <b>excluir</b> o carrinho <b>"{cart.cartName}"</b>?</p>
+          <p className="f6">Deseja <b>excluir</b> a cotação <b>"{cart.cartName}"</b>?</p>
           <Button classes={'white ph3 mh2 mb1 bg-blue '} onClick={() => this.props.handleRemoveCart(cart.id)}>Sim</Button>
           <Button classes={'white ph3 mh2 mb1 bg-red'} onClick={() => this.openAccordion('delete', cart.id)}>Não</Button>
         </div>

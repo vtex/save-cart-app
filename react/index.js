@@ -167,9 +167,9 @@ class MyCarts extends Component {
             carts: carts,
           })
           this.activeLoading(false)
-          this.handleUpdateSuccess('Carrinho salvo com sucesso!')
+          this.handleUpdateSuccess('Cotação salva com sucesso!')
         } else {
-          this.setState({ messageError: 'Erro ao tentar salvar carrinho!' })
+          this.setState({ messageError: 'Erro ao tentar salvar cotação!' })
           this.activeLoading(false)
         }
       }).catch((err) => {
@@ -178,7 +178,7 @@ class MyCarts extends Component {
       })
     } else {
       this.activeLoading(false)
-      this.setState({ messageError: 'Por favor informe o nome do carrinho a ser salvo!' })
+      this.setState({ messageError: 'Por favor informe o nome da cotação a ser salva!' })
     }
   }
 
@@ -354,7 +354,6 @@ class MyCarts extends Component {
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
     const optsListCart = { items, carts, handleRemoveCart, handleUseCart }
-    const cartSaved = items.find(val => orderForm != null && val.orderFormId === orderForm.orderFormId)
 
     return (
       <div>
@@ -364,32 +363,26 @@ class MyCarts extends Component {
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
             <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-            <h4 className="f6 white mv0 mt0-m ttu">Meus Carrinhos <Loading visible={this.state.enabledLoading} /></h4>
+            <h4 className="f6 white mv0 mt0-m ttu">Cotações <Loading visible={this.state.enabledLoading} /></h4>
           </div>
           <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
-            <Tab name="Salvar">
+            <Tab name="Salvar Cotação Atual">
               {
-                cartSaved
-                  ? <div className="w-100 tc pa2 pa3-ns">
-                    <p className="f6">O carrinho atual está gravado como <b>"{cartSaved.name}"</b>.</p>
-                  </div>
-                  : <SaveCart onClick={this.handleSaveCart} />
+                <SaveCart onClick={this.handleSaveCart} />
               }
             </Tab>
-            <Tab name="Listar">
+            <Tab name="Listar Cotações">
               <ListCart {...optsListCart} />
             </Tab>
             <Tab name="Novo Carrinho">
               <div className="tc pa2 pa3-ns">
                 {
-                  cartSaved
-                    ? <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}>Criar Novo Carrinho</Button>
-                    : <div className="overflow-auto">
-                      <div className="fl w-100">
-                        <p className="f6">O carrinho atual não está salvo, deseja criar um novo mesmo assim?</p>
-                      </div>
-                      <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}>Sim</Button>
+                  <div className="overflow-auto">
+                    <div className="fl w-100">
+                      <p className="f6">O carrinho será esvaziado, deseja criar mesmo assim?</p>
                     </div>
+                    <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}>Sim</Button>
+                  </div>
                 }
               </div>
             </Tab>
