@@ -276,6 +276,29 @@ class MyCarts extends Component {
         this.handleUpdateError(error.response)
       })
 
+    // SE FOR TELEVENDAS
+    if (orderForm.userType !== null) {
+      const priceRequests = []
+      _.each(cart.items, (item, key) => {
+        priceRequests.push(axios({
+          url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/items/${key}/price`,
+          method: 'put',
+          data: {
+            'price': item.sellingPrice,
+          },
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        }))
+      })
+      await axios.all(priceRequests).then((result) => {
+        console.log(result)
+      }).catch((err) => {
+        console.log(err)
+      })
+    }
+
     this.activeLoading(false)
     location.reload()
     return true
@@ -344,7 +367,7 @@ class MyCarts extends Component {
       return null
     }
 
-    const { items, carts, messageError, messageSuccess, orderForm } = this.state
+    const { items, carts, messageError, messageSuccess } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
     const optsListCart = { items, carts, handleRemoveCart, handleUseCart }
