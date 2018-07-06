@@ -32,13 +32,16 @@ export const resolvers = {
         'authorization': `bearer ${ctx.vtex.authToken}`
       }
       const url = routes.saveCart(ctx.vtex.account)
-      await http({
+      const { data } = await http({
         method: 'post',
         url: url,
         data: params.cart,
         headers: headers
       })
-      return true
+      console.log(data)
+      if (data.Id) {
+        return data.Id
+      }
     },
     getCarts: async (_, params, ctx) => {
       console.log('getCarts')
@@ -47,7 +50,7 @@ export const resolvers = {
       const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.vtex.ds.v10+json',
-        'REST-Range': 'resources=0-202',
+        'REST-Range': `resources=0-100`,
         'authorization': `bearer ${ctx.vtex.authToken}`
       }
       const url = routes.listCarts(ctx.vtex.account, params.email)
@@ -56,6 +59,7 @@ export const resolvers = {
         url: url,
         headers: headers
       })
+      console.log(data)
       return data
     },
     removeCart: async (_, params, ctx) => {
@@ -67,13 +71,15 @@ export const resolvers = {
         'authorization': `bearer ${ctx.vtex.authToken}`
       }
       const url = routes.removeCart(ctx.vtex.account, params.id)
-      const { data } = await http({
+      const result = await http({
         method: 'delete',
         url: url,
         headers: headers
       })
-      console.log(data)
-      return true
+      if (result.status === 204){
+        return true
+      }
+      return false
     }
   }
 }

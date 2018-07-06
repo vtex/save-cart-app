@@ -16,8 +16,6 @@ import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 
 import {
-    createUrlOrderForm,
-    setCookie,
     userLogged,
 } from './utils'
 
@@ -134,9 +132,8 @@ class MyCarts extends Component {
    * Essa função salva o carrinho atual so usuário
    *
    * @param {*} name Nome do carrinho
-   * @param {*} cartLifeSpan Tempo de duração do carrinho
    */
-  handleSaveCart(name, cartLifeSpan) {
+  handleSaveCart(name) {
     this.clearMessages()
     this.activeLoading(true)
 
@@ -157,18 +154,24 @@ class MyCarts extends Component {
           }
         }),
         creationDate: new Date().toISOString(),
-        cartLifeSpan: cartLifeSpan,
       }
 
       this.props.saveCartMutation({variables: {
         cart: cart,
-      }}).then(() => {
-        // WAIT MASTER DATA INDEXING
-        setTimeout(() => {
+      }}).then((result) => {
+        if (result.data.saveCart) {
+          cart.id = result.data.saveCart.substr(5)
+          var carts = this.state.carts.slice(0)
+          carts.push(cart)
+          this.setState({
+            carts: carts,
+          })
           this.activeLoading(false)
           this.handleUpdateSuccess('Carrinho salvo com sucesso!')
-          this.listCarts()
-        }, 1500)
+        } else {
+          this.setState({ messageError: 'Erro ao tentar salvar carrinho!' })
+          this.activeLoading(false)
+        }
       }).catch((err) => {
         console.log(err)
         this.activeLoading(false)
@@ -188,10 +191,21 @@ class MyCarts extends Component {
     this.activeLoading(true)
     this.props.removeCart({variables: {
       id: id,
-    }}).then(() => {
-      this.activeLoading(false)
-      this.handleUpdateSuccess('Carrinho removido com sucesso!')
-      this.listCarts()
+    }}).then((result) => {
+      if (result.data.removeCart === true) {
+        var carts = this.state.carts.slice(0)
+        carts = _.filter(carts, (cart) => {
+          return cart.id !== id
+        })
+        this.setState({
+          carts: carts,
+        })
+        this.activeLoading(false)
+        this.handleUpdateSuccess('Cotação removida com sucesso!')
+      } else {
+        this.activeLoading(false)
+        this.handleUpdateError()
+      }
     }).catch((err) => {
       console.log(err)
       this.activeLoading(false)
@@ -294,7 +308,6 @@ class MyCarts extends Component {
   handleOpenModal() {
     const { orderForm } = this.state
     if (userLogged(orderForm)) {
-      window.checkout.loading(true)
       this.listCarts()
       this.setState({ isModalOpen: true })
       window.checkout.loading(false)
@@ -315,21 +328,21 @@ class MyCarts extends Component {
    * Essa função cria um novo orderForm em branco
    */
   createNewCart() {
-    this.activeLoading(true)
-    const { account, workspace } = window.__RUNTIME__
-    const url = createUrlOrderForm(account, workspace)
+    // this.activeLoading(true)
+    // const { account, workspace } = window.__RUNTIME__
+    // const url = createUrlOrderForm(account, workspace)
 
-    axios.get(url)
-      .then(response => {
-        const orderForm = response.data
-        setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `.${document.domain}`)
-        setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `${document.domain}`)
-        location.reload()
-      })
-      .catch(error => {
-        this.activeLoading(false)
-        this.handleUpdateError(error.response)
-      })
+    // axios.get(url)
+    //   .then(response => {
+    //     const orderForm = response.data
+    //     setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `.${document.domain}`)
+    //     setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `${document.domain}`)
+    //     location.reload()
+    //   })
+    //   .catch(error => {
+    //     this.activeLoading(false)
+    //     this.handleUpdateError(error.response)
+    //   })
   }
 
   render() {
@@ -360,7 +373,7 @@ class MyCarts extends Component {
                   ? <div className="w-100 tc pa2 pa3-ns">
                     <p className="f6">O carrinho atual está gravado como <b>"{cartSaved.name}"</b>.</p>
                   </div>
-                  : <SaveCart onClick={this.handleSaveCart} cartLifeSpan={this.props.getSetupConfig.getSetupConfig.adminSetup.cartLifeSpan || 7} />
+                  : <SaveCart onClick={this.handleSaveCart} />
               }
             </Tab>
             <Tab name="Listar">

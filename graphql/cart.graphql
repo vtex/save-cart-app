@@ -1,4 +1,4 @@
-input CartItem @context(scope: "private") {
+input CartItem {
   skuName: String
   id: String
   productId: String
@@ -9,24 +9,22 @@ input CartItem @context(scope: "private") {
   sellingPrice: Int
 }
 
-input Cart @context(scope: "private") {
+input Cart {
   email: String
   cartName: String
   items: [CartItem]
   creationDate: String
-  cartLifeSpan: Int
 }
 
-type CartResponse @context(scope: "private") {
+type CartResponse {
   email: String
   cartName: String
   items: [CartResponseItem]
   creationDate: String
-  cartLifeSpan: Int,
   id: String
 }
 
-type CartResponseItem @context(scope: "private") {
+type CartResponseItem {
   skuName: String
   id: String
   productId: String
