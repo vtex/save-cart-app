@@ -1,16 +1,16 @@
 { 
 "modal.header": "Meu Carrinho",
 "modal.save": "Salvar",
-"modal.list": "Listar",
+"modal.list": "Listar Cotacoes",
 "modal.new": "Novo Carrinho",
 "modal.name": "Nome",
 
 
 "cart.saved": "O carrinho atual está gravado como ",
-"cart.saved.success": "Carrinho salvo com sucesso!",
-"cart.saved.error": "O carrinho atual está gravado como ",
+"cart.saved.success": "Cotação salva com sucesso!",
+"cart.saved.error": "Erro ao tentar salvar cotação!",
 "cart.saved.clear": "O carrinho atual está gravado como ",
-"cart.saved.noname": "Por favor informe o nome do carrinho a ser salvo! ",
+"cart.saved.noname": "Por favor informe o nome da cotação a ser salva!",
 
 "cart.removed.success": "Carrinho removido com sucesso!",
 
@@ -19,14 +19,16 @@
 "cart.delete.3": "o carrinho? ",
 "cart.delete.yes": "sim ",
 "cart.delete.no": "não ",
+"cart.delete.usar":"usar",
+"cart.delete.success":"cart.delete.success",
 
 "cart.use": "Usar ",
 "cart.overwrite": "Ele vai sobrescrever carrinho atual? ",
+"cart.quote":"a cotação",
 
 
 
-
-"cart.confirm":"O carrinho atual não está salvo, deseja criar um novo mesmo assim?",
+"cart.confirm":"O carrinho será esvaziado, deseja criar mesmo assim?",
 "cart.yes": "Sim",
 "cart.no":"Não",
 

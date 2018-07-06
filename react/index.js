@@ -168,29 +168,19 @@ class MyCarts extends Component {
             carts: carts,
           })
           this.activeLoading(false)
-<<<<<<< HEAD
           this.handleUpdateSuccess(<FormattedMessage id="cart.saved.success"/>)
-          this.listCarts()
-        }, 1500)
-=======
-          this.handleUpdateSuccess('Cotação salva com sucesso!')
         } else {
-          this.setState({ messageError: 'Erro ao tentar salvar cotação!' })
+          this.setState({ messageError: <FormattedMessage id="cart.saved.error"/> })
           this.activeLoading(false)
         }
->>>>>>> 788539d6bdaf744ba88527fe4af20951e86895f5
       }).catch((err) => {
         console.log(err)
         this.activeLoading(false)
       })
     } else {
       this.activeLoading(false)
-<<<<<<< HEAD
       this.setState({ messageError: <FormattedMessage id="cart.saved.noname"/>
     })
-=======
-      this.setState({ messageError: 'Por favor informe o nome da cotação a ser salva!' })
->>>>>>> 788539d6bdaf744ba88527fe4af20951e86895f5
     }
   }
 
@@ -203,12 +193,6 @@ class MyCarts extends Component {
     this.activeLoading(true)
     this.props.removeCart({variables: {
       id: id,
-<<<<<<< HEAD
-    }}).then(() => {
-      this.activeLoading(false)
-      this.handleUpdateSuccess(<FormattedMessage id="modal.header"/>)
-      this.listCarts()
-=======
     }}).then((result) => {
       if (result.data.removeCart === true) {
         var carts = this.state.carts.slice(0)
@@ -219,12 +203,11 @@ class MyCarts extends Component {
           carts: carts,
         })
         this.activeLoading(false)
-        this.handleUpdateSuccess('Cotação removida com sucesso!')
+        this.handleUpdateSuccess(<FormattedMessage id="cart.delete.success"/>)
       } else {
         this.activeLoading(false)
         this.handleUpdateError()
       }
->>>>>>> 788539d6bdaf744ba88527fe4af20951e86895f5
     }).catch((err) => {
       console.log(err)
       this.activeLoading(false)
@@ -400,21 +383,6 @@ class MyCarts extends Component {
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
             <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-<<<<<<< HEAD
-            <h4 className="f6 white mv0 mt0-m ttu"> <FormattedMessage id="modal.header"/> <Loading visible={this.state.enabledLoading} /></h4>
-          </div>
-          <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
-            <Tab name={intl.formatMessage({ id: 'modal.save' })}>
-              {
-                cartSaved
-                  ? <div className="w-100 tc pa2 pa3-ns">
-                    <p className="f6"><FormattedMessage id="cart.saved"/><b>"{cartSaved.name}"</b>.</p>
-                  </div>
-                  : <SaveCart onClick={this.handleSaveCart} cartLifeSpan={this.props.getSetupConfig.getSetupConfig.adminSetup.cartLifeSpan || 7} />
-              }
-            </Tab>
-            <Tab name={intl.formatMessage({ id: 'modal.list' })}>
-=======
             <h4 className="f6 white mv0 mt0-m ttu">Cotações <Loading visible={this.state.enabledLoading} /></h4>
           </div>
           <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
@@ -423,28 +391,17 @@ class MyCarts extends Component {
                 <SaveCart onClick={this.handleSaveCart} />
               }
             </Tab>
-            <Tab name="Listar Cotações">
->>>>>>> 788539d6bdaf744ba88527fe4af20951e86895f5
+            <Tab name={intl.formatMessage({ id: 'modal.list' })}>
               <ListCart {...optsListCart} />
             </Tab>
             <Tab name={intl.formatMessage({ id: 'modal.new' })}>
               <div className="tc pa2 pa3-ns">
                 {
-<<<<<<< HEAD
-                  cartSaved
-                    ? <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}><FormattedMessage id="modal.new"/></Button>
-                    : <div className="overflow-auto">
-                      <div className="fl w-100">
-                        <p className="f6"><FormattedMessage id="cart.confirm"/></p>
-                      </div>
-                      <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}><FormattedMessage id="cart.yes"/></Button>
-=======
                   <div className="overflow-auto">
                     <div className="fl w-100">
-                      <p className="f6">O carrinho será esvaziado, deseja criar mesmo assim?</p>
->>>>>>> 788539d6bdaf744ba88527fe4af20951e86895f5
+                      <p className="f6"><FormattedMessage id="cart.confirm"/></p>
                     </div>
-                    <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}>Sim</Button>
+                    <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}><FormattedMessage id="cart.yes"/></Button>
                   </div>
                 }
               </div>
