@@ -13,7 +13,6 @@ mutation getCarts($email: String) @context(scope:"private") {
       sellingPrice
     }
     creationDate
-    cartLifeSpan
     id
   }
 }

@@ -17,8 +17,6 @@ import removeCart from './graphql/removeCart.graphql'
 import { FormattedMessage, injectIntl} from 'react-intl' 
 
 import {
-    createUrlOrderForm,
-    setCookie,
     userLogged,
 } from './utils'
 
@@ -135,9 +133,8 @@ class MyCarts extends Component {
    * Essa função salva o carrinho atual so usuário
    *
    * @param {*} name Nome do carrinho
-   * @param {*} cartLifeSpan Tempo de duração do carrinho
    */
-  handleSaveCart(name, cartLifeSpan) {
+  handleSaveCart(name) {
     this.clearMessages()
     this.activeLoading(true)
 
@@ -158,26 +155,42 @@ class MyCarts extends Component {
           }
         }),
         creationDate: new Date().toISOString(),
-        cartLifeSpan: cartLifeSpan,
       }
 
       this.props.saveCartMutation({variables: {
         cart: cart,
-      }}).then(() => {
-        // WAIT MASTER DATA INDEXING
-        setTimeout(() => {
+      }}).then((result) => {
+        if (result.data.saveCart) {
+          cart.id = result.data.saveCart.substr(5)
+          var carts = this.state.carts.slice(0)
+          carts.push(cart)
+          this.setState({
+            carts: carts,
+          })
           this.activeLoading(false)
+<<<<<<< HEAD
           this.handleUpdateSuccess(<FormattedMessage id="cart.saved.success"/>)
           this.listCarts()
         }, 1500)
+=======
+          this.handleUpdateSuccess('Cotação salva com sucesso!')
+        } else {
+          this.setState({ messageError: 'Erro ao tentar salvar cotação!' })
+          this.activeLoading(false)
+        }
+>>>>>>> 788539d6bdaf744ba88527fe4af20951e86895f5
       }).catch((err) => {
         console.log(err)
         this.activeLoading(false)
       })
     } else {
       this.activeLoading(false)
+<<<<<<< HEAD
       this.setState({ messageError: <FormattedMessage id="cart.saved.noname"/>
     })
+=======
+      this.setState({ messageError: 'Por favor informe o nome da cotação a ser salva!' })
+>>>>>>> 788539d6bdaf744ba88527fe4af20951e86895f5
     }
   }
 
@@ -190,15 +203,53 @@ class MyCarts extends Component {
     this.activeLoading(true)
     this.props.removeCart({variables: {
       id: id,
+<<<<<<< HEAD
     }}).then(() => {
       this.activeLoading(false)
       this.handleUpdateSuccess(<FormattedMessage id="modal.header"/>)
       this.listCarts()
+=======
+    }}).then((result) => {
+      if (result.data.removeCart === true) {
+        var carts = this.state.carts.slice(0)
+        carts = _.filter(carts, (cart) => {
+          return cart.id !== id
+        })
+        this.setState({
+          carts: carts,
+        })
+        this.activeLoading(false)
+        this.handleUpdateSuccess('Cotação removida com sucesso!')
+      } else {
+        this.activeLoading(false)
+        this.handleUpdateError()
+      }
+>>>>>>> 788539d6bdaf744ba88527fe4af20951e86895f5
     }).catch((err) => {
       console.log(err)
       this.activeLoading(false)
       this.handleUpdateError(err.response)
     })
+  }
+
+  async clearCart(orderFormId) {
+    await axios({
+      url: `/api/checkout/pub/orderForm/${orderFormId}/items/removeAll`,
+      method: 'post',
+      data: {
+        'expectedOrderFormSections': ['items'],
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    }).then(response => {
+      console.log(response)
+    }).catch((error) => {
+      this.activeLoading(false)
+      this.handleUpdateError(error.response)
+    })
+    return true
   }
 
   /**
@@ -215,24 +266,7 @@ class MyCarts extends Component {
     console.log(cart)
 
     // CLEAR CURRENT CART
-    await axios({
-      url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/items/removeAll`,
-      method: 'post',
-      data: {
-        'expectedOrderFormSections': ['items'],
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    })
-      .then(response => {
-        console.log(response)
-      })
-      .catch((error) => {
-        this.activeLoading(false)
-        this.handleUpdateError(error.response)
-      })
+    await this.clearCart(orderForm.orderFormId)
 
     // ADD ITEMS TO CART
     await axios({
@@ -260,6 +294,29 @@ class MyCarts extends Component {
         this.activeLoading(false)
         this.handleUpdateError(error.response)
       })
+
+    // SE FOR TELEVENDAS
+    if (orderForm.userType !== null) {
+      const priceRequests = []
+      _.each(cart.items, (item, key) => {
+        priceRequests.push(axios({
+          url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/items/${key}/price`,
+          method: 'put',
+          data: {
+            'price': item.sellingPrice,
+          },
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        }))
+      })
+      await axios.all(priceRequests).then((result) => {
+        console.log(result)
+      }).catch((err) => {
+        console.log(err)
+      })
+    }
 
     this.activeLoading(false)
     location.reload()
@@ -296,7 +353,6 @@ class MyCarts extends Component {
   handleOpenModal() {
     const { orderForm } = this.state
     if (userLogged(orderForm)) {
-      window.checkout.loading(true)
       this.listCarts()
       this.setState({ isModalOpen: true })
       window.checkout.loading(false)
@@ -316,22 +372,13 @@ class MyCarts extends Component {
   /**
    * Essa função cria um novo orderForm em branco
    */
-  createNewCart() {
+  async createNewCart() {
+    const { orderForm } = this.state
     this.activeLoading(true)
-    const { account, workspace } = window.__RUNTIME__
-    const url = createUrlOrderForm(account, workspace)
-
-    axios.get(url)
-      .then(response => {
-        const orderForm = response.data
-        setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `.${document.domain}`)
-        setCookie('checkout.vtex.com', `__ofid=${orderForm.orderFormId}`, 30, `${document.domain}`)
-        location.reload()
-      })
-      .catch(error => {
-        this.activeLoading(false)
-        this.handleUpdateError(error.response)
-      })
+    await this.clearCart(orderForm.orderFormId)
+    this.activeLoading(false)
+    location.reload()
+    return true
   }
 
   render() {
@@ -340,11 +387,10 @@ class MyCarts extends Component {
       return null
     }
 
-    const { items, carts, messageError, messageSuccess, orderForm } = this.state
+    const { items, carts, messageError, messageSuccess } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
     const optsListCart = { items, carts, handleRemoveCart, handleUseCart }
-    const cartSaved = items.find(val => orderForm != null && val.orderFormId === orderForm.orderFormId)
 
     return (
       <div>
@@ -354,6 +400,7 @@ class MyCarts extends Component {
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
             <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
+<<<<<<< HEAD
             <h4 className="f6 white mv0 mt0-m ttu"> <FormattedMessage id="modal.header"/> <Loading visible={this.state.enabledLoading} /></h4>
           </div>
           <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
@@ -367,11 +414,23 @@ class MyCarts extends Component {
               }
             </Tab>
             <Tab name={intl.formatMessage({ id: 'modal.list' })}>
+=======
+            <h4 className="f6 white mv0 mt0-m ttu">Cotações <Loading visible={this.state.enabledLoading} /></h4>
+          </div>
+          <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
+            <Tab name="Salvar Cotação Atual">
+              {
+                <SaveCart onClick={this.handleSaveCart} />
+              }
+            </Tab>
+            <Tab name="Listar Cotações">
+>>>>>>> 788539d6bdaf744ba88527fe4af20951e86895f5
               <ListCart {...optsListCart} />
             </Tab>
             <Tab name={intl.formatMessage({ id: 'modal.new' })}>
               <div className="tc pa2 pa3-ns">
                 {
+<<<<<<< HEAD
                   cartSaved
                     ? <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}><FormattedMessage id="modal.new"/></Button>
                     : <div className="overflow-auto">
@@ -379,7 +438,14 @@ class MyCarts extends Component {
                         <p className="f6"><FormattedMessage id="cart.confirm"/></p>
                       </div>
                       <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}><FormattedMessage id="cart.yes"/></Button>
+=======
+                  <div className="overflow-auto">
+                    <div className="fl w-100">
+                      <p className="f6">O carrinho será esvaziado, deseja criar mesmo assim?</p>
+>>>>>>> 788539d6bdaf744ba88527fe4af20951e86895f5
                     </div>
+                    <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}>Sim</Button>
+                  </div>
                 }
               </div>
             </Tab>

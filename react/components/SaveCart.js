@@ -20,7 +20,7 @@ class SaveCart extends Component {
   }
 
   handleClick() {
-    this.props.onClick(this.state.nameCart, this.props.cartLifeSpan)
+    this.props.onClick(this.state.nameCart)
   }
 
   render() {
@@ -43,8 +43,7 @@ class SaveCart extends Component {
 }
 
 SaveCart.propTypes = {
-  onClick: PropTypes.func,
-  cartLifeSpan: PropTypes.number,
+  onClick: PropTypes.func
 }
 
 SaveCart.defaultProps = {

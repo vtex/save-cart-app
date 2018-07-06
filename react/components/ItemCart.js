@@ -67,6 +67,7 @@ class ItemCart extends Component {
         </div>
 
         <div id={`accordion-use-${cart.id}`} name="accordion" className="fl w-100 tc pa2 mv1 ba b--blue br3 dn">
+<<<<<<< HEAD
           <p className="f6"><FormattedMessage id="cart.delete.1"/> <b><FormattedMessage id="cart.use"/></b><FormattedMessage id="cart.delete.3"/><b>"{cart.cartName}"</b><FormattedMessage id="cart.overwrite"/></p>
           <Button classes={'white ph3 mh2 mb1 bg-blue '} onClick={() => this.props.handleUseCart(cart)}><FormattedMessage id="cart.delete.yes"/></Button>
           <Button classes={'white ph3 mh2 mb1 bg-red'} onClick={() => this.openAccordion('use', cart.id)}><FormattedMessage id="cart.delete.no"/></Button>
@@ -76,6 +77,17 @@ class ItemCart extends Component {
           <p className="f6">Deseja <b>excluir</b> o carrinho <b>"{cart.cartName}"</b>?</p>
           <Button classes={'white ph3 mh2 mb1 bg-blue '} onClick={() => this.props.handleRemoveCart(cart.id)}><FormattedMessage id="cart.delete.yes"/></Button>
           <Button classes={'white ph3 mh2 mb1 bg-red'} onClick={() => this.openAccordion('delete', cart.id)}><FormattedMessage id="cart.delete.no"/></Button>
+=======
+          <p className="f6">Deseja <b>usar</b> a cotação <b>"{cart.cartName}"</b>, ela vai sobrescrever seu carrinho atual?</p>
+          <Button classes={'white ph3 mh2 mb1 bg-blue '} onClick={() => this.props.handleUseCart(cart)}>Sim</Button>
+          <Button classes={'white ph3 mh2 mb1 bg-red'} onClick={() => this.openAccordion('use', cart.id)}>Não</Button>
+        </div>
+
+        <div id={`accordion-delete-${cart.id}`} name="accordion" className="fl w-100 tc pa2 mv1 ba b--dark-red br3 dn">
+          <p className="f6">Deseja <b>excluir</b> a cotação <b>"{cart.cartName}"</b>?</p>
+          <Button classes={'white ph3 mh2 mb1 bg-blue '} onClick={() => this.props.handleRemoveCart(cart.id)}>Sim</Button>
+          <Button classes={'white ph3 mh2 mb1 bg-red'} onClick={() => this.openAccordion('delete', cart.id)}>Não</Button>
+>>>>>>> 788539d6bdaf744ba88527fe4af20951e86895f5
         </div>
 
         <div id={`accordion-products-${cart.id}`} name="accordion" className="fl w-100 dn">
