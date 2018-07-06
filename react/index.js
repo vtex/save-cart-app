@@ -279,7 +279,7 @@ class MyCarts extends Component {
       })
 
     // SE FOR TELEVENDAS
-    if (orderForm.userType !== null) {
+    if (orderForm.userType === 'callCenterOperator') {
       const priceRequests = []
       _.each(cart.items, (item, key) => {
         priceRequests.push(axios({
