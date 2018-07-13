@@ -17,6 +17,7 @@ import removeCart from './graphql/removeCart.graphql'
 
 import {
     userLogged,
+    saveMarketingData
 } from './utils'
 
 class MyCarts extends Component {
@@ -298,6 +299,8 @@ class MyCarts extends Component {
         console.log(err)
       })
     }
+
+    await saveMarketingData(orderForm.orderFormId)
 
     this.activeLoading(false)
     location.reload()
