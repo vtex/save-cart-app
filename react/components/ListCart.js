@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import ItemCart from './ItemCart'
+import { FormattedMessage, injectIntl} from 'react-intl' 
+
 
 class ListCart extends Component {
   render() {
@@ -16,7 +18,7 @@ class ListCart extends Component {
                 items
             }
           </ul>
-          : <div className="tc"><p className="f6">Sua lista está vazia</p></div>
+          : <div className="tc"><p className="f6"><FormattedMessage id="list.empty"/></p></div>
         }
       </div>
     )
