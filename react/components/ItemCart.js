@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import ListProduct from './ListProduct'
 import Button from './Button'
-import { FormattedMessage, injectIntl} from 'react-intl' 
+import { FormattedMessage, injectIntl} from 'react-intl'
 
 
 
@@ -62,7 +62,7 @@ class ItemCart extends Component {
 
         <div className="fl w-50 w-25-ns flex-auto pr2">
           <Button classes={'w-100 ph1 white bg-red'} onClick={() => this.openAccordion('delete', cart.id)}>
-            <FormattedMessage id="cart.delete.2wha"/>
+            <FormattedMessage id="cart.delete"/>
           </Button>
         </div>
 

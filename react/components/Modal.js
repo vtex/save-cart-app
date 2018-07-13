@@ -8,7 +8,7 @@ class Modal extends Component {
     }
 
     return (
-      <div className="fixed absolute--fill bg-black-30 pl3 pr3 pb3 pt9 z-999">
+      <div className="fixed absolute--fill bg-black-30 pl3 pr3 pb3 pt9 z-9999">
         <div className="w-100 w-80-m w-50-ns mv0 center pa0 br3 bg-white z-9999">
           {this.props.children}
         </div>
