@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { DEFAULT_LOCALE } from './constants'
 
 /**
@@ -21,6 +22,11 @@ const waitCheckoutValidation = () => {
 
 export function formatPrice(value) {
   return (value / 100).toFixed(2).toString(10)
+}
+
+export const defaultHeaders = {
+  'Content-Type': 'application/json',
+  'Accept': 'application/json',
 }
 
 /**
@@ -100,4 +106,27 @@ export function getUserProfileId(orderForm) {
  */
 export function userLogged(orderForm) {
   return orderForm != null && orderForm.loggedIn
+}
+
+export async function saveMarketingData(orderFormId) {
+  let result = false
+  await axios({
+    url: `/api/checkout/pub/orderForm/${orderFormId}/attachments/marketingData`,
+    method: 'post',
+    data: {
+      'expectedOrderFormSections': ['items'],
+      'attachmentId': 'marketingData',
+      'marketingTags': ['vtex.savecart']
+    },
+    headers: defaultHeaders,
+  }).then(response => {
+    console.log('saveMarketingData Success')
+    console.log(response)
+    result = true
+  }).catch((error) => {
+    console.log(error)
+    result = false
+  })
+
+  return result
 }
