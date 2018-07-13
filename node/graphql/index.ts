@@ -53,7 +53,8 @@ export const resolvers = {
         'VtexIdclientAutCookie': ctx.vtex.authToken,
         'Proxy-Authorization': ctx.vtex.authToken
       }
-      const url = routes.listCarts(ctx.vtex.account, params.email)
+      const url = routes.listCarts(ctx.vtex.account, encodeURIComponent(params.email))
+      console.log('url', url)
       const { data } = await http({
         method: 'get',
         url: url,
