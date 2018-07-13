@@ -14,7 +14,7 @@ import _ from 'underscore'
 import saveCartMutation from './graphql/saveCart.graphql'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
-import { FormattedMessage, injectIntl} from 'react-intl' 
+import { FormattedMessage, injectIntl} from 'react-intl'
 
 import {
     userLogged,
@@ -380,11 +380,11 @@ class MyCarts extends Component {
 
     return (
       <div>
-        <Button classes={'ph3 mb2 white bg-blue fr'} onClick={this.handleOpenModal}>
+        <Button classes={'ph3 mb2 white bg-blue fr btn-checkout-save'} onClick={this.handleOpenModal}>
           {this.props.getSetupConfig.getSetupConfig.adminSetup.cartName || 'Save Cart'}
         </Button>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
-          <div className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
+          <div className="bg-washed-blue bb b--black-20 pa3 br3 br--top modal-top">
             <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
             <h4 className="f6 white mv0 mt0-m ttu"><FormattedMessage id="quotes"/> <Loading visible={this.state.enabledLoading} /></h4>
           </div>
