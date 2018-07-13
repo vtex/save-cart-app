@@ -13,6 +13,8 @@ import _ from 'underscore'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 
+import styles from './style.css'
+
 import {
     userLogged,
     saveMarketingData,
@@ -248,7 +250,7 @@ class CartList extends Component {
     await saveMarketingData(orderForm.orderFormId)
 
     this.activeLoading(false)
-    location.reload()
+    window.location.href = '/checkout/';
     return true
   }
 
@@ -321,9 +323,9 @@ class CartList extends Component {
 
     return (
       <div>
-        <Button classes={'ph3 mb2 white bg-blue fr'} onClick={this.handleOpenModal}>
-         'Cart List'
-        </Button>
+        <div className={styles.menuTop} onClick={this.handleOpenModal}>
+          Cotações
+        </div>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
             <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
