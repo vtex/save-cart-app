@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import ItemCart from './ItemCart'
-import { FormattedMessage, injectIntl} from 'react-intl' 
-
+import { FormattedMessage, injectIntl} from 'react-intl'
 
 class ListCart extends Component {
   render() {
@@ -14,6 +13,23 @@ class ListCart extends Component {
       <div className="overflow-y-scroll vh-50">
         {items.length > 0
           ? <ul className="list pl0 mt0 center overflow-hidden">
+            <li className="fl w-100 items-center lh-copy pa3 bb b--black-10 bg-light-silver">
+              <div className="fl w-20-ns flex-auto pv2">
+                <span className="f6 db black-70 ttu b">
+                  Data da cotação
+                </span>
+              </div>
+              <div className="fl w-100 w-50-ns flex-auto pv2">
+                <span className="f6 db black-70 ttu b">
+                  Nome
+                </span>
+              </div>
+              <div className="fl w-100 w-10-ns flex-auto pv2">
+                <span className="f6 db black-70 ttu b">
+                  Itens
+                </span>
+              </div>
+            </li>
             {
                 items
             }
