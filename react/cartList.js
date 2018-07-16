@@ -7,7 +7,6 @@ import ListCart from './components/ListCart'
 import Loading from './components/Loading'
 import Tabs from './components/Tabs'
 import Tab from './components/Tab'
-import Button from './components/Button'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
 import _ from 'underscore'
 import getCarts from './graphql/getCarts.graphql'
@@ -334,18 +333,6 @@ class CartList extends Component {
           <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
             <Tab name="Listar Cotações">
               <ListCart {...optsListCart} />
-            </Tab>
-            <Tab name="Novo Carrinho">
-              <div className="tc pa2 pa3-ns">
-                {
-                  <div className="overflow-auto">
-                    <div className="fl w-100">
-                      <p className="f6">O carrinho será esvaziado, deseja criar mesmo assim?</p>
-                    </div>
-                    <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}>Sim</Button>
-                  </div>
-                }
-              </div>
             </Tab>
           </Tabs>
         </Modal>
