@@ -7,7 +7,7 @@ import ListCart from './components/ListCart'
 import Loading from './components/Loading'
 import Tabs from './components/Tabs'
 import Tab from './components/Tab'
-import Button from './components/Button'
+import Button from '@vtex/styleguide/lib/Button'
 import SaveCart from './components/SaveCart'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
 import _ from 'underscore'
@@ -380,7 +380,7 @@ class MyCarts extends Component {
 
     return (
       <div>
-        <Button classes={'ph3 mb2 white bg-blue fr btn-checkout-save'} onClick={this.handleOpenModal}>
+        <Button variation="tertiary" size="small" onClick={this.handleOpenModal}>
           {this.props.getSetupConfig.getSetupConfig.adminSetup.cartName || 'Save Cart'}
         </Button>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
@@ -396,18 +396,6 @@ class MyCarts extends Component {
             </Tab>
             <Tab name={intl.formatMessage({ id: 'modal.list' })}>
               <ListCart {...optsListCart} />
-            </Tab>
-            <Tab name={intl.formatMessage({ id: 'modal.new' })}>
-              <div className="tc pa2 pa3-ns">
-                {
-                  <div className="overflow-auto">
-                    <div className="fl w-100">
-                      <p className="f6"><FormattedMessage id="cart.confirm"/></p>
-                    </div>
-                    <Button classes={'ph3 mb2 white bg-blue'} onClick={() => this.createNewCart()}><FormattedMessage id="cart.yes"/></Button>
-                  </div>
-                }
-              </div>
             </Tab>
           </Tabs>
         </Modal>
