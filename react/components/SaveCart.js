@@ -30,7 +30,7 @@ class SaveCart extends Component {
           <label htmlFor="nameCart" className="f6 b pt2"><FormattedMessage id="modal.name"/> </label>
         </div>
         <div className="fl w-100 w-60-ns flex-auto">
-          <input maxlength="60" id="comment" onChange={this.handleUpdateNameCart} name="nameCart" className="border-box hover-black w-90 ba b--black-20 pa2 br2 mb2" value={this.state.nameCart}></input>
+          <input maxLength="60" id="comment" onChange={this.handleUpdateNameCart} name="nameCart" className="border-box hover-black w-90 ba b--black-20 pa2 br2 mb2" value={this.state.nameCart}></input>
         </div>
         <div className="fl w-100 w-20-ns flex-auto">
           <Button classes={"ph3 mb2 white bg-blue"} onClick={this.handleClick}>

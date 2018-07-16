@@ -11,6 +11,7 @@ import getSetupConfig from './graphql/getSetupConfig.graphql'
 import _ from 'underscore'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
+import { FormattedMessage, injectIntl} from 'react-intl'
 
 import styles from './style.css'
 
@@ -323,18 +324,14 @@ class CartList extends Component {
     return (
       <div>
         <div className={styles.menuTop} onClick={this.handleOpenModal}>
-          Cotações
+          <FormattedMessage id="quotes"/>
         </div>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
-          <div className="bg-washed-blue bb b--black-20 pa3 br3 br--top">
+          <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
             <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-            <h4 className="f6 white mv0 mt0-m ttu">Cotações <Loading visible={this.state.enabledLoading} /></h4>
+            <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes"/> <Loading visible={this.state.enabledLoading} /></h4>
           </div>
-          <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
-            <Tab name="Listar Cotações">
-              <ListCart {...optsListCart} />
-            </Tab>
-          </Tabs>
+          <ListCart {...optsListCart} />
         </Modal>
       </div>
     )
