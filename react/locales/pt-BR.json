@@ -16,9 +16,9 @@
 
   "cart.delete": "Excluir",
   "cart.delete.1": "Deseja",
-  "cart.delete.2": "excluir",
+  "cart.delete.2": "apagar",
   "cart.delete.3": "a cotação? ",
-  "cart.delete.yes": "sim ",
+  "cart.delete.yes": "apagar ",
   "cart.delete.no": "não ",
   "cart.delete.usar":"usar",
   "cart.delete.success":"Cotação removida com sucesso!",
@@ -29,9 +29,9 @@
   "quotes": "Cotações",
 
 
-  "cart.confirm":"A cotação será apagada, deseja criar uma nova mesmo assim?",
+  "cart.confirm":"Seu carrinho será esvaziado, deseja criar uma nova mesmo assim?",
   "cart.yes": "Sim",
-  "cart.no":"Não",
+  "cart.no": "Cancelar",
 
   "list.empty":"Sua cotação está vazia",
   "generic.error":"Não foi possível se comunicar com o sistema de Profile."

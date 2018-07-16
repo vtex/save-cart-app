@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
- 
+
 
 class Tab extends Component {
     constructor(props, context) {
@@ -15,7 +15,7 @@ class Tab extends Component {
 
     render() {
         const { isActive } = this.props
-        const classes = isActive ? 'bg-light-blue' : ''
+        const classes = isActive ? 'bg-light-silver b' : ''
 
         return (
             <div className={`f6 f5-ns bg-animate black-80 hover-bg-light-blue dib pa3 ph4-l pointer ${classes}`} onClick={this.handleTabClick}>

@@ -57,7 +57,7 @@ class Tabs extends Component {
                         </div>
                         : null
                 }
-                <div className="ma2">
+                <div className="ml2 mr2 mb2 mt0">
                     {this.renderActiveTabContent()}
                 </div>
             </div>
