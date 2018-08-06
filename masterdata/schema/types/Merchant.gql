@@ -1,5 +1,0 @@
-input MerchantInput {
-    primaryButtonName: String,
-    primaryCartQuantity: String,
-    editing: Boolean
-}

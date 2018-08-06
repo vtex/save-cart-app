@@ -1,0 +1,8 @@
+query getSetupConfig @context(scope:"private") {
+  getSetupConfig {
+    adminSetup {
+      cartName
+      cartLifeSpan
+    }
+  }
+}

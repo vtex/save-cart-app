@@ -1,0 +1,67 @@
+.menuTop {
+  line-height: 36px;
+  margin-right: 12px;
+}
+
+#defaultButton {
+  display: inline-block;
+  border: 0;
+  border-radius: 0;
+  letter-spacing: 3px;
+  padding: 10px 30px;
+  line-height: 25px;
+  font-family: HelveticaLTStd;
+  font-weight: 700;
+  max-height: 40px;
+  background-image: none;
+}
+
+
+.btn-checkout-save {
+  display: inline-block;
+  background-color: #fff;
+  border: 0;
+  border-radius: 0;
+  color: #ffd20c;
+  letter-spacing: 3px;
+  padding: 10px 30px;
+  line-height: 25px;
+  font-family: HelveticaLTStd;
+  font-weight: 700;
+  max-height: 40px;
+  background-image: none;
+  padding-right: 0;
+}
+
+#render-checkout-buttons {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  width: 270px;
+  float: right;
+}
+
+.render-container .modal-top {
+  background-color: #000;
+
+}
+
+.render-container .modal-top h4 {
+    color: #ffd20c;
+}
+
+
+#render-checkout-buttons button.bg-red, #render-legacy-save-cart-list button.bg-red {
+  display: inline-block;
+  background-color: #ff4136;
+  border: 0;
+  border-radius: 0;
+  color: #FFF;
+  letter-spacing: 3px;
+  padding: 10px 30px;
+  line-height: 25px;
+  font-family: HelveticaLTStd;
+  font-weight: 700;
+  max-height: 40px;
+  background-image: none;
+}

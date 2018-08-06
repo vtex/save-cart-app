@@ -1,8 +1,0 @@
-type MerchantResponse {
-    id: String
-}
-
-type MerchantInfo {
-    primaryButtonName: String
-    primaryCartQuantity: String
-}

@@ -1,0 +1,38 @@
+{
+  "modal.header": "My quotes",
+  "modal.save": "Save",
+  "modal.list": "List Quotes",
+  "modal.new": "New quote",
+  "modal.name": "Name",
+
+
+  "cart.saved": "This quote is saved as: ",
+  "cart.saved.success": "Quote successfully saved!",
+  "cart.saved.error": "Error: Something went wrong while trying to save the quote",
+  "cart.saved.clear": "Current quote is saved as:",
+  "cart.saved.noname": "Hey! You forgot to name your quote",
+
+  "cart.removed.success": "Quote removed successfully",
+
+  "cart.delete": "Delete",
+  "cart.delete.1": "Would you like",
+  "cart.delete.2": "to delete",
+  "cart.delete.3": "the quote? ",
+  "cart.delete.yes": "yes ",
+  "cart.delete.no": "no ",
+  "cart.delete.usar":"use",
+  "cart.delete.success":"Quote removed successfully",
+
+  "cart.use": "Use ",
+  "cart.overwrite": "It will overwrite the current ",
+  "cart.quote":"quote",
+  "quotes": "Quotes",
+
+
+  "cart.confirm":"Quote will be deleted. Do you wish to proceed?",
+  "cart.yes": "Sim",
+  "cart.no":"Não",
+
+  "list.empty":"Your quote is empty",
+  "generic.error":"Something went wrong :( We were unable to communcate with the Profile system."
+}

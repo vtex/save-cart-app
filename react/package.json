@@ -2,12 +2,15 @@
   "name": "vtex.save-cart",
   "version": "0.0.16",
   "dependencies": {
-    "vtex-tachyons": "^0.1.0",
-    "tachyons-svg": "^1.0.1",
-    "axios": "^0.17.1",
-    "graphql-tag": "2.6.0",
+    "@vtex/styleguide": "5.2.3",
     "apollo-client": "2.0.4",
+    "axios": "^0.17.1",
     "bluebird": "^3.4.7",
-    "qs": "^6.4.0"
+    "graphql-tag": "2.6.0",
+    "qs": "^6.4.0",
+    "react-intl": "^2.4.0",
+    "tachyons-svg": "^1.0.1",
+    "underscore": "1.9.1",
+    "vtex-tachyons": "^0.1.0"
   }
 }

@@ -7,24 +7,22 @@ import ListCart from './components/ListCart'
 import Loading from './components/Loading'
 import Tabs from './components/Tabs'
 import Tab from './components/Tab'
-import Button from '@vtex/styleguide/lib/Button'
-import SaveCart from './components/SaveCart'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
 import _ from 'underscore'
-import saveCartMutation from './graphql/saveCart.graphql'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 import { FormattedMessage, injectIntl} from 'react-intl'
 
+import styles from './style.css'
+
 import {
     userLogged,
-    saveMarketingData
+    saveMarketingData,
 } from './utils'
 
-class MyCarts extends Component {
+class CartList extends Component {
   static propTypes = {
     getSetupConfig: PropTypes.object,
-    saveCartMutation: PropTypes.func,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
   }
@@ -49,7 +47,6 @@ class MyCarts extends Component {
 
     this.activeLoading = this.activeLoading.bind(this)
 
-    this.handleSaveCart = this.handleSaveCart.bind(this)
     this.removeCart = this.removeCart.bind(this)
     this.useCart = this.useCart.bind(this)
     this.listCarts = this.listCarts.bind(this)
@@ -65,9 +62,12 @@ class MyCarts extends Component {
    * 2º - Adiciona um evento que toda vez que o orderForm for atualizado eu atualizo o valor no state
    */
   componentDidMount() {
-    Promise.resolve(window.vtexjs.checkout.getOrderForm())
+    if (window.vtexjs) {
+      Promise.resolve(window.vtexjs.checkout.getOrderForm())
       .then(orderForm => this.setState({ orderForm }))
       .then(this.listenOrderFormUpdated)
+    }
+
   }
 
   /**
@@ -88,7 +88,7 @@ class MyCarts extends Component {
   handleProfileError(error) {
     window.vtex.checkout.MessageUtils.showMessage({
       status: 'fatal',
-      text: `<FormattedMessage id="generic.error"/> ${error}`,
+      text: `Não foi possível se comunicar com o sistema de Profile. <br/>${error}`,
     })
   }
 
@@ -98,7 +98,7 @@ class MyCarts extends Component {
    * @param {*} error Error
    */
   handleUpdateError(error) {
-    let message = error && error.data ? error.data.errorMessage : <FormattedMessage id="generic.error"/>
+    let message = error && error.data ? error.data.errorMessage : 'Não foi possível se comunicar com o sistema de Profile.'
     if (error.data && error.data.error && error.data.error.message) {
       message = error.data.error.message
     }
@@ -131,61 +131,6 @@ class MyCarts extends Component {
   }
 
   /**
-   * Essa função salva o carrinho atual so usuário
-   *
-   * @param {*} name Nome do carrinho
-   */
-  handleSaveCart(name) {
-    this.clearMessages()
-    this.activeLoading(true)
-
-    if ((name && name.length > 0) && (this.state.orderForm.items && this.state.orderForm.items.length)) {
-      const cart = {
-        email: this.state.orderForm.clientProfileData.email,
-        cartName: name,
-        items: _.map(this.state.orderForm.items, function(item) {
-          return {
-            skuName: item.skuName,
-            id: item.id,
-            productId: item.productId,
-            imageUrl: item.imageUrl,
-            listPrice: item.listPrice,
-            price: item.price,
-            quantity: item.quantity,
-            sellingPrice: item.sellingPrice,
-          }
-        }),
-        creationDate: new Date().toISOString(),
-      }
-
-      this.props.saveCartMutation({variables: {
-        cart: cart,
-      }}).then((result) => {
-        if (result.data.saveCart) {
-          cart.id = result.data.saveCart.substr(5)
-          var carts = this.state.carts.slice(0)
-          carts.push(cart)
-          this.setState({
-            carts: carts,
-          })
-          this.activeLoading(false)
-          this.handleUpdateSuccess(<FormattedMessage id="cart.saved.success"/>)
-        } else {
-          this.setState({ messageError: <FormattedMessage id="cart.saved.error"/> })
-          this.activeLoading(false)
-        }
-      }).catch((err) => {
-        console.log(err)
-        this.activeLoading(false)
-      })
-    } else {
-      this.activeLoading(false)
-      this.setState({ messageError: <FormattedMessage id="cart.saved.noname"/>
-    })
-    }
-  }
-
-  /**
    * Essa função exclui o carrinho selecionado da base de dados da APP
    *
    * @param {*} id Identificador do orderForm
@@ -204,7 +149,7 @@ class MyCarts extends Component {
           carts: carts,
         })
         this.activeLoading(false)
-        this.handleUpdateSuccess(<FormattedMessage id="cart.delete.success"/>)
+        this.handleUpdateSuccess('Cotação removida com sucesso!')
       } else {
         this.activeLoading(false)
         this.handleUpdateError()
@@ -305,7 +250,7 @@ class MyCarts extends Component {
     await saveMarketingData(orderForm.orderFormId)
 
     this.activeLoading(false)
-    location.reload()
+    window.location.href = '/checkout/';
     return true
   }
 
@@ -341,9 +286,8 @@ class MyCarts extends Component {
     if (userLogged(orderForm)) {
       this.listCarts()
       this.setState({ isModalOpen: true })
-      window.checkout.loading(false)
     } else {
-      Promise.resolve(window.vtexid.start())
+      console.log("erro, user não autenticado")
     }
   }
 
@@ -363,12 +307,11 @@ class MyCarts extends Component {
     this.activeLoading(true)
     await this.clearCart(orderForm.orderFormId)
     this.activeLoading(false)
-    location.reload()
+    window.location.href = '/checkout/';
     return true
   }
 
   render() {
-    const intl = this.props.intl
     if (this.props.getSetupConfig.loading) {
       return null
     }
@@ -380,33 +323,23 @@ class MyCarts extends Component {
 
     return (
       <div>
-        <Button variation="tertiary" size="small" id="vtex-cart-list-open-modal-button" onClick={this.handleOpenModal}>
-          {this.props.getSetupConfig.getSetupConfig.adminSetup.cartName || 'Save Cart'}
-        </Button>
+        <div className={styles.menuTop} onClick={this.handleOpenModal}>
+          <FormattedMessage id="quotes"/>
+        </div>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
             <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
             <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes"/> <Loading visible={this.state.enabledLoading} /></h4>
           </div>
-          <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
-            <Tab name="Salvar Cotação Atual">
-              {
-                <SaveCart onClick={this.handleSaveCart} />
-              }
-            </Tab>
-            <Tab name={intl.formatMessage({ id: 'modal.list' })}>
-              <ListCart {...optsListCart} />
-            </Tab>
-          </Tabs>
+          <ListCart {...optsListCart} />
         </Modal>
       </div>
     )
   }
 }
 
-export default injectIntl(compose(
-  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: true } }),
-  graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false } }),
+export default compose(
+  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
-)(MyCarts))
+)(CartList)

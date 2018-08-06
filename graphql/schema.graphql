@@ -1,0 +1,13 @@
+type Query {
+  changeAdminSetup (
+    cartName: String,
+    cartLifeSpan: Int,
+  ): ChangeSetupResponse @cacheControl(scope: PRIVATE)
+  getSetupConfig : GetSetupConfigResponse @cacheControl(scope: PRIVATE)
+}
+
+type Mutation {
+  saveCart(cart: Cart) : String @cacheControl(scope: PRIVATE)
+  getCarts(email: String) : [CartResponse] @cacheControl(scope: PRIVATE)
+  removeCart(id: String) : Boolean! @cacheControl(scope: PRIVATE)
+}

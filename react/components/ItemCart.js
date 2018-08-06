@@ -1,100 +1,107 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import ListProduct from './ListProduct'
-import Button from './Button'
+import { FormattedMessage, injectIntl} from 'react-intl'
+import Button from '@vtex/styleguide/lib/Button'
+import Delete from '@vtex/styleguide/lib/icon/Delete'
+import _ from 'underscore'
 
 class ItemCart extends Component {
-    constructor(props) {
-        super(props)
+  constructor(props) {
+    super(props)
+    this.handleVerifyItem = this.handleVerifyItem.bind(this)
+  }
 
-        this.handleVerifyItem = this.handleVerifyItem.bind(this)
-    }
+  handleVerifyItem(cartId) {
+    const nameAccordion = 'use'
+    this.openAccordion(nameAccordion, cartId)
+  }
 
-    handleVerifyItem(orderFormId) {
-        const { handleCurrentCartSaved, handleUseCart } = this.props
-        const nameAccordion = 'use'
+  openAccordion(name, orderFormId) {
+    this.closeAccordions(name, orderFormId)
+    const accordionClass = document.getElementById(`accordion-${name}-${orderFormId}`).classList
+    accordionClass.toggle('dn')
+  }
 
-        this.closeAccordions(nameAccordion, orderFormId)
+  closeAccordions(name, orderFormId) {
+    const elements = document.getElementsByName('accordion')
 
-        if (handleCurrentCartSaved()) {
-            handleUseCart(orderFormId)
-        } else {
-            this.openAccordion(nameAccordion, orderFormId)
+    for (const key in elements) {
+      if (elements.hasOwnProperty(key)) {
+        const element = elements[key]
+
+        if (element.id === `accordion-${name}-${orderFormId}`) {
+          continue
         }
-    }
 
-    openAccordion(name, orderFormId) {
-        this.closeAccordions(name, orderFormId)
+        const accordionClass = element.classList
 
-        let accordionClass = document.getElementById(`accordion-${name}-${orderFormId}`).classList
-        accordionClass.toggle('dn')
-    }
-
-    closeAccordions(name, orderFormId) {
-        let elements = document.getElementsByName("accordion")
-
-        for (const key in elements) {
-            if (elements.hasOwnProperty(key)) {
-                const element = elements[key]
-                
-                if (element.id === `accordion-${name}-${orderFormId}`) continue
-
-                let accordionClass = element.classList
-
-                if (!accordionClass.contains("dn")) {
-                    accordionClass.toggle("dn")                    
-                }
-            }
+        if (!accordionClass.contains('dn')) {
+          accordionClass.toggle('dn')
         }
+      }
+    }
+  }
+
+  render() {
+    const { cart } = this.props
+    const cartQuantity = _.reduce(cart.items, function(memo, item) { return memo + item.quantity }, 0)
+
+    const formatDate = (date) => {
+      const tempDate = new Date(date)
+      return `${tempDate.getDate()}/${tempDate.getMonth() + 1}/${tempDate.getFullYear()}`
     }
 
-    render() {
-        const { item } = this.props
+    return (
+      <li className="fl w-100 items-center lh-copy pa3 bb b--black-10">
 
-        return (
-            <li className="fl w-100 items-center lh-copy pa3 bb b--black-10">
-                <div className="fl w-100 w-50-ns flex-auto pointer pv2">
-                    <a onClick={() => this.openAccordion('products', item.orderFormId)} className="f6 db b ttu black-70 no-underline">
-                        {item.name}
-                    </a>
-                </div>
+        <div className="fl w-20-ns flex-auto pv2">
+          <span className="f6 db black-70">
+            {formatDate(cart.creationDate)}
+          </span>
+        </div>
 
-                <div className="fl w-50 w-25-ns flex-auto pr2">
-                    <Button classes={"w-100 ph3 white bg-blue"} onClick={() => this.handleVerifyItem(item.orderFormId)}>
-                        Usar
-                    </Button>
-                </div>
+        <div className="fl w-100 w-50-ns flex-auto pv2">
+          <span className="f6 db black-70">
+            {cart.cartName}
+          </span>
+        </div>
 
-                <div className="fl w-50 w-25-ns flex-auto pr2">
-                    <Button classes={"w-100 ph1 white bg-dark-red"} onClick={() => this.openAccordion('delete', item.orderFormId)}>
-                        Excluir
-                    </Button>
-                </div>
+        <div className="fl w-100 w-10-ns flex-auto pv2">
+          <span className="f6 db black-70">
+            {cartQuantity}
+          </span>
+        </div>
 
-                <div id={`accordion-use-${item.orderFormId}`} name="accordion" className="fl w-100 tc pa2 mv1 ba b--blue br3 dn">
-                    <p className="f6">Deseja <b>usar</b> o carrinho <b>"{item.name}"</b>, sem salvar o carrinho atual?</p>
-                    <Button classes={"white ph3 mh2 mb1 bg-blue "} onClick={() => this.props.handleUseCart(item.orderFormId)}>Sim</Button>
-                    <Button classes={"white ph3 mh2 mb1 bg-dark-red"} onClick={() => this.openAccordion('use', item.orderFormId)}>Não</Button>
-                </div>
+        <div className="fl w-50 w-20-ns flex-auto pr2 tr">
+          <Button variation="primary" size="small" onClick={() => this.handleVerifyItem(cart.id)}>
+            <FormattedMessage id="cart.use" />
+          </Button>
+          <Button variation="tertiary" size="small" onClick={() => this.openAccordion('delete', cart.id)}>
+            <Delete size={15} />
+          </Button>
+        </div>
 
-                <div id={`accordion-delete-${item.orderFormId}`} name="accordion" className="fl w-100 tc pa2 mv1 ba b--dark-red br3 dn">
-                    <p className="f6">Deseja <b>excluir</b> o carrinho <b>"{item.name}"</b>?</p>
-                    <Button classes={"white ph3 mh2 mb1 bg-blue "} onClick={() => this.props.handleRemoveCart(item.orderFormId)}>Sim</Button>
-                    <Button classes={"white ph3 mh2 mb1 bg-dark-red"} onClick={() => this.openAccordion('delete', item.orderFormId)}>Não</Button>
-                </div>
+        <div id={`accordion-use-${cart.id}`} name="accordion" className="fl w-100 tc pa2 mv3 ba b--light-gray bg-light-silver dn">
+          <p className="f6">Deseja usar a cotação <b>"{cart.cartName}"</b>? Ela vai sobrescrever o seu carrinho atual.</p>
+          <Button variation="tertiary" size="small" onClick={() => this.openAccordion('use', cart.id)}><FormattedMessage id="cart.no" /></Button>
+          <Button variation="primary" size="small" onClick={() => this.props.handleUseCart(cart)}><FormattedMessage id="cart.yes" /></Button>
+        </div>
 
-                <div id={`accordion-products-${item.orderFormId}`} name="accordion" className="fl w-100 dn">
-                    <ListProduct products={item.products} />
-                </div>
-            </li>
-        )
-    }
+        <div id={`accordion-delete-${cart.id}`} name="accordion" className="fl w-100 tc pa2 mv3 ba b--light-gray bg-light-silver dn">
+          <p className="f6"><FormattedMessage id="cart.delete.1" /> <b><FormattedMessage id="cart.delete.2" /></b> <FormattedMessage id="cart.quote" /> <b>"{cart.cartName}"</b>? Ao excluir o carrinho, os valores de cotação dos produtos escolhidos serão perdidos.</p>
+          <Button variation="tertiary" size="small" onClick={() => this.openAccordion('delete', cart.id)}><FormattedMessage id="cart.no" /></Button>
+          <Button variation="danger" size="small" onClick={() => this.props.handleRemoveCart(cart.id)}><FormattedMessage id="cart.delete.yes" /></Button>
+        </div>
+      </li>
+    )
+  }
 }
 
 ItemCart.propTypes = {
-    handleUseCart: PropTypes.func,
-    handleRemoveCart: PropTypes.func,
-    handleCurrentCartSaved: PropTypes.func
+  handleUseCart: PropTypes.func,
+  handleRemoveCart: PropTypes.func,
+  item: PropTypes.object,
+  cart: PropTypes.object,
 }
 
 export default ItemCart
