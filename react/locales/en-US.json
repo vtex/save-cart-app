@@ -7,7 +7,7 @@
 
 
   "cart.saved": "This quote is saved as: ",
-  "cart.saved.success": "Quote successfully saved!",
+  "cart.saved.success": "Quote successfully saved! Quote will be valid for {days} day{isPlural}",
   "cart.saved.error": "Error: Something went wrong while trying to save the quote",
   "cart.saved.clear": "Current quote is saved as:",
   "cart.saved.noname": "Hey! You forgot to name your quote",

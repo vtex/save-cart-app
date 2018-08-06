@@ -43,11 +43,14 @@ class ItemCart extends Component {
   }
 
   render() {
-    const { cart } = this.props
+    const { cart, cartLifeSpan } = this.props
     const cartQuantity = _.reduce(cart.items, function(memo, item) { return memo + item.quantity }, 0)
 
-    const formatDate = (date) => {
+    const formatDate = (date, cartLifeSpan = 0) => {
       const tempDate = new Date(date)
+      if (cartLifeSpan > 0) {
+        tempDate.setDate(tempDate.getDate() + cartLifeSpan)
+      }
       return `${tempDate.getDate()}/${tempDate.getMonth() + 1}/${tempDate.getFullYear()}`
     }
 
@@ -60,7 +63,13 @@ class ItemCart extends Component {
           </span>
         </div>
 
-        <div className="fl w-100 w-50-ns flex-auto pv2">
+        <div className="fl w-20-ns flex-auto pv2">
+          <span className="f6 db black-70">
+            {formatDate(cart.creationDate, cartLifeSpan)}
+          </span>
+        </div>
+
+        <div className="fl w-100 w-30-ns flex-auto pv2">
           <span className="f6 db black-70">
             {cart.cartName}
           </span>
@@ -102,6 +111,7 @@ ItemCart.propTypes = {
   handleRemoveCart: PropTypes.func,
   item: PropTypes.object,
   cart: PropTypes.object,
+  cartLifeSpan: PropTypes.number,
 }
 
 export default ItemCart

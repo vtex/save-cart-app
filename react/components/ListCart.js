@@ -5,9 +5,9 @@ import { FormattedMessage, injectIntl} from 'react-intl'
 
 class ListCart extends Component {
   render() {
-    const { handleRemoveCart, handleUseCart } = this.props
+    const { handleRemoveCart, handleUseCart, cartLifeSpan } = this.props
     const items = this.props.carts.map(cart => {
-      return <ItemCart key={cart.id} cart={cart} handleRemoveCart={handleRemoveCart} handleUseCart={handleUseCart} />
+      return <ItemCart key={cart.id} cart={cart} handleRemoveCart={handleRemoveCart} handleUseCart={handleUseCart} cartLifeSpan={cartLifeSpan}/>
     })
     return (
       <div className="overflow-y-scroll vh-50">
@@ -19,7 +19,12 @@ class ListCart extends Component {
                   Data da cotação
                 </span>
               </div>
-              <div className="fl w-100 w-50-ns flex-auto pv2">
+              <div className="fl w-20-ns flex-auto pv2">
+                <span className="f6 db black-70 ttu b">
+                  Data de expiração
+                </span>
+              </div>
+              <div className="fl w-100 w-30-ns flex-auto pv2">
                 <span className="f6 db black-70 ttu b">
                   Nome
                 </span>
@@ -45,6 +50,7 @@ ListCart.propTypes = {
   handleRemoveCart: PropTypes.func,
   handleUseCart: PropTypes.func,
   carts: PropTypes.array,
+  cartLifeSpan: PropTypes.number,
 }
 
 export default ListCart

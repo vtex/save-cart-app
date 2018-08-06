@@ -7,7 +7,6 @@ import ListCart from './components/ListCart'
 import Loading from './components/Loading'
 import Tabs from './components/Tabs'
 import Tab from './components/Tab'
-import Button from '@vtex/styleguide/lib/Button'
 import SaveCart from './components/SaveCart'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
 import _ from 'underscore'
@@ -20,6 +19,8 @@ import {
     userLogged,
     saveMarketingData
 } from './utils'
+
+const buttonClassName=`fr pv4 ph6 bw1 ba br2 fw5 f4 v-mid tc relative pointer near-white bg-near-black b--near-white hover-b--black hover-bg-dark-gray`
 
 class MyCarts extends Component {
   static propTypes = {
@@ -88,7 +89,7 @@ class MyCarts extends Component {
   handleProfileError(error) {
     window.vtex.checkout.MessageUtils.showMessage({
       status: 'fatal',
-      text: `<FormattedMessage id="generic.error"/> ${error}`,
+      text: `${this.props.intl.formatMessage({ id:"generic.error"})} ${error}`,
     })
   }
 
@@ -98,7 +99,7 @@ class MyCarts extends Component {
    * @param {*} error Error
    */
   handleUpdateError(error) {
-    let message = error && error.data ? error.data.errorMessage : <FormattedMessage id="generic.error"/>
+    let message = error && error.data ? error.data.errorMessage : this.props.intl.formatMessage({ id:"generic.error"})
     if (error.data && error.data.error && error.data.error.message) {
       message = error.data.error.message
     }
@@ -169,9 +170,11 @@ class MyCarts extends Component {
             carts: carts,
           })
           this.activeLoading(false)
-          this.handleUpdateSuccess(<FormattedMessage id="cart.saved.success"/>)
+          const {getSetupConfig: {adminSetup: {cartLifeSpan}}} = this.props.getSetupConfig
+          const isPlural = cartLifeSpan < 2 ? '' : 's'
+          this.handleUpdateSuccess(this.props.intl.formatMessage({ id:"cart.saved.success"}, {days: cartLifeSpan, isPlural}))
         } else {
-          this.setState({ messageError: <FormattedMessage id="cart.saved.error"/> })
+          this.setState({ messageError: this.props.intl.formatMessage({ id:"cart.saved.error"}) })
           this.activeLoading(false)
         }
       }).catch((err) => {
@@ -180,7 +183,7 @@ class MyCarts extends Component {
       })
     } else {
       this.activeLoading(false)
-      this.setState({ messageError: <FormattedMessage id="cart.saved.noname"/>
+    this.setState({ messageError: this.props.intl.formatMessage({ id:"cart.saved.noname"})
     })
     }
   }
@@ -204,7 +207,7 @@ class MyCarts extends Component {
           carts: carts,
         })
         this.activeLoading(false)
-        this.handleUpdateSuccess(<FormattedMessage id="cart.delete.success"/>)
+        this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.delete.success'}))
       } else {
         this.activeLoading(false)
         this.handleUpdateError()
@@ -369,20 +372,21 @@ class MyCarts extends Component {
 
   render() {
     const intl = this.props.intl
-    if (this.props.getSetupConfig.loading) {
+    const {getSetupConfig} = this.props
+    if (getSetupConfig.loading) {
       return null
     }
-
+    const {getSetupConfig: {adminSetup: {cartName, cartLifeSpan}}} = getSetupConfig
     const { items, carts, messageError, messageSuccess } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
-    const optsListCart = { items, carts, handleRemoveCart, handleUseCart }
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan }
 
     return (
       <div>
-        <Button variation="tertiary" size="small" id="vtex-cart-list-open-modal-button" onClick={this.handleOpenModal}>
-          {this.props.getSetupConfig.getSetupConfig.adminSetup.cartName || 'Save Cart'}
-        </Button>
+        <button className={`${buttonClassName}`} onClick={this.handleOpenModal}>
+          {cartName || 'Save Cart'}
+        </button>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
             <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>

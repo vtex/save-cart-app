@@ -7,7 +7,7 @@
 
 
   "cart.saved": "La cotización actual está grabada como",
-  "cart.saved.success": "La cotización se salvó con éxito!",
+  "cart.saved.success": "La cotización se salvó con éxito! Cotización válida por {days} día{isPlural}",
   "cart.saved.error": "Error al  guardar la cotización!",
   "cart.saved.clear": "La cotización actual está grabada como",
   "cart.saved.noname": "Por favor informe el nombre de la cotización que se va a salvar!",

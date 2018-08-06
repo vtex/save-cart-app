@@ -5,13 +5,11 @@ import PropTypes from 'prop-types'
 import Modal from './components/Modal'
 import ListCart from './components/ListCart'
 import Loading from './components/Loading'
-import Tabs from './components/Tabs'
-import Tab from './components/Tab'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
 import _ from 'underscore'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
-import { FormattedMessage, injectIntl} from 'react-intl'
+import { FormattedMessage, injectIntl, intlShape} from 'react-intl'
 
 import styles from './style.css'
 
@@ -25,6 +23,7 @@ class CartList extends Component {
     getSetupConfig: PropTypes.object,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
+    intl: intlShape,
   }
 
   constructor(props) {
@@ -67,7 +66,6 @@ class CartList extends Component {
       .then(orderForm => this.setState({ orderForm }))
       .then(this.listenOrderFormUpdated)
     }
-
   }
 
   /**
@@ -88,7 +86,7 @@ class CartList extends Component {
   handleProfileError(error) {
     window.vtex.checkout.MessageUtils.showMessage({
       status: 'fatal',
-      text: `Não foi possível se comunicar com o sistema de Profile. <br/>${error}`,
+      text: `${this.props.intl.formatMessage({ id: 'generic.error'})} ${error}`,
     })
   }
 
@@ -149,7 +147,7 @@ class CartList extends Component {
           carts: carts,
         })
         this.activeLoading(false)
-        this.handleUpdateSuccess('Cotação removida com sucesso!')
+        this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.delete.success'}))
       } else {
         this.activeLoading(false)
         this.handleUpdateError()
@@ -250,7 +248,7 @@ class CartList extends Component {
     await saveMarketingData(orderForm.orderFormId)
 
     this.activeLoading(false)
-    window.location.href = '/checkout/';
+    window.location.href = '/checkout/'
     return true
   }
 
@@ -282,13 +280,8 @@ class CartList extends Component {
    *    e depois o modal é aberto
    */
   handleOpenModal() {
-    const { orderForm } = this.state
-    if (userLogged(orderForm)) {
-      this.listCarts()
-      this.setState({ isModalOpen: true })
-    } else {
-      console.log("erro, user não autenticado")
-    }
+    this.listCarts()
+    this.setState({ isModalOpen: true })
   }
 
   /**
@@ -307,7 +300,7 @@ class CartList extends Component {
     this.activeLoading(true)
     await this.clearCart(orderForm.orderFormId)
     this.activeLoading(false)
-    window.location.href = '/checkout/';
+    window.location.href = '/checkout/'
     return true
   }
 
@@ -316,15 +309,16 @@ class CartList extends Component {
       return null
     }
 
-    const { items, carts, messageError, messageSuccess } = this.state
+    const { items, carts, orderForm } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
     const optsListCart = { items, carts, handleRemoveCart, handleUseCart }
 
     return (
-      <div>
+      userLogged(orderForm)
+      ? <div>
         <div className={styles.menuTop} onClick={this.handleOpenModal}>
-          <FormattedMessage id="quotes"/>
+          <FormattedMessage id="quotes" /> (Logged)
         </div>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
@@ -334,12 +328,13 @@ class CartList extends Component {
           <ListCart {...optsListCart} />
         </Modal>
       </div>
+      : null
     )
   }
 }
 
-export default compose(
+export default injectIntl(compose(
   graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
-)(CartList)
+)(CartList))
