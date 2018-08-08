@@ -10,13 +10,13 @@ import _ from 'underscore'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 import currentTime from './graphql/currentTime.graphql'
-import { FormattedMessage, injectIntl, intlShape} from 'react-intl'
+import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 
 import styles from './style.css'
 
 import {
-    userLogged,
-    saveMarketingData,
+  userLogged,
+  saveMarketingData,
 } from './utils'
 
 class CartList extends Component {
@@ -25,6 +25,7 @@ class CartList extends Component {
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
     intl: intlShape,
+    currentTime: PropTypes.string,
   }
 
   constructor(props) {
@@ -64,8 +65,8 @@ class CartList extends Component {
   componentDidMount() {
     if (window.vtexjs) {
       Promise.resolve(window.vtexjs.checkout.getOrderForm())
-      .then(orderForm => this.setState({ orderForm }))
-      .then(this.listenOrderFormUpdated)
+        .then(orderForm => this.setState({ orderForm }))
+        .then(this.listenOrderFormUpdated)
     }
   }
 
@@ -75,7 +76,7 @@ class CartList extends Component {
   listenOrderFormUpdated() {
     // eslint-disable-next-line
     $(window).on('orderFormUpdated.vtex', (_, orderForm) =>
-        this.setState({ orderForm })
+      this.setState({ orderForm })
     )
   }
 
@@ -87,7 +88,7 @@ class CartList extends Component {
   handleProfileError(error) {
     window.vtex.checkout.MessageUtils.showMessage({
       status: 'fatal',
-      text: `${this.props.intl.formatMessage({ id: 'generic.error'})} ${error}`,
+      text: `${this.props.intl.formatMessage({ id: 'generic.error' })} ${error}`,
     })
   }
 
@@ -136,9 +137,9 @@ class CartList extends Component {
    */
   removeCart(id) {
     this.activeLoading(true)
-    this.props.removeCart({variables: {
+    this.props.removeCart({ variables: {
       id: id,
-    }}).then((result) => {
+    } }).then((result) => {
       if (result.data.removeCart === true) {
         var carts = this.state.carts.slice(0)
         carts = _.filter(carts, (cart) => {
@@ -148,7 +149,7 @@ class CartList extends Component {
           carts: carts,
         })
         this.activeLoading(false)
-        this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.delete.success'}))
+        this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.delete.success' }))
       } else {
         this.activeLoading(false)
         this.handleUpdateError()
@@ -257,13 +258,13 @@ class CartList extends Component {
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
-    const {currentTime: {currentTime}, getSetupConfig: {getSetupConfig: {adminSetup: {cartLifeSpan}}}} = this.props
+    const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup: { cartLifeSpan } } } } = this.props
     const today = new Date(currentTime)
     this.activeLoading(true)
     const shouldDelete = []
-    this.props.getCarts({variables: {
+    this.props.getCarts({ variables: {
       email: this.state.orderForm.clientProfileData.email,
-    }}).then(async (result) => {
+    } }).then(async (result) => {
       let carts = result.data.getCarts
       console.log(carts)
       carts.map(cart => {
@@ -291,13 +292,13 @@ class CartList extends Component {
     })
   }
 
-  removeFromVbase (cart) {
-    const {id, cartName} = cart
+  removeFromVbase(cart) {
+    const { id, cartName } = cart
     console.log('Deleting expired cart: ', cartName)
 
-    this.props.removeCart({variables: {
+    this.props.removeCart({ variables: {
       id,
-    }}).then((result) => {
+    } }).then((result) => {
       if (result.data.removeCart === true) {
         console.log('Deleted expired cart successfully: ', cartName)
         cart.id = null
@@ -355,19 +356,19 @@ class CartList extends Component {
 
     return (
       userLogged(orderForm)
-      ? <div>
-        <div className={styles.menuTop} onClick={this.handleOpenModal}>
-          <FormattedMessage id="quotes" />
-        </div>
-        <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
-          <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
-            <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-            <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes"/> <Loading visible={this.state.enabledLoading} /></h4>
+        ? <div>
+          <div className={styles.menuTop} onClick={this.handleOpenModal}>
+            <FormattedMessage id="quotes" />
           </div>
-          <ListCart {...optsListCart} />
-        </Modal>
-      </div>
-      : null
+          <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
+            <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
+              <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
+              <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes" /> <Loading visible={this.state.enabledLoading} /></h4>
+            </div>
+            <ListCart {...optsListCart} />
+          </Modal>
+        </div>
+        : null
     )
   }
 }

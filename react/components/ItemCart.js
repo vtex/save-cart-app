@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { FormattedMessage, injectIntl} from 'react-intl'
+import { FormattedMessage } from 'react-intl'
 import Button from '@vtex/styleguide/lib/Button'
 import Delete from '@vtex/styleguide/lib/icon/Delete'
 import _ from 'underscore'

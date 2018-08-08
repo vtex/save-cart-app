@@ -90,7 +90,7 @@ class MyCarts extends Component {
   handleProfileError(error) {
     window.vtex.checkout.MessageUtils.showMessage({
       status: 'fatal',
-      text: `${this.props.intl.formatMessage({ id:"generic.error"})} ${error}`,
+      text: `${this.props.intl.formatMessage({ id: 'generic.error' })} ${error}`,
     })
   }
 
@@ -100,7 +100,7 @@ class MyCarts extends Component {
    * @param {*} error Error
    */
   handleUpdateError(error) {
-    let message = error && error.data ? error.data.errorMessage : this.props.intl.formatMessage({ id:"generic.error"})
+    let message = error && error.data ? error.data.errorMessage : this.props.intl.formatMessage({ id: 'generic.error' })
     if (error.data && error.data.error && error.data.error.message) {
       message = error.data.error.message
     }
@@ -160,9 +160,9 @@ class MyCarts extends Component {
         creationDate: new Date().toISOString(),
       }
 
-      this.props.saveCartMutation({variables: {
+      this.props.saveCartMutation({ variables: {
         cart: cart,
-      }}).then((result) => {
+      } }).then((result) => {
         if (result.data.saveCart) {
           cart.id = result.data.saveCart.substr(5)
           var carts = this.state.carts.slice(0)
@@ -171,11 +171,11 @@ class MyCarts extends Component {
             carts: carts,
           })
           this.activeLoading(false)
-          const {getSetupConfig: {adminSetup: {cartLifeSpan}}} = this.props.getSetupConfig
+          const { getSetupConfig: { adminSetup: { cartLifeSpan } } } = this.props.getSetupConfig
           const isPlural = cartLifeSpan < 2 ? '' : 's'
-          this.handleUpdateSuccess(this.props.intl.formatMessage({ id:"cart.saved.success"}, {days: cartLifeSpan, isPlural}))
+          this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.saved.success' }, { days: cartLifeSpan, isPlural }))
         } else {
-          this.setState({ messageError: this.props.intl.formatMessage({ id:"cart.saved.error"}) })
+          this.setState({ messageError: this.props.intl.formatMessage({ id: 'cart.saved.error' }) })
           this.activeLoading(false)
         }
       }).catch((err) => {
@@ -184,8 +184,8 @@ class MyCarts extends Component {
       })
     } else {
       this.activeLoading(false)
-      this.setState({ messageError: this.props.intl.formatMessage({ id:"cart.saved.noname"})
-    })
+      this.setState({ messageError: this.props.intl.formatMessage({ id: 'cart.saved.noname' }),
+      })
     }
   }
 
@@ -196,9 +196,9 @@ class MyCarts extends Component {
    */
   removeCart(id) {
     this.activeLoading(true)
-    this.props.removeCart({variables: {
+    this.props.removeCart({ variables: {
       id: id,
-    }}).then((result) => {
+    } }).then((result) => {
       if (result.data.removeCart === true) {
         var carts = this.state.carts.slice(0)
         carts = _.filter(carts, (cart) => {
@@ -208,7 +208,7 @@ class MyCarts extends Component {
           carts: carts,
         })
         this.activeLoading(false)
-        this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.delete.success'}))
+        this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.delete.success' }))
       } else {
         this.activeLoading(false)
         this.handleUpdateError()
@@ -317,13 +317,13 @@ class MyCarts extends Component {
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
-    const {currentTime: {currentTime}, getSetupConfig: {getSetupConfig: {adminSetup: {cartLifeSpan}}}} = this.props
+    const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup: { cartLifeSpan } } } } = this.props
     const today = new Date(currentTime)
     this.activeLoading(true)
     const shouldDelete = []
-    this.props.getCarts({variables: {
+    this.props.getCarts({ variables: {
       email: this.state.orderForm.clientProfileData.email,
-    }}).then(async (result) => {
+    } }).then(async (result) => {
       let carts = result.data.getCarts
       console.log(carts)
       carts.map(cart => {
@@ -351,13 +351,13 @@ class MyCarts extends Component {
     })
   }
 
-  removeFromVbase (cart) {
-    const {id, cartName} = cart
+  removeFromVbase(cart) {
+    const { id, cartName } = cart
     console.log('Deleting expired cart: ', cartName)
 
-    this.props.removeCart({variables: {
+    this.props.removeCart({ variables: {
       id,
-    }}).then((result) => {
+    } }).then((result) => {
       if (result.data.removeCart === true) {
         console.log('Deleted expired cart successfully: ', cartName)
         cart.id = null
@@ -411,11 +411,11 @@ class MyCarts extends Component {
 
   render() {
     const intl = this.props.intl
-    const {getSetupConfig} = this.props
+    const { getSetupConfig } = this.props
     if (getSetupConfig.loading) {
       return null
     }
-    const {getSetupConfig: {adminSetup: {cartName, cartLifeSpan}}} = getSetupConfig
+    const { getSetupConfig: { adminSetup: { cartName, cartLifeSpan } } } = getSetupConfig
     const { items, carts, messageError, messageSuccess } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
@@ -429,7 +429,7 @@ class MyCarts extends Component {
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
             <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-            <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes"/> <Loading visible={this.state.enabledLoading} /></h4>
+            <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes" /> <Loading visible={this.state.enabledLoading} /></h4>
           </div>
           <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
             <Tab name="Salvar Cotação Atual">

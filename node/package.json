@@ -24,6 +24,7 @@
     "@types/node": "^9.6.1",
     "@types/ramda": "types/npm-ramda#dist",
     "tslint": "^5.9.1",
+    "tslint-config-vtex": "^2.0.0",
     "typescript": "^2.7.1"
   }
 }

@@ -1,4 +1,4 @@
-import { map, prop } from 'ramda'
+import { prop } from 'ramda'
 import http from 'axios'
 
 const routes = {
@@ -20,7 +20,7 @@ export default ({ account, authToken }: ReqContext) => {
   return {
     /**
      * Inclui os dados de marketing no orderForm
-     * 
+     *
      * @param {string} orderFormId Identificador do orderForm
      * @param {any} marketingData Dados do marketing
      * @param {string} Cookie Cookie da sessão
@@ -37,7 +37,7 @@ export default ({ account, authToken }: ReqContext) => {
     },
     /**
      * Atualiza o hook da APP
-     * 
+     *
      * @param orderFormId Identificador do orderForm
      * @param hook Valor do hook
      */
@@ -50,7 +50,7 @@ export default ({ account, authToken }: ReqContext) => {
         Cookie: cookie
       }
       return http.post(url, hook, { headers, withCredentials: true }).then(prop('data'))
-    },    
+    },
     /**
      * Obtém o orderForm pelo identificador
      *
