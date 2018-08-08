@@ -9,6 +9,7 @@ import getSetupConfig from './graphql/getSetupConfig.graphql'
 import _ from 'underscore'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
+import currentTime from './graphql/currentTime.graphql'
 import { FormattedMessage, injectIntl, intlShape} from 'react-intl'
 
 import styles from './style.css'
@@ -256,18 +257,56 @@ class CartList extends Component {
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
+    const {currentTime: {currentTime}, getSetupConfig: {getSetupConfig: {adminSetup: {cartLifeSpan}}}} = this.props
+    const today = new Date(currentTime)
     this.activeLoading(true)
+    const shouldDelete = []
     this.props.getCarts({variables: {
       email: this.state.orderForm.clientProfileData.email,
-    }}).then((result) => {
-      console.log(result)
+    }}).then(async (result) => {
+      let carts = result.data.getCarts
+      console.log(carts)
+      carts.map(cart => {
+        const tempDate = new Date(cart.creationDate)
+        tempDate.setDate(tempDate.getDate() + cartLifeSpan)
+        if (today.getTime() > tempDate.getTime()) {
+          shouldDelete.push(cart)
+        }
+      })
+
+      const promises = []
+      shouldDelete.map(cart => {
+        promises.push(this.removeFromVbase(cart))
+      })
+      await Promise.all(promises)
+
+      carts = _.difference(carts, shouldDelete)
       this.setState({
-        carts: result.data.getCarts,
+        carts: carts,
       })
       this.activeLoading(false)
     }).catch((err) => {
       console.log(err)
       this.activeLoading(false)
+    })
+  }
+
+  removeFromVbase (cart) {
+    const {id, cartName} = cart
+    console.log('Deleting expired cart: ', cartName)
+
+    this.props.removeCart({variables: {
+      id,
+    }}).then((result) => {
+      if (result.data.removeCart === true) {
+        console.log('Deleted expired cart successfully: ', cartName)
+        cart.id = null
+      } else {
+        this.handleUpdateError()
+      }
+    }).catch((err) => {
+      console.log('Error deleting cart', err)
+      this.handleUpdateError(err.response)
     })
   }
 
@@ -318,7 +357,7 @@ class CartList extends Component {
       userLogged(orderForm)
       ? <div>
         <div className={styles.menuTop} onClick={this.handleOpenModal}>
-          <FormattedMessage id="quotes" /> (Logged)
+          <FormattedMessage id="quotes" />
         </div>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
@@ -337,4 +376,5 @@ export default injectIntl(compose(
   graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
+  graphql(currentTime, { name: 'currentTime' }),
 )(CartList))

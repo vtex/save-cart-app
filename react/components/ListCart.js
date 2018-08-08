@@ -36,7 +36,7 @@ class ListCart extends Component {
               </div>
             </li>
             {
-                items
+              items
             }
           </ul>
           : <div className="tc"><p className="f6"><FormattedMessage id="list.empty"/></p></div>

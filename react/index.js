@@ -13,14 +13,13 @@ import _ from 'underscore'
 import saveCartMutation from './graphql/saveCart.graphql'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
-import { FormattedMessage, injectIntl} from 'react-intl'
+import currentTime from './graphql/currentTime.graphql'
+import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 
 import {
-    userLogged,
-    saveMarketingData
+  userLogged,
+  saveMarketingData,
 } from './utils'
-
-const buttonClassName=`fr pv4 ph6 bw1 ba br2 fw5 f4 v-mid tc relative pointer near-white bg-near-black b--near-white hover-b--black hover-bg-dark-gray`
 
 class MyCarts extends Component {
   static propTypes = {
@@ -28,6 +27,8 @@ class MyCarts extends Component {
     saveCartMutation: PropTypes.func,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
+    intl: intlShape,
+    currentTime: PropTypes.string,
   }
 
   constructor(props) {
@@ -77,7 +78,7 @@ class MyCarts extends Component {
   listenOrderFormUpdated() {
     // eslint-disable-next-line
     $(window).on('orderFormUpdated.vtex', (_, orderForm) =>
-        this.setState({ orderForm })
+      this.setState({ orderForm })
     )
   }
 
@@ -183,7 +184,7 @@ class MyCarts extends Component {
       })
     } else {
       this.activeLoading(false)
-    this.setState({ messageError: this.props.intl.formatMessage({ id:"cart.saved.noname"})
+      this.setState({ messageError: this.props.intl.formatMessage({ id:"cart.saved.noname"})
     })
     }
   }
@@ -316,18 +317,56 @@ class MyCarts extends Component {
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
+    const {currentTime: {currentTime}, getSetupConfig: {getSetupConfig: {adminSetup: {cartLifeSpan}}}} = this.props
+    const today = new Date(currentTime)
     this.activeLoading(true)
+    const shouldDelete = []
     this.props.getCarts({variables: {
       email: this.state.orderForm.clientProfileData.email,
-    }}).then((result) => {
-      console.log(result)
+    }}).then(async (result) => {
+      let carts = result.data.getCarts
+      console.log(carts)
+      carts.map(cart => {
+        const tempDate = new Date(cart.creationDate)
+        tempDate.setDate(tempDate.getDate() + cartLifeSpan)
+        if (today.getTime() > tempDate.getTime()) {
+          shouldDelete.push(cart)
+        }
+      })
+
+      const promises = []
+      shouldDelete.map(cart => {
+        promises.push(this.removeFromVbase(cart))
+      })
+      await Promise.all(promises)
+
+      carts = _.difference(carts, shouldDelete)
       this.setState({
-        carts: result.data.getCarts,
+        carts: carts,
       })
       this.activeLoading(false)
     }).catch((err) => {
       console.log(err)
       this.activeLoading(false)
+    })
+  }
+
+  removeFromVbase (cart) {
+    const {id, cartName} = cart
+    console.log('Deleting expired cart: ', cartName)
+
+    this.props.removeCart({variables: {
+      id,
+    }}).then((result) => {
+      if (result.data.removeCart === true) {
+        console.log('Deleted expired cart successfully: ', cartName)
+        cart.id = null
+      } else {
+        this.handleUpdateError()
+      }
+    }).catch((err) => {
+      console.log('Error deleting cart', err)
+      this.handleUpdateError(err.response)
     })
   }
 
@@ -384,7 +423,7 @@ class MyCarts extends Component {
 
     return (
       <div>
-        <button className={`${buttonClassName}`} onClick={this.handleOpenModal}>
+        <button id="vtex-cart-list-open-modal-button" onClick={this.handleOpenModal}>
           {cartName || 'Save Cart'}
         </button>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
@@ -413,4 +452,5 @@ export default injectIntl(compose(
   graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
+  graphql(currentTime, { name: 'currentTime' })
 )(MyCarts))

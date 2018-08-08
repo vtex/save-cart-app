@@ -4,6 +4,7 @@ type Query {
     cartLifeSpan: Int,
   ): ChangeSetupResponse @cacheControl(scope: PRIVATE)
   getSetupConfig : GetSetupConfigResponse @cacheControl(scope: PRIVATE)
+  currentTime: String
 }
 
 type Mutation {

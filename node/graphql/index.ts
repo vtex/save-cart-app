@@ -21,6 +21,9 @@ export const resolvers = {
       const filter = getAppId()
       return apps.getAppSettings(filter).then((r) => (r))
     },
+    currentTime: async (_, __, ___) => {
+      return new Date().toISOString()
+    }
   },
   Mutation: {
     saveCart: async (_, params, ctx) => {
