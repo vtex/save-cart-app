@@ -8,7 +8,6 @@ import Loading from './components/Loading'
 import Tabs from './components/Tabs'
 import Tab from './components/Tab'
 import SaveCart from './components/SaveCart'
-import getSetupConfig from './graphql/getSetupConfig.graphql'
 import _ from 'underscore'
 import saveCartMutation from './graphql/saveCart.graphql'
 import getCarts from './graphql/getCarts.graphql'
@@ -23,12 +22,15 @@ import {
 
 class MyCarts extends Component {
   static propTypes = {
-    getSetupConfig: PropTypes.object,
     saveCartMutation: PropTypes.func,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
     intl: intlShape,
-    currentTime: PropTypes.string,
+    currentTime: PropTypes.object,
+  }
+
+  static contextTypes = {
+    getSettings: PropTypes.func,
   }
 
   constructor(props) {
@@ -171,7 +173,7 @@ class MyCarts extends Component {
             carts: carts,
           })
           this.activeLoading(false)
-          const { getSetupConfig: { adminSetup: { cartLifeSpan } } } = this.props.getSetupConfig
+          const { adminSetup: { cartLifeSpan } } = this.getFormData()
           const isPlural = cartLifeSpan < 2 ? '' : 's'
           this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.saved.success' }, { days: cartLifeSpan, isPlural }))
         } else {
@@ -317,7 +319,8 @@ class MyCarts extends Component {
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
-    const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup: { cartLifeSpan } } } } = this.props
+    const { adminSetup: { cartLifeSpan } } = this.getFormData()
+    const { currentTime: { currentTime } } = this.props
     const today = new Date(currentTime)
     this.activeLoading(true)
     const shouldDelete = []
@@ -336,7 +339,7 @@ class MyCarts extends Component {
 
       const promises = []
       shouldDelete.map(cart => {
-        promises.push(this.removeFromVbase(cart))
+        promises.push(this.removeFromDB(cart))
       })
       await Promise.all(promises)
 
@@ -351,7 +354,7 @@ class MyCarts extends Component {
     })
   }
 
-  removeFromVbase(cart) {
+  removeFromDB(cart) {
     const { id, cartName } = cart
     console.log('Deleting expired cart: ', cartName)
 
@@ -409,13 +412,13 @@ class MyCarts extends Component {
     return true
   }
 
+  getFormData = () => {
+    return this.context.getSettings('vtex.savecart')
+  }
+
   render() {
     const intl = this.props.intl
-    const { getSetupConfig } = this.props
-    if (getSetupConfig.loading) {
-      return null
-    }
-    const { getSetupConfig: { adminSetup: { cartName, cartLifeSpan } } } = getSetupConfig
+    const { adminSetup: { cartName, cartLifeSpan } } = this.getFormData()
     const { items, carts, messageError, messageSuccess } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
@@ -448,7 +451,6 @@ class MyCarts extends Component {
 }
 
 export default injectIntl(compose(
-  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: true } }),
   graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),

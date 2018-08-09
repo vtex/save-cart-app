@@ -6,8 +6,6 @@
     "apollo-client": "2.0.4",
     "axios": "^0.17.1",
     "bluebird": "^3.4.7",
-    "graphql-tag": "2.6.0",
-    "qs": "^6.4.0",
     "react-intl": "^2.4.0",
     "tachyons-svg": "^1.0.1",
     "underscore": "1.9.1",

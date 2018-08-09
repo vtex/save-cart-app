@@ -20,13 +20,11 @@
   "builders": {
     "graphql": "1.x",
     "node": "3.x",
-    "react": "2.x",
-    "pages": "0.x"
+    "react": "2.x"
   },
   "scripts": {
     "postreleasy": "vtex publish"
   },
-  "supportWorkspaces": true,
   "billingOptions": {
     "free": true
   },
@@ -38,43 +36,11 @@
       "name": "colossus-write-logs"
     },
     {
-      "name": "vbase-read-write",
-      "attrs": {
-        "bucket": "savecart"
-      }
-    },
-    {
-      "name": "AcessaTodosPedidos"
-    },
-    {
       "name": "outbound-access",
       "attrs": {
         "host": "{{account}}.vtexcommercestable.com.br",
         "path": "/api/dataentities/cart/*"
       }
-    },
-    {
-      "name": "AdminPortal"
-    },
-    {
-      "name": "outbound-access",
-      "attrs": {
-        "host": "{{account}}.vtexcommercestable.com.br",
-        "path": "/*"
-      }
-    },
-    {
-      "name": "outbound-access",
-      "attrs": {
-        "host": "vtexid.vtex.com.br",
-        "path": "/api/vtexid/pub/authenticated/user"
-      }
-    },
-    {
-      "name": "OMSViewer"
-    },
-    {
-      "name": "POWER_USER_DS"
     }
   ],
   "settingsSchema": {
