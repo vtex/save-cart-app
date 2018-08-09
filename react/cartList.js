@@ -26,6 +26,10 @@ class CartList extends Component {
     currentTime: PropTypes.object,
   }
 
+  static contextTypes = {
+    getSettings: PropTypes.func,
+  }
+
   constructor(props) {
     super(props)
     this.state = {
