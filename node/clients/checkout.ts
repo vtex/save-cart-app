@@ -1,5 +1,5 @@
-import { prop } from 'ramda'
 import http from 'axios'
+import { prop } from 'ramda'
 
 const routes = {
   orderForm: (account, env = 'stable') => `http://${account}.vtexcommerce${env}.com.br/api/checkout/pub/orderForm`,

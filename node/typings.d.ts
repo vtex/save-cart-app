@@ -1,23 +1,10 @@
-declare module "ramda" {
-    import X = require('@types/ramda')
-
-    interface Custom {
-        call(fn: (...args: any[]) => any, ...args: any[]): any;
-        filter<T>(fn: (value: T) => boolean, obj: { [index: string]: T }): { [index: string]: T };
-        map<T, U>(fn: (x: T) => U, obj: { [index: string]: T }): { [index: string]: U };
-        eqBy<T, U>(fn: (a: T) => U): X.CurriedFunction2<T, T, boolean>;
-        eqBy<T, U>(fn: (a: T) => U, a: T, b: T): boolean;
-    }
-
-    var R: X.Static & Custom
-
-    export = R
-}
-
 interface ReqContext {
-    account: string,
-    workspace: string,
-    authToken: string
+  account: string,
+  workspace: string,
+  authToken: string,
+  region: string,
+  production: boolean,
+  userAgent: string
 }
 
 interface Logger {

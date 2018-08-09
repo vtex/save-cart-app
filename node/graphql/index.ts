@@ -1,12 +1,4 @@
-import { Apps } from '@vtex/api'
 import http from 'axios'
-
-const appMajor = "0"
-
-const getAppId = () => {
-  return `vtex.savecart@${appMajor}.x`
-}
-
 
 const routes = {
   saveCart: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents`,
@@ -16,11 +8,6 @@ const routes = {
 
 export const resolvers = {
   Query: {
-    getSetupConfig: async (_, __, ctx) => {
-      const apps = new Apps(ctx.vtex)
-      const filter = getAppId()
-      return apps.getAppSettings(filter).then((r) => (r))
-    },
     currentTime: async (_, __, ___) => {
       return new Date().toISOString()
     }
@@ -37,18 +24,16 @@ export const resolvers = {
       const url = routes.saveCart(ctx.vtex.account)
       const { data } = await http({
         method: 'post',
-        url: url,
+        url,
         data: params.cart,
-        headers: headers
+        headers
       })
-      console.log(data)
       if (data.Id) {
         return data.Id
       }
     },
     getCarts: async (_, params, ctx) => {
       console.log('getCarts')
-      console.log(params)
       const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.vtex.ds.v10+json',
@@ -60,15 +45,13 @@ export const resolvers = {
       console.log('url', url)
       const { data } = await http({
         method: 'get',
-        url: url,
-        headers: headers
+        url,
+        headers
       })
-      console.log(data)
       return data
     },
     removeCart: async (_, params, ctx) => {
       console.log('removeCart')
-      console.log(params)
       const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.vtex.ds.v10+json',
@@ -78,8 +61,8 @@ export const resolvers = {
       const url = routes.removeCart(ctx.vtex.account, params.id)
       const result = await http({
         method: 'delete',
-        url: url,
-        headers: headers
+        url,
+        headers
       })
       if (result.status === 204){
         return true
