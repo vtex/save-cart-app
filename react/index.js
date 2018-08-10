@@ -13,6 +13,7 @@ import saveCartMutation from './graphql/saveCart.graphql'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 import currentTime from './graphql/currentTime.graphql'
+import getSetupConfig from './graphql/getSetupConfig.graphql'
 import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 
 import {
@@ -22,15 +23,12 @@ import {
 
 class MyCarts extends Component {
   static propTypes = {
+    getSetupConfig: PropTypes.object,
     saveCartMutation: PropTypes.func,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
     intl: intlShape,
     currentTime: PropTypes.object,
-  }
-
-  static contextTypes = {
-    getSettings: PropTypes.func,
   }
 
   constructor(props) {
@@ -69,6 +67,8 @@ class MyCarts extends Component {
    * 2º - Adiciona um evento que toda vez que o orderForm for atualizado eu atualizo o valor no state
    */
   componentDidMount() {
+    console.log('MOUNTED SAVECART APP')
+
     Promise.resolve(window.vtexjs.checkout.getOrderForm())
       .then(orderForm => this.setState({ orderForm }))
       .then(this.listenOrderFormUpdated)
@@ -319,8 +319,7 @@ class MyCarts extends Component {
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
-    const { adminSetup: { cartLifeSpan } } = this.getFormData()
-    const { currentTime: { currentTime } } = this.props
+    const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup: { cartLifeSpan } } } } = this.props
     const today = new Date(currentTime)
     this.activeLoading(true)
     const shouldDelete = []
@@ -400,25 +399,12 @@ class MyCarts extends Component {
     this.setState({ isModalOpen: false })
   }
 
-  /**
-   * Essa função cria um novo orderForm em branco
-   */
-  async createNewCart() {
-    const { orderForm } = this.state
-    this.activeLoading(true)
-    await this.clearCart(orderForm.orderFormId)
-    this.activeLoading(false)
-    location.reload()
-    return true
-  }
-
-  getFormData = () => {
-    return this.context.getSettings('vtex.savecart')
-  }
-
   render() {
+    if (this.props.getSetupConfig.loading) {
+      return null
+    }
     const intl = this.props.intl
-    const { adminSetup: { cartName, cartLifeSpan } } = this.getFormData()
+    const { getSetupConfig: { getSetupConfig: { adminSetup: { cartName, cartLifeSpan } } } } = this.props
     const { items, carts, messageError, messageSuccess } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
@@ -428,6 +414,7 @@ class MyCarts extends Component {
       <div>
         <button id="vtex-cart-list-open-modal-button" onClick={this.handleOpenModal}>
           {cartName || 'Save Cart'}
+          ()
         </button>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
@@ -451,6 +438,7 @@ class MyCarts extends Component {
 }
 
 export default injectIntl(compose(
+  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
   graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),

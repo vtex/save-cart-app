@@ -1,4 +1,11 @@
+import { Apps } from '@vtex/api'
 import http from 'axios'
+
+const appMajor = '0'
+
+const getAppId = () => {
+  return `vtex.savecart@${appMajor}.x`
+}
 
 const routes = {
   saveCart: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents`,
@@ -8,6 +15,11 @@ const routes = {
 
 export const resolvers = {
   Query: {
+    getSetupConfig: async (_, __, ctx) => {
+      const apps = new Apps(ctx.vtex)
+      const filter = getAppId()
+      return apps.getAppSettings(filter).then((r) => (r))
+    },
     currentTime: async (_, __, ___) => {
       return new Date().toISOString()
     }
@@ -48,6 +60,7 @@ export const resolvers = {
         url,
         headers
       })
+      console.log(data)
       return data
     },
     removeCart: async (_, params, ctx) => {

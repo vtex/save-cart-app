@@ -1,4 +1,5 @@
 type Query {
+  getSetupConfig: GetSetupConfigResponse @cacheControl(scope: PRIVATE)
   currentTime: String
 }
 

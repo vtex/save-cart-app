@@ -9,6 +9,7 @@ import _ from 'underscore'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 import currentTime from './graphql/currentTime.graphql'
+import getSetupConfig from './graphql/getSetupConfig.graphql'
 import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 
 import styles from './style.css'
@@ -20,14 +21,11 @@ import {
 
 class CartList extends Component {
   static propTypes = {
+    getSetupConfig: PropTypes.object,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
     intl: intlShape,
     currentTime: PropTypes.object,
-  }
-
-  static contextTypes = {
-    getSettings: PropTypes.func,
   }
 
   constructor(props) {
@@ -256,16 +254,11 @@ class CartList extends Component {
     return true
   }
 
-  getFormData = () => {
-    return this.context.getSettings('vtex.savecart')
-  }
-
   /**
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
-    const { adminSetup: { cartLifeSpan } } = this.getFormData()
-    const { currentTime: { currentTime } } = this.props
+    const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup: { cartLifeSpan } } } } = this.props
     const today = new Date(currentTime)
     this.activeLoading(true)
     const shouldDelete = []
@@ -339,29 +332,22 @@ class CartList extends Component {
     this.setState({ isModalOpen: false })
   }
 
-  /**
-   * Essa função cria um novo orderForm em branco
-   */
-  async createNewCart() {
-    const { orderForm } = this.state
-    this.activeLoading(true)
-    await this.clearCart(orderForm.orderFormId)
-    this.activeLoading(false)
-    window.location.href = '/checkout/'
-    return true
-  }
-
   render() {
+    if (this.props.getSetupConfig.loading) {
+      return null
+    }
+
     const { items, carts, orderForm } = this.state
+    const { getSetupConfig: { adminSetup: { cartLifeSpan } } } = this.props.getSetupConfig
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
-    const optsListCart = { items, carts, handleRemoveCart, handleUseCart }
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan }
 
     return (
       userLogged(orderForm)
         ? <div>
           <div className={styles.menuTop} onClick={this.handleOpenModal}>
-            <FormattedMessage id="quotes" />
+            <FormattedMessage id="quotes" /> ()
           </div>
           <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
             <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
@@ -377,6 +363,7 @@ class CartList extends Component {
 }
 
 export default injectIntl(compose(
+  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
   graphql(currentTime, { name: 'currentTime' }),
