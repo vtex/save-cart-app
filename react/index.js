@@ -414,7 +414,6 @@ class MyCarts extends Component {
       <div>
         <button id="vtex-cart-list-open-modal-button" onClick={this.handleOpenModal}>
           {cartName || 'Save Cart'}
-          ()
         </button>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">

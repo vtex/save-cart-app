@@ -20,7 +20,8 @@
   "builders": {
     "graphql": "1.x",
     "node": "3.x",
-    "react": "2.x"
+    "react": "2.x",
+    "pages": "0.x"
   },
   "scripts": {
     "postreleasy": "vtex publish"
@@ -41,6 +42,9 @@
         "host": "{{account}}.vtexcommercestable.com.br",
         "path": "/api/dataentities/cart/*"
       }
+    },
+    {
+      "name": "ADMIN_CRM"
     }
   ],
   "settingsSchema": {
