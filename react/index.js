@@ -21,6 +21,11 @@ import {
   saveMarketingData,
 } from './utils'
 
+const DEFAULT_ADMIN_SETUP = {
+  cartName: 'Save Cart',
+  cartLifeSpan: 7,
+}
+
 class MyCarts extends Component {
   static propTypes = {
     getSetupConfig: PropTypes.object,
@@ -173,7 +178,8 @@ class MyCarts extends Component {
             carts: carts,
           })
           this.activeLoading(false)
-          const { adminSetup: { cartLifeSpan } } = this.getFormData()
+          const { getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
+          const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
           const isPlural = cartLifeSpan < 2 ? '' : 's'
           this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.saved.success' }, { days: cartLifeSpan, isPlural }))
         } else {
@@ -319,7 +325,8 @@ class MyCarts extends Component {
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
-    const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup: { cartLifeSpan } } } } = this.props
+    const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
+    const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
     const today = new Date(currentTime)
     this.activeLoading(true)
     const shouldDelete = []
@@ -404,7 +411,8 @@ class MyCarts extends Component {
       return null
     }
     const intl = this.props.intl
-    const { getSetupConfig: { getSetupConfig: { adminSetup: { cartName, cartLifeSpan } } } } = this.props
+    const { getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
+    const { cartName, cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
     const { items, carts, messageError, messageSuccess } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
@@ -413,7 +421,7 @@ class MyCarts extends Component {
     return (
       <div>
         <button id="vtex-cart-list-open-modal-button" onClick={this.handleOpenModal}>
-          {cartName || 'Save Cart'}
+          {cartName}
         </button>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">

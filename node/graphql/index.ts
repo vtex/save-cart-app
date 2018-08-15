@@ -30,11 +30,11 @@ export const resolvers = {
       const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.vtex.ds.v10+json',
-        'VtexIdclientAutCookie': ctx.vtex.authToken,
+        'VtexIdclientAutCookie': ctx.cookies.get('VtexIdclientAutCookie'),
         'Proxy-Authorization': ctx.vtex.authToken
       }
       const url = routes.saveCart(ctx.vtex.account)
-      const { data } = await http({
+        const { data } = await http({
         method: 'post',
         url,
         data: params.cart,
@@ -42,7 +42,7 @@ export const resolvers = {
       })
       if (data.Id) {
         return data.Id
-      }
+    }
     },
     getCarts: async (_, params, ctx) => {
       console.log('getCarts')
@@ -50,7 +50,7 @@ export const resolvers = {
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.vtex.ds.v10+json',
         'REST-Range': `resources=0-100`,
-        'VtexIdclientAutCookie': ctx.vtex.authToken,
+        'VtexIdclientAutCookie': ctx.cookies.get('VtexIdclientAutCookie'),
         'Proxy-Authorization': ctx.vtex.authToken
       }
       const url = routes.listCarts(ctx.vtex.account, encodeURIComponent(params.email))
@@ -68,7 +68,7 @@ export const resolvers = {
       const headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.vtex.ds.v10+json',
-        'VtexIdclientAutCookie': ctx.vtex.authToken,
+        'VtexIdclientAutCookie': ctx.cookies.get('VtexIdclientAutCookie'),
         'Proxy-Authorization': ctx.vtex.authToken
       }
       const url = routes.removeCart(ctx.vtex.account, params.id)
