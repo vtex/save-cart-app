@@ -1,4 +1,4 @@
-query getSetupConfig @context(scope:"private") {
+query getSetupConfig {
   getSetupConfig {
     adminSetup {
       cartName

@@ -1,9 +1,6 @@
 type Query {
-  changeAdminSetup (
-    cartName: String,
-    cartLifeSpan: Int,
-  ): ChangeSetupResponse @cacheControl(scope: PRIVATE)
-  getSetupConfig : GetSetupConfigResponse @cacheControl(scope: PRIVATE)
+  getSetupConfig: GetSetupConfigResponse @cacheControl(scope: PRIVATE)
+  currentTime: String
 }
 
 type Mutation {

@@ -2,7 +2,7 @@
   "name": "vtex.savecart",
   "version": "0.0.16",
   "dependencies": {
-    "@vtex/api": "^0.38.0",
+    "@vtex/api": "^0.41.0",
     "axios": "^0.18.0",
     "bluebird": "^3.4.7",
     "co-body": "^4.2.0",
@@ -24,6 +24,7 @@
     "@types/node": "^9.6.1",
     "@types/ramda": "types/npm-ramda#dist",
     "tslint": "^5.9.1",
+    "tslint-config-vtex": "^2.0.0",
     "typescript": "^2.7.1"
   }
 }

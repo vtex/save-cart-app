@@ -2,34 +2,35 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
 class Button extends Component {
-    constructor(props) {
-        super(props)
+  constructor(props) {
+    super(props)
 
-        this.handleClick = this.handleClick.bind(this)
-    }
+    this.handleClick = this.handleClick.bind(this)
+  }
 
-    handleClick() {
-        this.props.onClick()
-    }
+  handleClick() {
+    this.props.onClick()
+  }
 
-    render() {
-        const { children, classes } = this.props
+  render() {
+    const { children, classes } = this.props
 
-        return (
-            <button className={`bn f6 dim pv2 dib ${classes}`} onClick={this.handleClick}>
-                {children}
-            </button>
-        )
-    }
+    return (
+      <button className={`bn f6 dim pv2 dib ${classes}`} onClick={this.handleClick}>
+        {children}
+      </button>
+    )
+  }
 }
 
 Button.defaultProps = {
-    onClick: () => { }
+  onClick: () => { },
 }
 
 Button.propTypes = {
-    onClick: PropTypes.func,
-    children: PropTypes.node
+  onClick: PropTypes.func,
+  children: PropTypes.node,
+  classes: PropTypes.string,
 }
 
 export default Button

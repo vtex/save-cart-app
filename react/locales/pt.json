@@ -7,7 +7,7 @@
 
 
   "cart.saved": "O cotação atual está gravado como ",
-  "cart.saved.success": "Cotação salva com sucesso!",
+  "cart.saved.success": "Cotação salva com sucesso! Cotação válida por {days} dia{isPlural}",
   "cart.saved.error": "Erro ao tentar salvar cotação!",
   "cart.saved.clear": "A cotação atual está gravada como ",
   "cart.saved.noname": "Por favor informe o nome da cotação a ser salva!",

@@ -7,19 +7,24 @@ import ListCart from './components/ListCart'
 import Loading from './components/Loading'
 import Tabs from './components/Tabs'
 import Tab from './components/Tab'
-import Button from '@vtex/styleguide/lib/Button'
 import SaveCart from './components/SaveCart'
-import getSetupConfig from './graphql/getSetupConfig.graphql'
 import _ from 'underscore'
 import saveCartMutation from './graphql/saveCart.graphql'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
-import { FormattedMessage, injectIntl} from 'react-intl'
+import currentTime from './graphql/currentTime.graphql'
+import getSetupConfig from './graphql/getSetupConfig.graphql'
+import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 
 import {
-    userLogged,
-    saveMarketingData
+  userLogged,
+  saveMarketingData,
 } from './utils'
+
+const DEFAULT_ADMIN_SETUP = {
+  cartName: 'Save Cart',
+  cartLifeSpan: 7,
+}
 
 class MyCarts extends Component {
   static propTypes = {
@@ -27,6 +32,8 @@ class MyCarts extends Component {
     saveCartMutation: PropTypes.func,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
+    intl: intlShape,
+    currentTime: PropTypes.object,
   }
 
   constructor(props) {
@@ -65,6 +72,8 @@ class MyCarts extends Component {
    * 2º - Adiciona um evento que toda vez que o orderForm for atualizado eu atualizo o valor no state
    */
   componentDidMount() {
+    console.log('MOUNTED SAVECART APP')
+
     Promise.resolve(window.vtexjs.checkout.getOrderForm())
       .then(orderForm => this.setState({ orderForm }))
       .then(this.listenOrderFormUpdated)
@@ -76,7 +85,7 @@ class MyCarts extends Component {
   listenOrderFormUpdated() {
     // eslint-disable-next-line
     $(window).on('orderFormUpdated.vtex', (_, orderForm) =>
-        this.setState({ orderForm })
+      this.setState({ orderForm })
     )
   }
 
@@ -88,7 +97,7 @@ class MyCarts extends Component {
   handleProfileError(error) {
     window.vtex.checkout.MessageUtils.showMessage({
       status: 'fatal',
-      text: `<FormattedMessage id="generic.error"/> ${error}`,
+      text: `${this.props.intl.formatMessage({ id: 'generic.error' })} ${error}`,
     })
   }
 
@@ -98,7 +107,7 @@ class MyCarts extends Component {
    * @param {*} error Error
    */
   handleUpdateError(error) {
-    let message = error && error.data ? error.data.errorMessage : <FormattedMessage id="generic.error"/>
+    let message = error && error.data ? error.data.errorMessage : this.props.intl.formatMessage({ id: 'generic.error' })
     if (error.data && error.data.error && error.data.error.message) {
       message = error.data.error.message
     }
@@ -158,9 +167,9 @@ class MyCarts extends Component {
         creationDate: new Date().toISOString(),
       }
 
-      this.props.saveCartMutation({variables: {
+      this.props.saveCartMutation({ variables: {
         cart: cart,
-      }}).then((result) => {
+      } }).then((result) => {
         if (result.data.saveCart) {
           cart.id = result.data.saveCart.substr(5)
           var carts = this.state.carts.slice(0)
@@ -169,9 +178,12 @@ class MyCarts extends Component {
             carts: carts,
           })
           this.activeLoading(false)
-          this.handleUpdateSuccess(<FormattedMessage id="cart.saved.success"/>)
+          const { getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
+          const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
+          const isPlural = cartLifeSpan < 2 ? '' : 's'
+          this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.saved.success' }, { days: cartLifeSpan, isPlural }))
         } else {
-          this.setState({ messageError: <FormattedMessage id="cart.saved.error"/> })
+          this.setState({ messageError: this.props.intl.formatMessage({ id: 'cart.saved.error' }) })
           this.activeLoading(false)
         }
       }).catch((err) => {
@@ -180,8 +192,8 @@ class MyCarts extends Component {
       })
     } else {
       this.activeLoading(false)
-      this.setState({ messageError: <FormattedMessage id="cart.saved.noname"/>
-    })
+      this.setState({ messageError: this.props.intl.formatMessage({ id: 'cart.saved.noname' }),
+      })
     }
   }
 
@@ -192,9 +204,9 @@ class MyCarts extends Component {
    */
   removeCart(id) {
     this.activeLoading(true)
-    this.props.removeCart({variables: {
+    this.props.removeCart({ variables: {
       id: id,
-    }}).then((result) => {
+    } }).then((result) => {
       if (result.data.removeCart === true) {
         var carts = this.state.carts.slice(0)
         carts = _.filter(carts, (cart) => {
@@ -204,7 +216,7 @@ class MyCarts extends Component {
           carts: carts,
         })
         this.activeLoading(false)
-        this.handleUpdateSuccess(<FormattedMessage id="cart.delete.success"/>)
+        this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.delete.success' }))
       } else {
         this.activeLoading(false)
         this.handleUpdateError()
@@ -313,18 +325,57 @@ class MyCarts extends Component {
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
+    const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
+    const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
+    const today = new Date(currentTime)
     this.activeLoading(true)
-    this.props.getCarts({variables: {
+    const shouldDelete = []
+    this.props.getCarts({ variables: {
       email: this.state.orderForm.clientProfileData.email,
-    }}).then((result) => {
-      console.log(result)
+    } }).then(async (result) => {
+      let carts = result.data.getCarts
+      console.log(carts)
+      carts.map(cart => {
+        const tempDate = new Date(cart.creationDate)
+        tempDate.setDate(tempDate.getDate() + cartLifeSpan)
+        if (today.getTime() > tempDate.getTime()) {
+          shouldDelete.push(cart)
+        }
+      })
+
+      const promises = []
+      shouldDelete.map(cart => {
+        promises.push(this.removeFromDB(cart))
+      })
+      await Promise.all(promises)
+
+      carts = _.difference(carts, shouldDelete)
       this.setState({
-        carts: result.data.getCarts,
+        carts: carts,
       })
       this.activeLoading(false)
     }).catch((err) => {
       console.log(err)
       this.activeLoading(false)
+    })
+  }
+
+  removeFromDB(cart) {
+    const { id, cartName } = cart
+    console.log('Deleting expired cart: ', cartName)
+
+    this.props.removeCart({ variables: {
+      id,
+    } }).then((result) => {
+      if (result.data.removeCart === true) {
+        console.log('Deleted expired cart successfully: ', cartName)
+        cart.id = null
+      } else {
+        this.handleUpdateError()
+      }
+    }).catch((err) => {
+      console.log('Error deleting cart', err)
+      this.handleUpdateError(err.response)
     })
   }
 
@@ -355,38 +406,27 @@ class MyCarts extends Component {
     this.setState({ isModalOpen: false })
   }
 
-  /**
-   * Essa função cria um novo orderForm em branco
-   */
-  async createNewCart() {
-    const { orderForm } = this.state
-    this.activeLoading(true)
-    await this.clearCart(orderForm.orderFormId)
-    this.activeLoading(false)
-    location.reload()
-    return true
-  }
-
   render() {
-    const intl = this.props.intl
     if (this.props.getSetupConfig.loading) {
       return null
     }
-
+    const intl = this.props.intl
+    const { getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
+    const { cartName, cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
     const { items, carts, messageError, messageSuccess } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
-    const optsListCart = { items, carts, handleRemoveCart, handleUseCart }
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan }
 
     return (
       <div>
-        <Button variation="tertiary" size="small" id="vtex-cart-list-open-modal-button" onClick={this.handleOpenModal}>
-          {this.props.getSetupConfig.getSetupConfig.adminSetup.cartName || 'Save Cart'}
-        </Button>
+        <button id="vtex-cart-list-open-modal-button" onClick={this.handleOpenModal}>
+          {cartName}
+        </button>
         <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
           <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
             <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-            <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes"/> <Loading visible={this.state.enabledLoading} /></h4>
+            <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes" /> <Loading visible={this.state.enabledLoading} /></h4>
           </div>
           <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
             <Tab name="Salvar Cotação Atual">
@@ -405,8 +445,9 @@ class MyCarts extends Component {
 }
 
 export default injectIntl(compose(
-  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: true } }),
+  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
   graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
+  graphql(currentTime, { name: 'currentTime' })
 )(MyCarts))

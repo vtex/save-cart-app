@@ -5,26 +5,32 @@ import PropTypes from 'prop-types'
 import Modal from './components/Modal'
 import ListCart from './components/ListCart'
 import Loading from './components/Loading'
-import Tabs from './components/Tabs'
-import Tab from './components/Tab'
-import getSetupConfig from './graphql/getSetupConfig.graphql'
 import _ from 'underscore'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
-import { FormattedMessage, injectIntl} from 'react-intl'
+import currentTime from './graphql/currentTime.graphql'
+import getSetupConfig from './graphql/getSetupConfig.graphql'
+import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 
 import styles from './style.css'
 
 import {
-    userLogged,
-    saveMarketingData,
+  userLogged,
+  saveMarketingData,
 } from './utils'
+
+const DEFAULT_ADMIN_SETUP = {
+  cartName: 'Save Cart',
+  cartLifeSpan: 7,
+}
 
 class CartList extends Component {
   static propTypes = {
     getSetupConfig: PropTypes.object,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
+    intl: intlShape,
+    currentTime: PropTypes.object,
   }
 
   constructor(props) {
@@ -62,12 +68,13 @@ class CartList extends Component {
    * 2º - Adiciona um evento que toda vez que o orderForm for atualizado eu atualizo o valor no state
    */
   componentDidMount() {
+    console.log('MOUNTED SAVECART APP')
+
     if (window.vtexjs) {
       Promise.resolve(window.vtexjs.checkout.getOrderForm())
-      .then(orderForm => this.setState({ orderForm }))
-      .then(this.listenOrderFormUpdated)
+        .then(orderForm => this.setState({ orderForm }))
+        .then(this.listenOrderFormUpdated)
     }
-
   }
 
   /**
@@ -76,7 +83,7 @@ class CartList extends Component {
   listenOrderFormUpdated() {
     // eslint-disable-next-line
     $(window).on('orderFormUpdated.vtex', (_, orderForm) =>
-        this.setState({ orderForm })
+      this.setState({ orderForm })
     )
   }
 
@@ -88,7 +95,7 @@ class CartList extends Component {
   handleProfileError(error) {
     window.vtex.checkout.MessageUtils.showMessage({
       status: 'fatal',
-      text: `Não foi possível se comunicar com o sistema de Profile. <br/>${error}`,
+      text: `${this.props.intl.formatMessage({ id: 'generic.error' })} ${error}`,
     })
   }
 
@@ -137,9 +144,9 @@ class CartList extends Component {
    */
   removeCart(id) {
     this.activeLoading(true)
-    this.props.removeCart({variables: {
+    this.props.removeCart({ variables: {
       id: id,
-    }}).then((result) => {
+    } }).then((result) => {
       if (result.data.removeCart === true) {
         var carts = this.state.carts.slice(0)
         carts = _.filter(carts, (cart) => {
@@ -149,7 +156,7 @@ class CartList extends Component {
           carts: carts,
         })
         this.activeLoading(false)
-        this.handleUpdateSuccess('Cotação removida com sucesso!')
+        this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.delete.success' }))
       } else {
         this.activeLoading(false)
         this.handleUpdateError()
@@ -250,7 +257,7 @@ class CartList extends Component {
     await saveMarketingData(orderForm.orderFormId)
 
     this.activeLoading(false)
-    window.location.href = '/checkout/';
+    window.location.href = '/checkout/'
     return true
   }
 
@@ -258,18 +265,57 @@ class CartList extends Component {
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
+    const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
+    const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
+    const today = new Date(currentTime)
     this.activeLoading(true)
-    this.props.getCarts({variables: {
+    const shouldDelete = []
+    this.props.getCarts({ variables: {
       email: this.state.orderForm.clientProfileData.email,
-    }}).then((result) => {
-      console.log(result)
+    } }).then(async (result) => {
+      let carts = result.data.getCarts
+      console.log(carts)
+      carts.map(cart => {
+        const tempDate = new Date(cart.creationDate)
+        tempDate.setDate(tempDate.getDate() + cartLifeSpan)
+        if (today.getTime() > tempDate.getTime()) {
+          shouldDelete.push(cart)
+        }
+      })
+
+      const promises = []
+      shouldDelete.map(cart => {
+        promises.push(this.removeFromDB(cart))
+      })
+      await Promise.all(promises)
+
+      carts = _.difference(carts, shouldDelete)
       this.setState({
-        carts: result.data.getCarts,
+        carts: carts,
       })
       this.activeLoading(false)
     }).catch((err) => {
       console.log(err)
       this.activeLoading(false)
+    })
+  }
+
+  removeFromDB(cart) {
+    const { id, cartName } = cart
+    console.log('Deleting expired cart: ', cartName)
+
+    this.props.removeCart({ variables: {
+      id,
+    } }).then((result) => {
+      if (result.data.removeCart === true) {
+        console.log('Deleted expired cart successfully: ', cartName)
+        cart.id = null
+      } else {
+        this.handleUpdateError()
+      }
+    }).catch((err) => {
+      console.log('Error deleting cart', err)
+      this.handleUpdateError(err.response)
     })
   }
 
@@ -282,13 +328,8 @@ class CartList extends Component {
    *    e depois o modal é aberto
    */
   handleOpenModal() {
-    const { orderForm } = this.state
-    if (userLogged(orderForm)) {
-      this.listCarts()
-      this.setState({ isModalOpen: true })
-    } else {
-      console.log("erro, user não autenticado")
-    }
+    this.listCarts()
+    this.setState({ isModalOpen: true })
   }
 
   /**
@@ -299,47 +340,40 @@ class CartList extends Component {
     this.setState({ isModalOpen: false })
   }
 
-  /**
-   * Essa função cria um novo orderForm em branco
-   */
-  async createNewCart() {
-    const { orderForm } = this.state
-    this.activeLoading(true)
-    await this.clearCart(orderForm.orderFormId)
-    this.activeLoading(false)
-    window.location.href = '/checkout/';
-    return true
-  }
-
   render() {
     if (this.props.getSetupConfig.loading) {
       return null
     }
 
-    const { items, carts, messageError, messageSuccess } = this.state
+    const { getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
+    const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
+    const { items, carts, orderForm } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
-    const optsListCart = { items, carts, handleRemoveCart, handleUseCart }
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan }
 
     return (
-      <div>
-        <div className={styles.menuTop} onClick={this.handleOpenModal}>
-          <FormattedMessage id="quotes"/>
-        </div>
-        <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
-          <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
-            <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-            <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes"/> <Loading visible={this.state.enabledLoading} /></h4>
+      userLogged(orderForm)
+        ? <div>
+          <div className={styles.menuTop} onClick={this.handleOpenModal}>
+            <FormattedMessage id="quotes" />
           </div>
-          <ListCart {...optsListCart} />
-        </Modal>
-      </div>
+          <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
+            <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
+              <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
+              <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes" /> <Loading visible={this.state.enabledLoading} /></h4>
+            </div>
+            <ListCart {...optsListCart} />
+          </Modal>
+        </div>
+        : null
     )
   }
 }
 
-export default compose(
+export default injectIntl(compose(
   graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
-)(CartList)
+  graphql(currentTime, { name: 'currentTime' }),
+)(CartList))
