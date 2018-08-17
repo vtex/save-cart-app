@@ -120,11 +120,8 @@ export async function saveMarketingData(orderFormId) {
     },
     headers: defaultHeaders,
   }).then(response => {
-    console.log('saveMarketingData Success')
-    console.log(response)
     result = true
   }).catch((error) => {
-    console.log(error)
     result = false
   })
 
