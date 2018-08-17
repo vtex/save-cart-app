@@ -13,6 +13,13 @@ const routes = {
   removeCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents/${id}`,
 }
 
+const defaultHeaders = (authToken) => ({
+  'Content-Type': 'application/json',
+  'Accept': 'application/vnd.vtex.ds.v10+json',
+  'VtexIdclientAutCookie': authToken,
+  'Proxy-Authorization': authToken
+})
+
 export const resolvers = {
   Query: {
     getSetupConfig: async (_, __, ctx) => {
@@ -26,13 +33,7 @@ export const resolvers = {
   },
   Mutation: {
     saveCart: async (_, params, ctx) => {
-      console.log('saveCart')
-      const headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/vnd.vtex.ds.v10+json',
-        'VtexIdclientAutCookie': ctx.cookies.get('VtexIdclientAutCookie'),
-        'Proxy-Authorization': ctx.vtex.authToken
-      }
+      const headers = defaultHeaders(ctx.vtex.authToken)
       const url = routes.saveCart(ctx.vtex.account)
         const { data } = await http({
         method: 'post',
@@ -45,13 +46,10 @@ export const resolvers = {
     }
     },
     getCarts: async (_, params, ctx) => {
-      console.log('getCarts')
+      console.log(ctx.vtex.authToken)
       const headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/vnd.vtex.ds.v10+json',
+        ...defaultHeaders(ctx.vtex.authToken),
         'REST-Range': `resources=0-100`,
-        'VtexIdclientAutCookie': ctx.cookies.get('VtexIdclientAutCookie'),
-        'Proxy-Authorization': ctx.vtex.authToken
       }
       const url = routes.listCarts(ctx.vtex.account, encodeURIComponent(params.email))
       console.log('url', url)
@@ -64,13 +62,7 @@ export const resolvers = {
       return data
     },
     removeCart: async (_, params, ctx) => {
-      console.log('removeCart')
-      const headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/vnd.vtex.ds.v10+json',
-        'VtexIdclientAutCookie': ctx.cookies.get('VtexIdclientAutCookie'),
-        'Proxy-Authorization': ctx.vtex.authToken
-      }
+      const headers =defaultHeaders(ctx.vtex.authToken)
       const url = routes.removeCart(ctx.vtex.account, params.id)
       const result = await http({
         method: 'delete',

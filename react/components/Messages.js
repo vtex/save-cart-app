@@ -5,9 +5,9 @@ class Messages extends Component {
   getTypeMessage(type) {
     switch (type) {
       case 'success':
-        return 'bg-washed-green green'
+        return 'bg-washed-green'
       case 'error':
-        return 'bg-washed-red red'
+        return 'bg-washed-red'
       default:
         return ''
     }
@@ -19,11 +19,11 @@ class Messages extends Component {
 
     return (
       <div className="w-100 pt3">
-        <div className={`w-80-ns center br2 pv3 ph3 ${typeClass}`}>
+        <div className={`w-80-ns center br2 pv4 ph5 mb4 ${typeClass}`}>
+          {message}
           <a className="item-link-remove" onClick={clearMessage}>
             <i className="icon icon-remove item-remove-ico fr"></i>
           </a>
-          {message}
         </div>
       </div>
     )

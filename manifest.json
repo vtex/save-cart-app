@@ -45,6 +45,15 @@
     },
     {
       "name": "ADMIN_CRM"
+    },
+    {
+      "name": "POWER_USER_CRM"
+    },
+    {
+      "name": "ADMIN_DS"
+    },
+    {
+      "name": "POWER_USER_DS"
     }
   ],
   "settingsSchema": {
