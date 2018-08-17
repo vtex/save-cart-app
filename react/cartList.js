@@ -19,6 +19,11 @@ import {
   saveMarketingData,
 } from './utils'
 
+const DEFAULT_ADMIN_SETUP = {
+  cartName: 'Save Cart',
+  cartLifeSpan: 7,
+}
+
 class CartList extends Component {
   static propTypes = {
     getSetupConfig: PropTypes.object,
@@ -63,6 +68,8 @@ class CartList extends Component {
    * 2º - Adiciona um evento que toda vez que o orderForm for atualizado eu atualizo o valor no state
    */
   componentDidMount() {
+    console.log('MOUNTED SAVECART APP')
+
     if (window.vtexjs) {
       Promise.resolve(window.vtexjs.checkout.getOrderForm())
         .then(orderForm => this.setState({ orderForm }))
@@ -258,7 +265,8 @@ class CartList extends Component {
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
   listCarts() {
-    const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup: { cartLifeSpan } } } } = this.props
+    const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
+    const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
     const today = new Date(currentTime)
     this.activeLoading(true)
     const shouldDelete = []
@@ -337,8 +345,9 @@ class CartList extends Component {
       return null
     }
 
+    const { getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
+    const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
     const { items, carts, orderForm } = this.state
-    const { getSetupConfig: { adminSetup: { cartLifeSpan } } } = this.props.getSetupConfig
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
     const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan }
@@ -347,7 +356,7 @@ class CartList extends Component {
       userLogged(orderForm)
         ? <div>
           <div className={styles.menuTop} onClick={this.handleOpenModal}>
-            <FormattedMessage id="quotes" /> ()
+            <FormattedMessage id="quotes" />
           </div>
           <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
             <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
