@@ -46,19 +46,16 @@ export const resolvers = {
     }
     },
     getCarts: async (_, params, ctx) => {
-      console.log(ctx.vtex.authToken)
       const headers = {
         ...defaultHeaders(ctx.vtex.authToken),
         'REST-Range': `resources=0-100`,
       }
       const url = routes.listCarts(ctx.vtex.account, encodeURIComponent(params.email))
-      console.log('url', url)
       const { data } = await http({
         method: 'get',
         url,
         headers
       })
-      console.log(data)
       return data
     },
     removeCart: async (_, params, ctx) => {

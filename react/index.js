@@ -72,8 +72,6 @@ class MyCarts extends Component {
    * 2º - Adiciona um evento que toda vez que o orderForm for atualizado eu atualizo o valor no state
    */
   componentDidMount() {
-    console.log('MOUNTED SAVECART APP')
-
     Promise.resolve(window.vtexjs.checkout.getOrderForm())
       .then(orderForm => this.setState({ orderForm }))
       .then(this.listenOrderFormUpdated)
@@ -258,9 +256,6 @@ class MyCarts extends Component {
     this.activeLoading(true)
     const { orderForm } = this.state
 
-    console.log(orderForm)
-    console.log(cart)
-
     // CLEAR CURRENT CART
     await this.clearCart(orderForm.orderFormId)
 
@@ -334,7 +329,6 @@ class MyCarts extends Component {
       email: this.state.orderForm.clientProfileData.email,
     } }).then(async (result) => {
       let carts = result.data.getCarts
-      console.log(carts)
       carts.map(cart => {
         const tempDate = new Date(cart.creationDate)
         tempDate.setDate(tempDate.getDate() + cartLifeSpan)
@@ -362,13 +356,11 @@ class MyCarts extends Component {
 
   removeFromDB(cart) {
     const { id, cartName } = cart
-    console.log('Deleting expired cart: ', cartName)
 
     this.props.removeCart({ variables: {
       id,
     } }).then((result) => {
       if (result.data.removeCart === true) {
-        console.log('Deleted expired cart successfully: ', cartName)
         cart.id = null
       } else {
         this.handleUpdateError()
