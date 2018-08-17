@@ -1,38 +1,32 @@
 {
-  "modal.header": "Mis Cotizaciones",
   "modal.save": "Guardar",
-  "modal.list": "Listar cotizaciones",
-  "modal.new": "Nueva cotización",
+  "modal.tab.list": "Listar cotizaciones",
+  "modal.tab.save": "Guardar cotización",
   "modal.name": "Nombre",
 
-
-  "cart.saved": "La cotización actual está grabada como",
   "cart.saved.success": "La cotización se salvó con éxito! Cotización válida por {days} día{isPlural}",
   "cart.saved.error": "Error al  guardar la cotización!",
-  "cart.saved.clear": "La cotización actual está grabada como",
   "cart.saved.noname": "Por favor informe el nombre de la cotización que se va a salvar!",
 
-  "cart.removed.success": "Cotización removida con éxito!",
-
-  "cart.delete": "Eliminar",
   "cart.delete.1": "Desea",
   "cart.delete.2": "eliminar",
-  "cart.delete.3": "la cotización?",
-  "cart.delete.yes": "sí",
-  "cart.delete.no": "no",
-  "Cart.delete.usar": "uso",
+  "cart.delete.3": "la cotización? ",
+  "cart.delete.4": "Los valores de cotización de los productos elegidos se perderán.",
   "cart.delete.success": "Cotización removida con éxito!",
 
-  "cart.use": "Usar",
-  "cart.overwrite": "Se sobrescribirá la cotización actual",
+  "cart.use.button": "Usar",
+  "cart.use.quote": "Usar cotización",
+  "cart.use.overwrite": "Se sobrescribirá la actual.",
   "cart.quote": "la cotización",
   "quotes": "Cotizaciones",
 
-
-  "cart.confirm": "La cotización se borrará, desea crear una nueva así?",
   "cart.yes": "Sí",
-  "Cart.no": "No",
+  "cart.no": "No",
 
   "list.empty": "Su cotización está vacía",
+  "list.quote.date":"Fecha de Creación de Cotización",
+  "list.quote.expire":"Fecha de Caducidad de Cotización",
+  "list.items":"Artículos",
+
   "generic.error": "No se pudo comunicar con el sistema de perfil."
 }

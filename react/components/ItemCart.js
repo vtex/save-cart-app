@@ -83,7 +83,7 @@ class ItemCart extends Component {
 
         <div className="fl w-50 w-20-ns flex-auto pr2 tr">
           <Button variation="primary" size="small" onClick={() => this.handleVerifyItem(cart.id)}>
-            <FormattedMessage id="cart.use" />
+            <FormattedMessage id="cart.use.button" />
           </Button>
           <Button variation="tertiary" size="small" onClick={() => this.openAccordion('delete', cart.id)}>
             <Delete size={15} />
@@ -91,15 +91,15 @@ class ItemCart extends Component {
         </div>
 
         <div id={`accordion-use-${cart.id}`} name="accordion" className="fl w-100 tc pa2 mv3 ba b--light-gray bg-light-silver dn">
-          <p className="f6">Deseja usar a cotação <b>"{cart.cartName}"</b>? Ela vai sobrescrever o seu carrinho atual.</p>
+          <p className="f6"><FormattedMessage id="cart.use.quote" /> <b>"{cart.cartName}"</b>? <FormattedMessage id="cart.use.overwrite" /></p>
           <Button variation="tertiary" size="small" onClick={() => this.openAccordion('use', cart.id)}><FormattedMessage id="cart.no" /></Button>
           <Button variation="primary" size="small" onClick={() => this.props.handleUseCart(cart)}><FormattedMessage id="cart.yes" /></Button>
         </div>
 
         <div id={`accordion-delete-${cart.id}`} name="accordion" className="fl w-100 tc pa2 mv3 ba b--light-gray bg-light-silver dn">
-          <p className="f6"><FormattedMessage id="cart.delete.1" /> <b><FormattedMessage id="cart.delete.2" /></b> <FormattedMessage id="cart.quote" /> <b>"{cart.cartName}"</b>? Ao excluir o carrinho, os valores de cotação dos produtos escolhidos serão perdidos.</p>
+          <p className="f6"><FormattedMessage id="cart.delete.1" /> <b><FormattedMessage id="cart.delete.2" /></b> <FormattedMessage id="cart.quote" /> <b>"{cart.cartName}"</b>? <FormattedMessage id="cart.delete.4" /></p>
           <Button variation="tertiary" size="small" onClick={() => this.openAccordion('delete', cart.id)}><FormattedMessage id="cart.no" /></Button>
-          <Button variation="danger" size="small" onClick={() => this.props.handleRemoveCart(cart.id)}><FormattedMessage id="cart.delete.yes" /></Button>
+          <Button variation="danger" size="small" onClick={() => this.props.handleRemoveCart(cart.id)}><FormattedMessage id="cart.yes" /></Button>
         </div>
       </li>
     )

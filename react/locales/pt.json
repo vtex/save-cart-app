@@ -1,38 +1,32 @@
 {
-  "modal.header": "Minhas Cotações",
   "modal.save": "Salvar",
-  "modal.list": "Listar Cotações",
-  "modal.new": "Nova Cotação",
+  "modal.tab.list": "Listar Cotações",
+  "modal.tab.save": "Salvar Cotação",
   "modal.name": "Nome",
 
-
-  "cart.saved": "O cotação atual está gravado como ",
   "cart.saved.success": "Cotação salva com sucesso! Cotação válida por {days} dia{isPlural}",
   "cart.saved.error": "Erro ao tentar salvar cotação!",
-  "cart.saved.clear": "A cotação atual está gravada como ",
   "cart.saved.noname": "Por favor informe o nome da cotação a ser salva!",
 
-  "cart.removed.success": "Cotação removida com sucesso!",
-
-  "cart.delete": "Excluir",
   "cart.delete.1": "Deseja",
   "cart.delete.2": "apagar",
   "cart.delete.3": "a cotação? ",
-  "cart.delete.yes": "apagar ",
-  "cart.delete.no": "não ",
-  "cart.delete.usar":"usar",
+  "cart.delete.4": "Os valores de cotação dos produtos escolhidos serão perdidos.",
   "cart.delete.success":"Cotação removida com sucesso!",
 
-  "cart.use": "Usar ",
-  "cart.overwrite": "Ele vai sobrescrever a cotação atual ",
+  "cart.use.button": "Usar",
+  "cart.use.quote": "Usar cotação",
+  "cart.use.overwrite": "Ele vai sobrescrever a atual.",
   "cart.quote":"a cotação",
   "quotes": "Cotações",
 
-
-  "cart.confirm":"Seu carrinho será esvaziado, deseja criar uma nova mesmo assim?",
   "cart.yes": "Sim",
-  "cart.no": "Cancelar",
+  "cart.no": "Não",
 
   "list.empty":"Sua cotação está vazia",
+  "list.quote.date":"Data de Criação",
+  "list.quote.expire":"Data de Vencimento",
+  "list.items":"Itens",
+
   "generic.error":"Não foi possível se comunicar com o sistema de Profile."
 }

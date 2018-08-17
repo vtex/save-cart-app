@@ -16,22 +16,22 @@ class ListCart extends Component {
             <li className="fl w-100 items-center lh-copy pa3 bb b--black-10 bg-light-silver">
               <div className="fl w-20-ns flex-auto pv2">
                 <span className="f6 db black-70 ttu b">
-                  Data da cotação
+                  <FormattedMessage id="list.quote.date" />
                 </span>
               </div>
               <div className="fl w-20-ns flex-auto pv2">
                 <span className="f6 db black-70 ttu b">
-                  Data de expiração
+                  <FormattedMessage id="list.quote.expire" />
                 </span>
               </div>
               <div className="fl w-100 w-30-ns flex-auto pv2">
                 <span className="f6 db black-70 ttu b">
-                  Nome
+                  <FormattedMessage id="modal.name" />
                 </span>
               </div>
               <div className="fl w-100 w-10-ns flex-auto pv2">
                 <span className="f6 db black-70 ttu b">
-                  Itens
+                  <FormattedMessage id="list.items" />
                 </span>
               </div>
             </li>

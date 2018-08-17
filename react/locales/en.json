@@ -1,38 +1,32 @@
 {
-  "modal.header": "My quotes",
   "modal.save": "Save",
-  "modal.list": "List Quotes",
-  "modal.new": "New quote",
+  "modal.tab.list": "List Quotes",
+  "modal.tab.save": "Save Quote",
   "modal.name": "Name",
 
-
-  "cart.saved": "This quote is saved as: ",
   "cart.saved.success": "Quote successfully saved! Quote will be valid for {days} day{isPlural}",
   "cart.saved.error": "Error: Something went wrong while trying to save the quote",
-  "cart.saved.clear": "Current quote is saved as:",
   "cart.saved.noname": "Hey! You forgot to name your quote",
 
-  "cart.removed.success": "Quote removed successfully",
-
-  "cart.delete": "Delete",
   "cart.delete.1": "Would you like",
   "cart.delete.2": "to delete",
   "cart.delete.3": "the quote? ",
-  "cart.delete.yes": "yes ",
-  "cart.delete.no": "no ",
-  "cart.delete.usar":"use",
+  "cart.delete.4": "The quotation values of the chosen products will be lost.",
   "cart.delete.success":"Quote removed successfully",
 
-  "cart.use": "Use ",
-  "cart.overwrite": "It will overwrite the current ",
+  "cart.use.button": "Use",
+  "cart.use.quote": "Use quote",
+  "cart.use.overwrite": "It will overwrite the current one.",
   "cart.quote":"quote",
   "quotes": "Quotes",
 
-
-  "cart.confirm":"Quote will be deleted. Do you wish to proceed?",
-  "cart.yes": "Sim",
-  "cart.no":"Não",
+  "cart.yes": "Yes",
+  "cart.no":"No",
 
   "list.empty":"Your quote is empty",
+  "list.quote.date":"Quote Creation Date",
+  "list.quote.expire":"Quote Expiration Date",
+  "list.items":"Items",
+
   "generic.error":"Something went wrong :( We were unable to communcate with the Profile system."
 }

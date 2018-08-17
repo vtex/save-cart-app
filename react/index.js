@@ -429,12 +429,12 @@ class MyCarts extends Component {
             <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes" /> <Loading visible={this.state.enabledLoading} /></h4>
           </div>
           <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
-            <Tab name="Salvar Cotação Atual">
+            <Tab name={intl.formatMessage({ id: 'modal.tab.save' })}>
               {
                 <SaveCart onClick={this.handleSaveCart} />
               }
             </Tab>
-            <Tab name={intl.formatMessage({ id: 'modal.list' })}>
+            <Tab name={intl.formatMessage({ id: 'modal.tab.list' })}>
               <ListCart {...optsListCart} />
             </Tab>
           </Tabs>
