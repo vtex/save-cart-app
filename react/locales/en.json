@@ -8,16 +8,13 @@
   "cart.saved.error": "Error: Something went wrong while trying to save the quote",
   "cart.saved.noname": "Hey! You forgot to name your quote",
 
-  "cart.delete.1": "Would you like",
-  "cart.delete.2": "to delete",
-  "cart.delete.3": "the quote? ",
-  "cart.delete.4": "The quotation values of the chosen products will be lost.",
+  "cart.delete.confirm": "Delete quote",
+  "cart.delete.warning": "The quotation values of the chosen products will be lost.",
   "cart.delete.success":"Quote removed successfully",
 
   "cart.use.button": "Use",
   "cart.use.quote": "Use quote",
   "cart.use.overwrite": "It will overwrite the current one.",
-  "cart.quote":"quote",
   "quotes": "Quotes",
 
   "cart.yes": "Yes",

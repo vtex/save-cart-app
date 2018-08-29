@@ -1,17 +1,24 @@
 import axios from 'axios'
 import React, { Component } from 'react'
 import { graphql, compose } from 'react-apollo'
+import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 import PropTypes from 'prop-types'
-import Modal from './components/Modal'
-import ListCart from './components/ListCart'
-import Loading from './components/Loading'
+import { path } from 'ramda'
 import _ from 'underscore'
+
+import ListCart from './components/ListCart'
+import MessageDisplay from './components/MessageDisplay'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 import currentTime from './graphql/currentTime.graphql'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
-import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 
+import Modal from '@vtex/styleguide/lib/Modal'
+import Spinner from '@vtex/styleguide/lib/Spinner'
+import Tabs from '@vtex/styleguide/lib/Tabs'
+import Tab from '@vtex/styleguide/lib/Tabs/Tab'
+
+import './global.css'
 import styles from './style.css'
 
 import {
@@ -43,6 +50,7 @@ class CartList extends Component {
       messageError: '',
       messageSuccess: '',
       enabledLoading: false,
+      currentTab: 1,
     }
 
     this.listenOrderFormUpdated = this.listenOrderFormUpdated.bind(this)
@@ -105,8 +113,9 @@ class CartList extends Component {
    * @param {*} error Error
    */
   handleUpdateError(error) {
-    let message = error && error.data ? error.data.errorMessage : 'Não foi possível se comunicar com o sistema de Profile.'
-    if (error.data && error.data.error && error.data.error.message) {
+    let message = error && error.data ? error.data.errorMessage : this.props.intl.formatMessage({ id: 'generic.error' })
+    const hasErrorMessage = path(['data', 'error', 'message'])
+    if (hasErrorMessage(error)) {
       message = error.data.error.message
     }
     this.setState({ messageError: message })
@@ -194,12 +203,9 @@ class CartList extends Component {
    *
    * @param {*} orderFormId Identificador do orderForm
    */
-  async useCart(cart) {
+  async useCart(items) {
     this.activeLoading(true)
     const { orderForm } = this.state
-
-    console.log(orderForm)
-    console.log(cart)
 
     // CLEAR CURRENT CART
     await this.clearCart(orderForm.orderFormId)
@@ -210,7 +216,7 @@ class CartList extends Component {
       method: 'post',
       data: {
         'expectedOrderFormSections': ['items'],
-        'orderItems': _.map(cart.items, (item) => {
+        'orderItems': _.map(items, (item) => {
           return {
             id: item.id,
             quantity: item.quantity,
@@ -234,7 +240,7 @@ class CartList extends Component {
     // SE FOR TELEVENDAS
     if (orderForm.userType === 'callCenterOperator') {
       const priceRequests = []
-      _.each(cart.items, (item, key) => {
+      _.each(items, (item, key) => {
         priceRequests.push(axios({
           url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/items/${key}/price`,
           method: 'put',
@@ -274,7 +280,6 @@ class CartList extends Component {
       email: this.state.orderForm.clientProfileData.email,
     } }).then(async (result) => {
       let carts = result.data.getCarts
-      console.log(carts)
       carts.map(cart => {
         const tempDate = new Date(cart.creationDate)
         tempDate.setDate(tempDate.getDate() + cartLifeSpan)
@@ -301,14 +306,12 @@ class CartList extends Component {
   }
 
   removeFromDB(cart) {
-    const { id, cartName } = cart
-    console.log('Deleting expired cart: ', cartName)
+    const { id } = cart
 
     this.props.removeCart({ variables: {
       id,
     } }).then((result) => {
       if (result.data.removeCart === true) {
-        console.log('Deleted expired cart successfully: ', cartName)
         cart.id = null
       } else {
         this.handleUpdateError()
@@ -344,26 +347,36 @@ class CartList extends Component {
     if (this.props.getSetupConfig.loading) {
       return null
     }
-
+    const intl = this.props.intl
     const { getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
     const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
-    const { items, carts, orderForm } = this.state
+    const { items, carts, orderForm, messageError, messageSuccess, enabledLoading } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
-    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan }
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading }
 
     return (
       userLogged(orderForm)
-        ? <div>
+        ? <div className="onda-v1">
           <div className={styles.menuTop} onClick={this.handleOpenModal}>
             <FormattedMessage id="quotes" />
           </div>
-          <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
-            <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
-              <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-              <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes" /> <Loading visible={this.state.enabledLoading} /></h4>
+          <Modal isOpen={this.state.isModalOpen} onClose={this.handleCloseModal} >
+            <div className="onda-v1">
+              <div style={{ width: '800px' }}></div>
+              <div className="bb b--black-20 ph2 pv3 mb3">
+                <div className="dib black-70 ttu b f4">
+                  <FormattedMessage id="quotes" />
+                  {enabledLoading && <span className="dib ml4">  <Spinner size={17} /></span>}
+                </div>
+              </div>
+              <MessageDisplay messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages} />
+              <Tabs>
+                <Tab label={intl.formatMessage({ id: 'modal.tab.list' })} active={this.state.currentTab === 1} onClick={() => {}}>
+                  <ListCart {...optsListCart} />
+                </Tab>
+              </Tabs>
             </div>
-            <ListCart {...optsListCart} />
           </Modal>
         </div>
         : null

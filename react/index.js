@@ -1,20 +1,27 @@
 import axios from 'axios'
 import React, { Component } from 'react'
 import { graphql, compose } from 'react-apollo'
+import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 import PropTypes from 'prop-types'
-import Modal from './components/Modal'
-import ListCart from './components/ListCart'
-import Loading from './components/Loading'
-import Tabs from './components/Tabs'
-import Tab from './components/Tab'
-import SaveCart from './components/SaveCart'
+import { path } from 'ramda'
 import _ from 'underscore'
+
+import ListCart from './components/ListCart'
+import SaveCart from './components/SaveCart'
+import MessageDisplay from './components/MessageDisplay'
 import saveCartMutation from './graphql/saveCart.graphql'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 import currentTime from './graphql/currentTime.graphql'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
-import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
+
+import Button from '@vtex/styleguide/lib/Button'
+import Modal from '@vtex/styleguide/lib/Modal'
+import Spinner from '@vtex/styleguide/lib/Spinner'
+import Tabs from '@vtex/styleguide/lib/Tabs'
+import Tab from '@vtex/styleguide/lib/Tabs/Tab'
+
+import './global.css'
 
 import {
   userLogged,
@@ -46,6 +53,7 @@ class MyCarts extends Component {
       messageError: '',
       messageSuccess: '',
       enabledLoading: false,
+      currentTab: 1,
     }
 
     this.listenOrderFormUpdated = this.listenOrderFormUpdated.bind(this)
@@ -63,6 +71,7 @@ class MyCarts extends Component {
 
     this.handleOpenModal = this.handleOpenModal.bind(this)
     this.handleCloseModal = this.handleCloseModal.bind(this)
+    this.handleTabChange = this.handleTabChange.bind(this)
   }
 
   /**
@@ -106,7 +115,8 @@ class MyCarts extends Component {
    */
   handleUpdateError(error) {
     let message = error && error.data ? error.data.errorMessage : this.props.intl.formatMessage({ id: 'generic.error' })
-    if (error.data && error.data.error && error.data.error.message) {
+    const hasErrorMessage = path(['data', 'error', 'message'])
+    if (hasErrorMessage(error)) {
       message = error.data.error.message
     }
     this.setState({ messageError: message })
@@ -252,7 +262,7 @@ class MyCarts extends Component {
    *
    * @param {*} orderFormId Identificador do orderForm
    */
-  async useCart(cart) {
+  async useCart(items) {
     this.activeLoading(true)
     const { orderForm } = this.state
 
@@ -265,7 +275,7 @@ class MyCarts extends Component {
       method: 'post',
       data: {
         'expectedOrderFormSections': ['items'],
-        'orderItems': _.map(cart.items, (item) => {
+        'orderItems': _.map(items, (item) => {
           return {
             id: item.id,
             quantity: item.quantity,
@@ -289,7 +299,7 @@ class MyCarts extends Component {
     // SE FOR TELEVENDAS
     if (orderForm.userType === 'callCenterOperator') {
       const priceRequests = []
-      _.each(cart.items, (item, key) => {
+      _.each(items, (item, key) => {
         priceRequests.push(axios({
           url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/items/${key}/price`,
           method: 'put',
@@ -355,7 +365,7 @@ class MyCarts extends Component {
   }
 
   removeFromDB(cart) {
-    const { id, cartName } = cart
+    const { id } = cart
 
     this.props.removeCart({ variables: {
       id,
@@ -383,7 +393,10 @@ class MyCarts extends Component {
     const { orderForm } = this.state
     if (userLogged(orderForm)) {
       this.listCarts()
-      this.setState({ isModalOpen: true })
+      this.setState({
+        isModalOpen: true,
+        currentTab: 1,
+      })
       window.checkout.loading(false)
     } else {
       Promise.resolve(window.vtexid.start())
@@ -398,6 +411,12 @@ class MyCarts extends Component {
     this.setState({ isModalOpen: false })
   }
 
+  handleTabChange(tabIndex) {
+    this.setState({
+      currentTab: tabIndex,
+    })
+  }
+
   render() {
     if (this.props.getSetupConfig.loading) {
       return null
@@ -405,31 +424,37 @@ class MyCarts extends Component {
     const intl = this.props.intl
     const { getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
     const { cartName, cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
-    const { items, carts, messageError, messageSuccess } = this.state
+    const { items, carts, messageError, messageSuccess, enabledLoading } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
-    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan }
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading }
 
     return (
-      <div>
-        <button id="vtex-cart-list-open-modal-button" onClick={this.handleOpenModal}>
+      <div className="flex justify-center onda-v1">
+        <Button variation="tertiary" onClick={this.handleOpenModal}>
           {cartName}
-        </button>
-        <Modal show={this.state.isModalOpen} onClose={this.handleCloseModal}>
-          <div className="bg-light-silver bb b--black-20 pa3 br--top modal-top">
-            <button onClick={this.handleCloseModal} className="close nt1-m" data-dismiss="modal">&times;</button>
-            <h4 className="f6 black-70 mv0 mt0-m ttu b"><FormattedMessage id="quotes" /> <Loading visible={this.state.enabledLoading} /></h4>
+        </Button>
+        <Modal isOpen={this.state.isModalOpen} onClose={this.handleCloseModal} >
+          <div className="onda-v1">
+            <div style={{ width: '800px' }}></div>
+            <div className="bb b--black-20 ph2 pv3 mb3">
+              <div className="dib black-70 ttu b f4">
+                <FormattedMessage id="quotes" />
+                {enabledLoading && <span className="dib ml4">  <Spinner size={17} /></span>}
+              </div>
+            </div>
+            <MessageDisplay messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages} />
+            <Tabs>
+              <Tab label={intl.formatMessage({ id: 'modal.tab.save' })} active={this.state.currentTab === 1} onClick={() => this.handleTabChange(1)}>
+                {
+                  <SaveCart onClick={this.handleSaveCart} />
+                }
+              </Tab>
+              <Tab label={intl.formatMessage({ id: 'modal.tab.list' })} active={this.state.currentTab === 2} onClick={() => this.handleTabChange(2)}>
+                <ListCart {...optsListCart} />
+              </Tab>
+            </Tabs>
           </div>
-          <Tabs messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages}>
-            <Tab name={intl.formatMessage({ id: 'modal.tab.save' })}>
-              {
-                <SaveCart onClick={this.handleSaveCart} />
-              }
-            </Tab>
-            <Tab name={intl.formatMessage({ id: 'modal.tab.list' })}>
-              <ListCart {...optsListCart} />
-            </Tab>
-          </Tabs>
         </Modal>
       </div>
     )
