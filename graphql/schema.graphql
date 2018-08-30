@@ -6,5 +6,5 @@ type Query {
 type Mutation {
   saveCart(cart: Cart) : String @cacheControl(scope: PRIVATE)
   getCarts(email: String) : [CartResponse] @cacheControl(scope: PRIVATE)
-  removeCart(id: String) : Boolean! @cacheControl(scope: PRIVATE)
+  removeCart(id: String, cartName: String) : Boolean! @cacheControl(scope: PRIVATE)
 }

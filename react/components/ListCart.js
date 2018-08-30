@@ -56,7 +56,7 @@ class ListCart extends Component {
   modalContent(action, cartName, handleAction, actionData) {
     return (
       <div className="onda-v1">
-        <div style={{ width: '300px' }}></div>
+        <div style={{ width: '300px' }}></div> {/* minimum modal width */}
         <div className="f5 fw5 mb3"><FormattedMessage id={`cart.${action === 'use' ? 'use.quote' : 'delete.confirm'}`} /> "{cartName}"?</div>
         <p className="f5 fw3"><FormattedMessage id={`cart.${action === 'use' ? 'use.overwrite' : 'delete.warning'}`} /></p>
         <div className="flex justify-around mt5">
@@ -65,7 +65,7 @@ class ListCart extends Component {
           }
           }><FormattedMessage id="cart.no" /></Button>
           <Button variation={action === 'use' ? 'primary' : 'danger'} onClick={() => {
-            handleAction(actionData)
+            handleAction(actionData, cartName) // cartName will be logged during cart removal
             action === 'use' ? this.handleCloseUseModal() : this.handleCloseRemoveModal()
           }}><FormattedMessage id="cart.yes" /></Button>
         </div>
@@ -81,7 +81,7 @@ class ListCart extends Component {
       <div className="onda-v1">
         {items.length > 0
           ? <Table
-            schema={itemSchema({ handleRemoveCart, openUseModal: this.handleOpenUseModal, openRemoveModal: this.handleOpenRemoveModal })}
+            schema={itemSchema({ openUseModal: this.handleOpenUseModal, openRemoveModal: this.handleOpenRemoveModal })}
             items={items}
           />
           : !enabledLoading

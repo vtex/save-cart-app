@@ -210,10 +210,11 @@ class MyCarts extends Component {
    *
    * @param {*} id Identificador do orderForm
    */
-  removeCart(id) {
+  removeCart(id, cartName) {
     this.activeLoading(true)
     this.props.removeCart({ variables: {
       id: id,
+      cartName: cartName,
     } }).then((result) => {
       if (result.data.removeCart === true) {
         var carts = this.state.carts.slice(0)
@@ -262,7 +263,7 @@ class MyCarts extends Component {
    *
    * @param {*} orderFormId Identificador do orderForm
    */
-  async useCart(items) {
+  async useCart(items) { // TODO: Move to GraphQl
     this.activeLoading(true)
     const { orderForm } = this.state
 
@@ -361,6 +362,7 @@ class MyCarts extends Component {
     }).catch((err) => {
       console.log(err)
       this.activeLoading(false)
+      this.handleUpdateError(err.response)
     })
   }
 
@@ -436,7 +438,7 @@ class MyCarts extends Component {
         </Button>
         <Modal isOpen={this.state.isModalOpen} onClose={this.handleCloseModal} >
           <div className="onda-v1">
-            <div style={{ width: '800px' }}></div>
+            <div style={{ width: '800px' }}></div> {/* minimum modal width */}
             <div className="bb b--black-20 ph2 pv3 mb3">
               <div className="dib black-70 ttu b f4">
                 <FormattedMessage id="quotes" />

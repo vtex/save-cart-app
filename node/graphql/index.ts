@@ -1,5 +1,8 @@
 import { Apps } from '@vtex/api'
 import http from 'axios'
+import * as jwt from 'jsonwebtoken'
+import colossus from '../resources/colossus'
+import {errorResponse} from '../utils/error'
 
 const appMajor = '0'
 
@@ -33,43 +36,76 @@ export const resolvers = {
   },
   Mutation: {
     saveCart: async (_, params, ctx) => {
-      const headers = defaultHeaders(ctx.vtex.authToken)
-      const url = routes.saveCart(ctx.vtex.account)
+      const { vtex: ioContext } = ctx
+      const {account, authToken} = ioContext
+      const token = ctx.cookies.get(`VtexIdclientAutCookie_${account}`)
+      const user: string = jwt.decode(token).sub
+      const logger = colossus(ioContext)
+      const headers = defaultHeaders(authToken)
+      const url = routes.saveCart(account)
+      try {
         const { data } = await http({
-        method: 'post',
-        url,
-        data: params.cart,
-        headers
-      })
-      if (data.Id) {
+          method: 'post',
+          url,
+          data: params.cart,
+          headers
+        })
+        logger.log('CartSaveSuccess', 'info', {cart: params.cart, cartId: data.Id})
         return data.Id
-    }
+      } catch (e) {
+        const {status, body, details} = errorResponse(e)
+        logger.log('CartSaveError', 'error', {cart: params.cart, user, status, body, details})
+        throw {status, body, details}
+      }
     },
+
     getCarts: async (_, params, ctx) => {
+      const {vtex: ioContext} = ctx
+      const {account, authToken} = ioContext
+      const logger = colossus(ioContext)
       const headers = {
-        ...defaultHeaders(ctx.vtex.authToken),
+        ...defaultHeaders(authToken),
         'REST-Range': `resources=0-100`,
       }
-      const url = routes.listCarts(ctx.vtex.account, encodeURIComponent(params.email))
-      const { data } = await http({
-        method: 'get',
-        url,
-        headers
-      })
-      return data
-    },
-    removeCart: async (_, params, ctx) => {
-      const headers =defaultHeaders(ctx.vtex.authToken)
-      const url = routes.removeCart(ctx.vtex.account, params.id)
-      const result = await http({
-        method: 'delete',
-        url,
-        headers
-      })
-      if (result.status === 204){
-        return true
+      const url = routes.listCarts(account, encodeURIComponent(params.email))
+      try {
+        const { data } = await http({
+          method: 'get',
+          url,
+          headers
+        })
+        logger.log('CartListSuccess', 'info', {user: params.email})
+        return data
+      } catch (e) {
+        const {status, body, details} = errorResponse(e)
+        logger.log('CartListError', 'error', {user: params.email, status, body, details})
+        throw {status, body, details}
       }
-      return false
+    },
+
+    removeCart: async (_, params, ctx) => {
+      const {vtex: ioContext} = ctx
+      const {account, authToken} = ioContext
+      const token = ctx.cookies.get(`VtexIdclientAutCookie_${account}`)
+      const user: string = jwt.decode(token).sub
+      const logger = colossus(ioContext)
+      const headers = defaultHeaders(authToken)
+      const url = routes.removeCart(account, params.id)
+      try {
+        const result = await http({
+          method: 'delete',
+          url,
+          headers
+        })
+        if (result.status === 204){
+          logger.log('CartRemoveSuccess', 'info', {cartName: params.cartName, cartId: params.id, user})
+          return true
+        }
+      } catch (e) {
+        const {status, body, details} = errorResponse(e)
+        logger.log('CartRemoveError', 'error', {cartName: params.cartName, cartId: params.id, user, status, body, details})
+        throw {status, body, details}
+      }
     }
   }
 }
