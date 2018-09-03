@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import Button from './Button'
 import { FormattedMessage } from 'react-intl'
+
+import Button from '@vtex/styleguide/lib/Button'
+import Input from '@vtex/styleguide/lib/Input'
 
 class SaveCart extends Component {
   constructor(props, context) {
@@ -13,6 +15,11 @@ class SaveCart extends Component {
 
     this.handleUpdateNameCart = this.handleUpdateNameCart.bind(this)
     this.handleClick = this.handleClick.bind(this)
+    this.input = React.createRef()
+  }
+
+  componentDidMount() {
+    this.input.current.focus()
   }
 
   handleUpdateNameCart({ target: { value } }) {
@@ -23,17 +30,27 @@ class SaveCart extends Component {
     this.props.onClick(this.state.nameCart)
   }
 
+  handleFocusClick = () => {
+    this.input.current.focus()
+  }
+
+  handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      this.handleClick()
+    }
+  }
+
   render() {
     return (
-      <div className="pa1 pa2-ns overflow-auto">
-        <div className="fl w-100 w-20-ns flex-auto">
-          <label htmlFor="nameCart" className="f6 b pt2"><FormattedMessage id="modal.name" /> </label>
+      <div className="pa1 pa2-ns mt7 flex justify-center">
+        <div className="w-10">
+          <label onClick={this.handleFocusClick} className="f6 b pt2"><FormattedMessage id="modal.name" /> </label>
         </div>
-        <div className="fl w-100 w-60-ns flex-auto">
-          <input maxLength="60" id="comment" onChange={this.handleUpdateNameCart} name="nameCart" className="border-box hover-black w-90 ba b--black-20 pa2 br2 mb2" value={this.state.nameCart}></input>
+        <div className="w-70">
+          <Input ref={this.input} onKeyPress={this.handleKeyPress} maxLength="60" size="x-large" onChange={this.handleUpdateNameCart} value={this.state.nameCart} />
         </div>
-        <div className="fl w-100 w-20-ns flex-auto">
-          <Button classes={'ph3 mb2 white bg-blue'} onClick={this.handleClick}>
+        <div className="w-20 ml5">
+          <Button size="small" onClick={this.handleClick}>
             <FormattedMessage id="modal.save" />
           </Button>
         </div>

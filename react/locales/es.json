@@ -8,16 +8,13 @@
   "cart.saved.error": "Error al  guardar la cotización!",
   "cart.saved.noname": "Por favor informe el nombre de la cotización que se va a salvar!",
 
-  "cart.delete.1": "Desea",
-  "cart.delete.2": "eliminar",
-  "cart.delete.3": "la cotización? ",
-  "cart.delete.4": "Los valores de cotización de los productos elegidos se perderán.",
+  "cart.delete.confirm": "Eliminar cotización",
+  "cart.delete.warning": "Los valores de cotización de los productos elegidos se perderán.",
   "cart.delete.success": "Cotización removida con éxito!",
 
   "cart.use.button": "Usar",
   "cart.use.quote": "Usar cotización",
   "cart.use.overwrite": "Se sobrescribirá la actual.",
-  "cart.quote": "la cotización",
   "quotes": "Cotizaciones",
 
   "cart.yes": "Sí",

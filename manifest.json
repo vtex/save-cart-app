@@ -13,8 +13,8 @@
     "smartcheckout"
   ],
   "dependencies": {
-    "vtex.checkout": "0.x",
     "vtex.admin": "1.x",
+    "vtex.checkout": "0.x",
     "vtex.render-runtime": "7.x"
   },
   "builders": {
@@ -35,6 +35,9 @@
     },
     {
       "name": "colossus-write-logs"
+    },
+    {
+      "name": "update-app-settings"
     },
     {
       "name": "outbound-access",
@@ -60,6 +63,10 @@
 		"title": "Save Cart",
 		"type": "object",
 		"properties": {
+      "hasSchema": {
+        "type": "boolean",
+        "default": false
+      },
 			"adminSetup": {
 				"title": "Save Cart Settings",
 				"type": "object",
@@ -86,13 +93,17 @@
 	},
 	"settingsUiSchema": {
 		"ui:order": [
-			"adminSetup"
+      "adminSetup",
+      "hasSchema"
 		],
 		"adminSetup": {
 			"ui:order": [
 				"cartName",
 				"cartLifeSpan"
 			]
-		}
+    },
+    "hasSchema": {
+      "ui:widget": "hidden"
+    }
 	}
 }

@@ -1,5 +1,11 @@
 import axios from 'axios'
 import { DEFAULT_LOCALE } from './constants'
+import _ from 'underscore'
+import Delete from '@vtex/styleguide/lib/icon/Delete'
+import Button from '@vtex/styleguide/lib/Button'
+import { FormattedMessage } from 'react-intl'
+import React from 'react'
+import PropTypes from 'prop-types'
 
 /**
  * Executa alguns passos que validam os dados do orderForm
@@ -89,6 +95,76 @@ export function createItemListCarts(orderForm, name) {
   }
 }
 
+const formatDate = (date, cartLifeSpan = 0) => {
+  const tempDate = new Date(date)
+  if (cartLifeSpan > 0) {
+    tempDate.setDate(tempDate.getDate() + cartLifeSpan)
+  }
+  return `${tempDate.getDate()}/${tempDate.getMonth() + 1}/${tempDate.getFullYear()}`
+}
+
+export function formatCartList(carts, cartLifeSpan) {
+  const formattedCarts = []
+  carts.map(cart => {
+    const cartQuantity = _.reduce(cart.items, function(memo, item) { return memo + item.quantity }, 0)
+    const cartObj = {
+      creationDate: formatDate(cart.creationDate),
+      expirationDate: formatDate(cart.creationDate, cartLifeSpan),
+      cartName: cart.cartName,
+      itemQuantity: cartQuantity,
+      cartId: cart.id,
+      items: cart.items,
+    }
+    formattedCarts.push(cartObj)
+  })
+  return formattedCarts
+}
+
+export const itemSchema = ({ openUseModal, openRemoveModal }) => {
+  const rowAction = ({ rowData: { items, cartName, cartId } }) => {
+    return (
+      <div>
+        <Button variation="primary" size="small" onClick={() => openUseModal({ useData: items, cartName })}>
+          <FormattedMessage id="cart.use.button" />
+        </Button>
+        <Button variation="tertiary" size="small" onClick={() => openRemoveModal({ removeData: cartId, cartName })}>
+          <Delete size={15} />
+        </Button>
+      </div>
+    )
+  }
+  rowAction.propTypes = {
+    rowData: PropTypes.func,
+  }
+  return {
+    properties: {
+      creationDate: {
+        type: 'string',
+        title: <FormattedMessage id="list.quote.date" />,
+      },
+      expirationDate: {
+        type: 'string',
+        title: <FormattedMessage id="list.quote.expire" />,
+      },
+      cartName: {
+        type: 'string',
+        title: <FormattedMessage id="modal.name" />,
+        width: 35,
+      },
+      itemQuantity: {
+        type: 'number',
+        title: <FormattedMessage id="list.items" />,
+        width: 15,
+      },
+      color: {
+        type: 'object',
+        title: '',
+        cellRenderer: rowAction,
+        width: 20,
+      },
+    },
+  }
+}
 /**
  * Obtém o identificador do usuário logado
  *

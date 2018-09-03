@@ -34,3 +34,9 @@ type CartResponseItem {
   quantity: Int
   sellingPrice: Int
 }
+
+input CartUseInfo {
+  id: String
+  quantity: Int
+  sellingPrice: Int
+}
