@@ -3,6 +3,7 @@ import http from 'axios'
 import * as jwt from 'jsonwebtoken'
 import colossus from '../resources/colossus'
 import {errorResponse} from '../utils/error'
+import GraphQLError from '../utils/GraphQLError'
 
 const getAppId = () => {
   return process.env.VTEX_APP_ID
@@ -13,6 +14,9 @@ const routes = {
   listCarts: (account, email) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/search?email=${email}&_schema=v5&_fields=id,email,cartName,items,creationDate`,
   removeCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents/${id}`,
   saveSchema: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/schemas/v5`,
+  clearCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${id}/items/removeAll`,
+  addToCart: (account, orderFormId) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${orderFormId}/items/`,
+  addPriceToItems: (account, orderFormId, key) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${orderFormId}/items/${key}/price`
 }
 
 const schema = `{
@@ -70,10 +74,72 @@ export const resolvers = {
     }
   },
   Mutation: {
+    useCart: async (_, params, ctx) => {
+      const {vtex: ioContext} = ctx
+      const {account, authToken} = ioContext
+      const logger = colossus(ioContext)
+      const token = ctx.cookies.get(`VtexIdclientAutCookie_${account}`) || ctx.cookies.get(`VtexIdclientAutCookie`)
+      const useHeaders =  {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'VtexIdclientAutCookie': token,
+        'Proxy-Authorization': authToken
+      }
+      try {
+        // CLEAR CURRENT CART
+        await http({
+        method: 'post',
+        url: routes.clearCart(account, params.orderFormId),
+        data: {'expectedOrderFormSections': ['items'],},
+        headers: useHeaders,
+        })
+        // ADD ITEMS TO CART
+        await http({
+          url: routes.addToCart(account, params.orderFormId),
+          method: 'post',
+          data: {
+            'expectedOrderFormSections': ['items'],
+            'orderItems': params.items.map((item) => {
+              return {
+                id: item.id,
+                quantity: item.quantity,
+                seller: '1',
+              }
+            }),
+          },
+          headers: useHeaders,
+        })
+        // IF CALLCENTER OPERATOR, SAVE PRICES
+        if (params.userType === 'callCenterOperator') {
+          const priceRequests = []
+          params.items.forEach((item, key) => {
+          priceRequests.push(http({
+            url: routes.addPriceToItems(account, params.orderFormId, key),
+            method: 'put',
+            data: {
+              'price': item.sellingPrice,
+            },
+            headers: useHeaders,
+          }))
+        })
+        await http.all(priceRequests)
+        }
+      } catch (e) {
+        console.log(e)
+        const {status, body, details} = errorResponse(e)
+        logger.log('CartUseError', 'error', {orderFormId: params.orderFormId, status, body, details})
+        if (e.message) {
+          throw new GraphQLError(e.message)
+        } else if (e.response && e.response.data && e.response.data.message) {
+          throw new GraphQLError(e.response.data.message)
+        }
+        throw e as GraphQLError
+      }
+    },
     saveCart: async (_, params, ctx) => {
       const { vtex: ioContext } = ctx
       const {account, authToken} = ioContext
-      const token = ctx.cookies.get(`VtexIdclientAutCookie_${account}`)
+      const token = ctx.cookies.get(`VtexIdclientAutCookie_${account}`) || ctx.cookies.get(`VtexIdclientAutCookie`)
       const user: string = jwt.decode(token).sub
       const logger = colossus(ioContext)
       const headers = defaultHeaders(authToken)
@@ -88,9 +154,15 @@ export const resolvers = {
         logger.log('CartSaveSuccess', 'info', {cart: params.cart, cartId: data.Id})
         return data.Id
       } catch (e) {
+        console.log(e)
         const {status, body, details} = errorResponse(e)
         logger.log('CartSaveError', 'error', {cart: params.cart, user, status, body, details})
-        throw {status, body, details}
+        if (e.message) {
+          throw new GraphQLError(e.message)
+        } else if (e.response && e.response.data && e.response.data.message) {
+          throw new GraphQLError(e.response.data.message)
+        }
+        throw e as GraphQLError
       }
     },
 
@@ -109,20 +181,24 @@ export const resolvers = {
           url,
           headers
         })
-        logger.log('CartListSuccess', 'info', {user: params.email})
         return data
       } catch (e) {
         console.log(e)
         const {status, body, details} = errorResponse(e)
         logger.log('CartListError', 'error', {user: params.email, status, body, details})
-        throw e
+        if (e.message) {
+          throw new GraphQLError(e.message)
+        } else if (e.response && e.response.data && e.response.data.message) {
+          throw new GraphQLError(e.response.data.message)
+        }
+        throw e as GraphQLError
       }
     },
 
     removeCart: async (_, params, ctx) => {
       const {vtex: ioContext} = ctx
       const {account, authToken} = ioContext
-      const token = ctx.cookies.get(`VtexIdclientAutCookie_${account}`)
+      const token = ctx.cookies.get(`VtexIdclientAutCookie_${account}`) || ctx.cookies.get(`VtexIdclientAutCookie`)
       const user: string = jwt.decode(token).sub
       const logger = colossus(ioContext)
       const headers = defaultHeaders(authToken)
@@ -134,13 +210,19 @@ export const resolvers = {
           headers
         })
         if (result.status === 204){
-          logger.log('CartRemoveSuccess', 'info', {cartName: params.cartName, cartId: params.id, user})
+          logger.log('CartRemoveSuccess', 'info', {cartName: params.cartName, cartId: params.id, user, expired: params.expired})
           return true
         }
       } catch (e) {
+        console.log(e)
         const {status, body, details} = errorResponse(e)
-        logger.log('CartRemoveError', 'error', {cartName: params.cartName, cartId: params.id, user, status, body, details})
-        throw {status, body, details}
+        logger.log('CartRemoveError', 'error', {cartName: params.cartName, cartId: params.id, user, expired: params.expired, status, body, details})
+        if (e.message) {
+          throw new GraphQLError(e.message)
+        } else if (e.response && e.response.data && e.response.data.message) {
+          throw new GraphQLError(e.response.data.message)
+        }
+        throw e as GraphQLError
       }
     }
   }

@@ -1,9 +1,8 @@
-import axios from 'axios'
 import React, { Component } from 'react'
 import { graphql, compose } from 'react-apollo'
 import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 import PropTypes from 'prop-types'
-import { path } from 'ramda'
+import { path, pick } from 'ramda'
 import _ from 'underscore'
 
 import ListCart from './components/ListCart'
@@ -14,6 +13,7 @@ import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 import currentTime from './graphql/currentTime.graphql'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
+import useCartMutation from './graphql/useCartMutation.graphql'
 
 import Button from '@vtex/styleguide/lib/Button'
 import Modal from '@vtex/styleguide/lib/Modal'
@@ -37,6 +37,7 @@ class MyCarts extends Component {
   static propTypes = {
     getSetupConfig: PropTypes.object,
     saveCartMutation: PropTypes.func,
+    useCartMutation: PropTypes.func,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
     intl: intlShape,
@@ -114,6 +115,9 @@ class MyCarts extends Component {
    * @param {*} error Error
    */
   handleUpdateError(error) {
+    if (error.message) {
+      return this.setState({ messageError: error.message })
+    }
     let message = error && error.data ? error.data.errorMessage : this.props.intl.formatMessage({ id: 'generic.error' })
     const hasErrorMessage = path(['data', 'error', 'message'])
     if (hasErrorMessage(error)) {
@@ -213,8 +217,9 @@ class MyCarts extends Component {
   removeCart(id, cartName) {
     this.activeLoading(true)
     this.props.removeCart({ variables: {
-      id: id,
-      cartName: cartName,
+      id,
+      cartName,
+      expired: false,
     } }).then((result) => {
       if (result.data.removeCart === true) {
         var carts = this.state.carts.slice(0)
@@ -237,26 +242,6 @@ class MyCarts extends Component {
     })
   }
 
-  async clearCart(orderFormId) {
-    await axios({
-      url: `/api/checkout/pub/orderForm/${orderFormId}/items/removeAll`,
-      method: 'post',
-      data: {
-        'expectedOrderFormSections': ['items'],
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    }).then(response => {
-      console.log(response)
-    }).catch((error) => {
-      this.activeLoading(false)
-      this.handleUpdateError(error.response)
-    })
-    return true
-  }
-
   /**
    * Essa função utiliza o orderFormId do carrinho selecionado para ser o carrinho atual
    * do usuário
@@ -264,61 +249,18 @@ class MyCarts extends Component {
    * @param {*} orderFormId Identificador do orderForm
    */
   async useCart(items) { // TODO: Move to GraphQl
+    items = items.map(item => pick(['id', 'quantity', 'sellingPrice'], item)) // Remove unused properties
     this.activeLoading(true)
     const { orderForm } = this.state
 
-    // CLEAR CURRENT CART
-    await this.clearCart(orderForm.orderFormId)
-
-    // ADD ITEMS TO CART
-    await axios({
-      url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/items/`,
-      method: 'post',
-      data: {
-        'expectedOrderFormSections': ['items'],
-        'orderItems': _.map(items, (item) => {
-          return {
-            id: item.id,
-            quantity: item.quantity,
-            seller: '1',
-          }
-        }),
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+    await this.props.useCartMutation({ variables: {
+      orderFormId: orderForm.orderFormId,
+      items: items,
+      userType: orderForm.userType,
+    } }).catch((error) => {
+      this.activeLoading(false)
+      this.handleUpdateError(error)
     })
-      .then(response => {
-        console.log(response)
-      })
-      .catch((error) => {
-        this.activeLoading(false)
-        this.handleUpdateError(error.response)
-      })
-
-    // SE FOR TELEVENDAS
-    if (orderForm.userType === 'callCenterOperator') {
-      const priceRequests = []
-      _.each(items, (item, key) => {
-        priceRequests.push(axios({
-          url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/items/${key}/price`,
-          method: 'put',
-          data: {
-            'price': item.sellingPrice,
-          },
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-        }))
-      })
-      await axios.all(priceRequests).then((result) => {
-        console.log(result)
-      }).catch((err) => {
-        console.log(err)
-      })
-    }
 
     await saveMarketingData(orderForm.orderFormId)
 
@@ -332,7 +274,7 @@ class MyCarts extends Component {
    */
   listCarts() {
     const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
-    const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
+    const { cartLifeSpan, cartName } = adminSetup || DEFAULT_ADMIN_SETUP
     const today = new Date(currentTime)
     this.activeLoading(true)
     const shouldDelete = []
@@ -350,7 +292,7 @@ class MyCarts extends Component {
 
       const promises = []
       shouldDelete.map(cart => {
-        promises.push(this.removeFromDB(cart))
+        promises.push(this.removeFromDB(cart, cartName))
       })
       await Promise.all(promises)
 
@@ -366,11 +308,13 @@ class MyCarts extends Component {
     })
   }
 
-  removeFromDB(cart) {
+  removeFromDB(cart, cartName) {
     const { id } = cart
 
     this.props.removeCart({ variables: {
       id,
+      cartName,
+      expired: true,
     } }).then((result) => {
       if (result.data.removeCart === true) {
         cart.id = null
@@ -464,9 +408,10 @@ class MyCarts extends Component {
 }
 
 export default injectIntl(compose(
-  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
-  graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false } }),
-  graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
-  graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
-  graphql(currentTime, { name: 'currentTime' })
+  graphql(getSetupConfig, { name: 'getSetupConfig' }),
+  graphql(saveCartMutation, { name: 'saveCartMutation' }),
+  graphql(getCarts, { name: 'getCarts' }),
+  graphql(removeCart, { name: 'removeCart' }),
+  graphql(currentTime, { name: 'currentTime' }),
+  graphql(useCartMutation, { name: 'useCartMutation' })
 )(MyCarts))

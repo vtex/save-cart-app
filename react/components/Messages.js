@@ -8,7 +8,7 @@ class Messages extends Component {
 
     return (
       <div>
-        <Alert type={type} onClose={clearMessage}>
+        <Alert type={type} onClose={clearMessage} autoClose={30000}>
           {message}
         </Alert>
       </div>
