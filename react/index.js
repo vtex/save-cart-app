@@ -238,7 +238,7 @@ class MyCarts extends Component {
     }).catch((err) => {
       console.log(err)
       this.activeLoading(false)
-      this.handleUpdateError(err.response)
+      this.handleUpdateError(err)
     })
   }
 
@@ -248,7 +248,7 @@ class MyCarts extends Component {
    *
    * @param {*} orderFormId Identificador do orderForm
    */
-  async useCart(items) { // TODO: Move to GraphQl
+  async useCart(items) {
     items = items.map(item => pick(['id', 'quantity', 'sellingPrice'], item)) // Remove unused properties
     this.activeLoading(true)
     const { orderForm } = this.state
@@ -257,9 +257,9 @@ class MyCarts extends Component {
       orderFormId: orderForm.orderFormId,
       items: items,
       userType: orderForm.userType,
-    } }).catch((error) => {
+    } }).catch((err) => {
       this.activeLoading(false)
-      this.handleUpdateError(error)
+      this.handleUpdateError(err)
     })
 
     await saveMarketingData(orderForm.orderFormId)
@@ -304,7 +304,7 @@ class MyCarts extends Component {
     }).catch((err) => {
       console.log(err)
       this.activeLoading(false)
-      this.handleUpdateError(err.response)
+      this.handleUpdateError(err)
     })
   }
 
@@ -323,7 +323,6 @@ class MyCarts extends Component {
       }
     }).catch((err) => {
       console.log('Error deleting cart', err)
-      this.handleUpdateError(err.response)
     })
   }
 
@@ -364,7 +363,7 @@ class MyCarts extends Component {
   }
 
   render() {
-    if (this.props.getSetupConfig.loading) {
+    if (this.props.getSetupConfig.loading || !this.props.getSetupConfig.getSetupConfig) {
       return null
     }
     const intl = this.props.intl
@@ -377,7 +376,7 @@ class MyCarts extends Component {
 
     return (
       <div className="flex justify-center onda-v1">
-        <Button variation="tertiary" onClick={this.handleOpenModal}>
+        <Button id="vtex-cart-list-open-modal-button" variation="tertiary" onClick={this.handleOpenModal}>
           {cartName}
         </Button>
         <Modal isOpen={this.state.isModalOpen} onClose={this.handleCloseModal} >
@@ -410,7 +409,7 @@ class MyCarts extends Component {
 export default injectIntl(compose(
   graphql(getSetupConfig, { name: 'getSetupConfig' }),
   graphql(saveCartMutation, { name: 'saveCartMutation' }),
-  graphql(getCarts, { name: 'getCarts' }),
+  graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart' }),
   graphql(currentTime, { name: 'currentTime' }),
   graphql(useCartMutation, { name: 'useCartMutation' })

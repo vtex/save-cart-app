@@ -10,15 +10,16 @@
 
   "cart.delete.confirm": "Deletar cotação",
   "cart.delete.warning": "Os valores de cotação dos produtos escolhidos serão perdidos.",
-  "cart.delete.success":"Cotação removida com sucesso!",
+  "cart.delete.success": "Cotação removida com sucesso!",
+  "cart.remove.confirm": "Apagar",
 
   "cart.use.button": "Usar",
   "cart.use.quote": "Usar cotação",
-  "cart.use.overwrite": "Ela vai sobrescrever a atual.",
+  "cart.use.overwrite": "Ela vai sobrescrever seu carrinho atual.",
   "quotes": "Cotações",
 
   "cart.yes": "Sim",
-  "cart.no": "Não",
+  "cart.no": "Cancelar",
 
   "list.empty":"Sua cotação está vazia",
   "list.quote.date":"Data de Criação",

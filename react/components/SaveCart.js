@@ -44,13 +44,13 @@ class SaveCart extends Component {
     return (
       <div className="pa1 pa2-ns mt7 flex justify-center">
         <div className="w-10">
-          <label onClick={this.handleFocusClick} className="f6 b pt2"><FormattedMessage id="modal.name" /> </label>
+          <label onClick={this.handleFocusClick} className="f6 b pt2 mt2"><FormattedMessage id="modal.name" /> </label>
         </div>
         <div className="w-70">
-          <Input ref={this.input} onKeyPress={this.handleKeyPress} maxLength="60" size="x-large" onChange={this.handleUpdateNameCart} value={this.state.nameCart} />
+          <Input id="vtex-cart-list-save-input" ref={this.input} onKeyPress={this.handleKeyPress} maxLength="60" size="x-large" onChange={this.handleUpdateNameCart} value={this.state.nameCart} />
         </div>
         <div className="w-20 ml5">
-          <Button size="small" onClick={this.handleClick}>
+          <Button id="vtex-cart-list-save-button" size="small" onClick={this.handleClick}>
             <FormattedMessage id="modal.save" />
           </Button>
         </div>

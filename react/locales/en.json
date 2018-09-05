@@ -11,14 +11,15 @@
   "cart.delete.confirm": "Delete quote",
   "cart.delete.warning": "The quotation values of the chosen products will be lost.",
   "cart.delete.success":"Quote removed successfully",
+  "cart.remove.confirm": "Remove",
 
   "cart.use.button": "Use",
   "cart.use.quote": "Use quote",
-  "cart.use.overwrite": "It will overwrite the current one.",
+  "cart.use.overwrite": "It will overwrite your current cart.",
   "quotes": "Quotes",
 
   "cart.yes": "Yes",
-  "cart.no":"No",
+  "cart.no":"Cancel",
 
   "list.empty":"Your quote is empty",
   "list.quote.date":"Quote Creation Date",

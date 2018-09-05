@@ -124,43 +124,61 @@ export const itemSchema = ({ openUseModal, openRemoveModal }) => {
   const rowAction = ({ rowData: { items, cartName, cartId } }) => {
     return (
       <div>
-        <Button variation="primary" size="small" onClick={() => openUseModal({ useData: items, cartName })}>
+        <Button id="vtex-cart-list-use-button" variation="primary" size="small" onClick={() => openUseModal({ useData: items, cartName })}>
           <FormattedMessage id="cart.use.button" />
         </Button>
-        <Button variation="tertiary" size="small" onClick={() => openRemoveModal({ removeData: cartId, cartName })}>
+        <Button id="vtex-cart-list-remove-button" variation="tertiary" size="small" onClick={() => openRemoveModal({ removeData: cartId, cartName })}>
           <Delete size={15} />
         </Button>
       </div>
     )
   }
+
   rowAction.propTypes = {
     rowData: PropTypes.func,
   }
+
+  const cellInfo = (infoString) => {
+    return (<div className="fw2 f5 pv2">{`${infoString}`}</div>)
+  }
+
+  const headerInfo = (id) => {
+    return (<div className="b f6 pv1"><FormattedMessage id={id} /></div>)
+  }
+
   return {
     properties: {
       creationDate: {
         type: 'string',
         title: <FormattedMessage id="list.quote.date" />,
+        cellRenderer: ({ rowData: { creationDate } }) => cellInfo(creationDate),
+        headerRenderer: ({ label: { props: { id } } }) => headerInfo(id),
       },
       expirationDate: {
         type: 'string',
         title: <FormattedMessage id="list.quote.expire" />,
+        cellRenderer: ({ rowData: { expirationDate } }) => cellInfo(expirationDate),
+        headerRenderer: ({ label: { props: { id } } }) => headerInfo(id),
       },
       cartName: {
         type: 'string',
         title: <FormattedMessage id="modal.name" />,
+        cellRenderer: ({ rowData: { cartName } }) => cellInfo(cartName),
+        headerRenderer: ({ label: { props: { id } } }) => headerInfo(id),
         width: 35,
       },
       itemQuantity: {
         type: 'number',
         title: <FormattedMessage id="list.items" />,
         width: 15,
+        cellRenderer: ({ rowData: { itemQuantity } }) => cellInfo(itemQuantity),
+        headerRenderer: ({ label: { props: { id } } }) => headerInfo(id),
       },
       color: {
         type: 'object',
         title: '',
         cellRenderer: rowAction,
-        width: 20,
+        width: 25,
       },
     },
   }
