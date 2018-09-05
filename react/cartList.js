@@ -1,9 +1,8 @@
-import axios from 'axios'
 import React, { Component } from 'react'
 import { graphql, compose } from 'react-apollo'
 import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 import PropTypes from 'prop-types'
-import { path } from 'ramda'
+import { path, pick } from 'ramda'
 import _ from 'underscore'
 
 import ListCart from './components/ListCart'
@@ -12,14 +11,12 @@ import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 import currentTime from './graphql/currentTime.graphql'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
+import useCartMutation from './graphql/useCartMutation.graphql'
 
 import Modal from '@vtex/styleguide/lib/Modal'
 import Spinner from '@vtex/styleguide/lib/Spinner'
-import Tabs from '@vtex/styleguide/lib/Tabs'
-import Tab from '@vtex/styleguide/lib/Tabs/Tab'
 
 import './global.css'
-import styles from './style.css'
 
 import {
   userLogged,
@@ -34,6 +31,7 @@ const DEFAULT_ADMIN_SETUP = {
 class CartList extends Component {
   static propTypes = {
     getSetupConfig: PropTypes.object,
+    useCartMutation: PropTypes.func,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
     intl: intlShape,
@@ -50,7 +48,6 @@ class CartList extends Component {
       messageError: '',
       messageSuccess: '',
       enabledLoading: false,
-      currentTab: 1,
     }
 
     this.listenOrderFormUpdated = this.listenOrderFormUpdated.bind(this)
@@ -113,6 +110,9 @@ class CartList extends Component {
    * @param {*} error Error
    */
   handleUpdateError(error) {
+    if (error.message) {
+      return this.setState({ messageError: error.message })
+    }
     let message = error && error.data ? error.data.errorMessage : this.props.intl.formatMessage({ id: 'generic.error' })
     const hasErrorMessage = path(['data', 'error', 'message'])
     if (hasErrorMessage(error)) {
@@ -151,10 +151,12 @@ class CartList extends Component {
    *
    * @param {*} id Identificador do orderForm
    */
-  removeCart(id) {
+  removeCart(id, cartName) {
     this.activeLoading(true)
     this.props.removeCart({ variables: {
       id: id,
+      cartName,
+      expired: false,
     } }).then((result) => {
       if (result.data.removeCart === true) {
         var carts = this.state.carts.slice(0)
@@ -173,92 +175,23 @@ class CartList extends Component {
     }).catch((err) => {
       console.log(err)
       this.activeLoading(false)
-      this.handleUpdateError(err.response)
+      this.handleUpdateError(err)
     })
   }
 
-  async clearCart(orderFormId) {
-    await axios({
-      url: `/api/checkout/pub/orderForm/${orderFormId}/items/removeAll`,
-      method: 'post',
-      data: {
-        'expectedOrderFormSections': ['items'],
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    }).then(response => {
-      console.log(response)
-    }).catch((error) => {
-      this.activeLoading(false)
-      this.handleUpdateError(error.response)
-    })
-    return true
-  }
-
-  /**
-   * Essa função utiliza o orderFormId do carrinho selecionado para ser o carrinho atual
-   * do usuário
-   *
-   * @param {*} orderFormId Identificador do orderForm
-   */
   async useCart(items) {
+    items = items.map(item => pick(['id', 'quantity', 'sellingPrice'], item)) // Remove unused properties
     this.activeLoading(true)
     const { orderForm } = this.state
 
-    // CLEAR CURRENT CART
-    await this.clearCart(orderForm.orderFormId)
-
-    // ADD ITEMS TO CART
-    await axios({
-      url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/items/`,
-      method: 'post',
-      data: {
-        'expectedOrderFormSections': ['items'],
-        'orderItems': _.map(items, (item) => {
-          return {
-            id: item.id,
-            quantity: item.quantity,
-            seller: '1',
-          }
-        }),
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+    await this.props.useCartMutation({ variables: {
+      orderFormId: orderForm.orderFormId,
+      items: items,
+      userType: orderForm.userType,
+    } }).catch((err) => {
+      this.activeLoading(false)
+      this.handleUpdateError(err)
     })
-      .then(response => {
-        console.log(response)
-      })
-      .catch((error) => {
-        this.activeLoading(false)
-        this.handleUpdateError(error.response)
-      })
-
-    // SE FOR TELEVENDAS
-    if (orderForm.userType === 'callCenterOperator') {
-      const priceRequests = []
-      _.each(items, (item, key) => {
-        priceRequests.push(axios({
-          url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/items/${key}/price`,
-          method: 'put',
-          data: {
-            'price': item.sellingPrice,
-          },
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-        }))
-      })
-      await axios.all(priceRequests).then((result) => {
-        console.log(result)
-      }).catch((err) => {
-        console.log(err)
-      })
-    }
 
     await saveMarketingData(orderForm.orderFormId)
 
@@ -272,7 +205,7 @@ class CartList extends Component {
    */
   listCarts() {
     const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
-    const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
+    const { cartLifeSpan, cartName } = adminSetup || DEFAULT_ADMIN_SETUP
     const today = new Date(currentTime)
     this.activeLoading(true)
     const shouldDelete = []
@@ -290,7 +223,7 @@ class CartList extends Component {
 
       const promises = []
       shouldDelete.map(cart => {
-        promises.push(this.removeFromDB(cart))
+        promises.push(this.removeFromDB(cart, cartName))
       })
       await Promise.all(promises)
 
@@ -302,14 +235,17 @@ class CartList extends Component {
     }).catch((err) => {
       console.log(err)
       this.activeLoading(false)
+      this.handleUpdateError(err)
     })
   }
 
-  removeFromDB(cart) {
+  removeFromDB(cart, cartName) {
     const { id } = cart
 
     this.props.removeCart({ variables: {
       id,
+      cartName,
+      expired: true,
     } }).then((result) => {
       if (result.data.removeCart === true) {
         cart.id = null
@@ -318,7 +254,6 @@ class CartList extends Component {
       }
     }).catch((err) => {
       console.log('Error deleting cart', err)
-      this.handleUpdateError(err.response)
     })
   }
 
@@ -344,10 +279,9 @@ class CartList extends Component {
   }
 
   render() {
-    if (this.props.getSetupConfig.loading) {
+    if (this.props.getSetupConfig.loading || !this.props.getSetupConfig.getSetupConfig) {
       return null
     }
-    const intl = this.props.intl
     const { getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
     const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
     const { items, carts, orderForm, messageError, messageSuccess, enabledLoading } = this.state
@@ -358,24 +292,20 @@ class CartList extends Component {
     return (
       userLogged(orderForm)
         ? <div className="onda-v1">
-          <div className={styles.menuTop} onClick={this.handleOpenModal}>
+          <div id="vtex-cart-list-home-button" onClick={this.handleOpenModal}>
             <FormattedMessage id="quotes" />
           </div>
           <Modal isOpen={this.state.isModalOpen} onClose={this.handleCloseModal} >
             <div className="onda-v1">
-              <div style={{ width: '800px' }}></div>
-              <div className="bb b--black-20 ph2 pv3 mb3">
+              <div style={{ width: '800px' }}></div> {/* minimum modal width */}
+              <div className="ph2 pv3 mb3">
                 <div className="dib black-70 ttu b f4">
                   <FormattedMessage id="quotes" />
                   {enabledLoading && <span className="dib ml4">  <Spinner size={17} /></span>}
                 </div>
               </div>
               <MessageDisplay messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages} />
-              <Tabs>
-                <Tab label={intl.formatMessage({ id: 'modal.tab.list' })} active={this.state.currentTab === 1} onClick={() => {}}>
-                  <ListCart {...optsListCart} />
-                </Tab>
-              </Tabs>
+              <ListCart {...optsListCart} />
             </div>
           </Modal>
         </div>
@@ -385,8 +315,9 @@ class CartList extends Component {
 }
 
 export default injectIntl(compose(
-  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
+  graphql(getSetupConfig, { name: 'getSetupConfig' }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
-  graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
+  graphql(removeCart, { name: 'removeCart' }),
   graphql(currentTime, { name: 'currentTime' }),
+  graphql(useCartMutation, { name: 'useCartMutation' })
 )(CartList))

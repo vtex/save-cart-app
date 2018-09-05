@@ -11,14 +11,15 @@
   "cart.delete.confirm": "Eliminar cotización",
   "cart.delete.warning": "Los valores de cotización de los productos elegidos se perderán.",
   "cart.delete.success": "Cotización removida con éxito!",
+  "cart.remove.confirm": "Borrar",
 
   "cart.use.button": "Usar",
   "cart.use.quote": "Usar cotización",
-  "cart.use.overwrite": "Se sobrescribirá la actual.",
+  "cart.use.overwrite": "Se sobrescribirá su carrito actual.",
   "quotes": "Cotizaciones",
 
   "cart.yes": "Sí",
-  "cart.no": "No",
+  "cart.no": "Cancelar",
 
   "list.empty": "Su cotización está vacía",
   "list.quote.date":"Fecha de Creación de Cotización",

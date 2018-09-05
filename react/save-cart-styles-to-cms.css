@@ -65,3 +65,5 @@
   max-height: 40px;
   background-image: none;
 }
+
+.vtex-modal__close-icon{box-sizing: unset;}

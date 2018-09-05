@@ -60,14 +60,15 @@ class ListCart extends Component {
         <div className="f5 fw5 mb3"><FormattedMessage id={`cart.${action === 'use' ? 'use.quote' : 'delete.confirm'}`} /> "{cartName}"?</div>
         <p className="f5 fw3"><FormattedMessage id={`cart.${action === 'use' ? 'use.overwrite' : 'delete.warning'}`} /></p>
         <div className="flex justify-around mt5">
-          <Button variation="tertiary" onClick={() => {
+          <Button id="vtex-cart-list-no-button" variation="tertiary" onClick={() => {
             action === 'use' ? this.handleCloseUseModal() : this.handleCloseRemoveModal()
-          }
-          }><FormattedMessage id="cart.no" /></Button>
-          <Button variation={action === 'use' ? 'primary' : 'danger'} onClick={() => {
+          }}>
+            <FormattedMessage id="cart.no" />
+          </Button>
+          <Button id={action === 'use' ? 'vtex-cart-list-confirm-use-button' : 'vtex-cart-list-confirm-remove-button'} variation={action === 'use' ? 'primary' : 'danger'} onClick={() => {
             handleAction(actionData, cartName) // cartName will be logged during cart removal
             action === 'use' ? this.handleCloseUseModal() : this.handleCloseRemoveModal()
-          }}><FormattedMessage id="cart.yes" /></Button>
+          }}><FormattedMessage id={action === 'use' ? 'cart.use.button' : 'cart.remove.confirm'} /></Button>
         </div>
       </div>
     )
