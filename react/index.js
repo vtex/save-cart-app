@@ -375,10 +375,12 @@ class MyCarts extends Component {
     const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading }
 
     return (
-      <div className="flex justify-center onda-v1">
-        <Button id="vtex-cart-list-open-modal-button" variation="tertiary" onClick={this.handleOpenModal}>
-          {cartName}
-        </Button>
+      <div className="onda-v1">
+        <div className="fr">
+          <Button id="vtex-cart-list-open-modal-button" variation="tertiary" onClick={this.handleOpenModal}>
+            {cartName}
+          </Button>
+        </div>
         <Modal isOpen={this.state.isModalOpen} onClose={this.handleCloseModal} >
           <div className="onda-v1">
             <div style={{ width: '800px' }}></div> {/* minimum modal width */}
