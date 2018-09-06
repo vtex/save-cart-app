@@ -407,10 +407,10 @@ class MyCarts extends Component {
 }
 
 export default injectIntl(compose(
-  graphql(getSetupConfig, { name: 'getSetupConfig' }),
-  graphql(saveCartMutation, { name: 'saveCartMutation' }),
+  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false }  }),
+  graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false }  }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
-  graphql(removeCart, { name: 'removeCart' }),
-  graphql(currentTime, { name: 'currentTime' }),
-  graphql(useCartMutation, { name: 'useCartMutation' })
+  graphql(removeCart, { name: 'removeCart', options: { ssr: false }  }),
+  graphql(currentTime, { name: 'currentTime', options: { ssr: false }  }),
+  graphql(useCartMutation, { name: 'useCartMutation', options: { ssr: false }  })
 )(MyCarts))
