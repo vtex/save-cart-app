@@ -6,6 +6,8 @@ import Button from '@vtex/styleguide/lib/Button'
 import { FormattedMessage } from 'react-intl'
 import React from 'react'
 import PropTypes from 'prop-types'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 
 /**
  * Executa alguns passos que validam os dados do orderForm
@@ -210,7 +212,7 @@ export async function saveMarketingData(orderFormId) {
     data: {
       'expectedOrderFormSections': ['items'],
       'attachmentId': 'marketingData',
-      'marketingTags': ['vtex.savecart']
+      'marketingTags': ['vtex.savecart'],
     },
     headers: defaultHeaders,
   }).then(response => {
@@ -220,4 +222,92 @@ export async function saveMarketingData(orderFormId) {
   })
 
   return result
+}
+
+export function makeHTML() {
+  function json2table(json, classes) {
+    var cols = Object.keys(json[0])
+
+    var headerRow = ''
+    var bodyRows = ''
+
+    classes = classes || ''
+
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1)
+    }
+
+    cols.map(function(col) {
+      headerRow += `<th>${capitalizeFirstLetter(col)}</th>`
+    })
+
+    json.map(function(row) {
+      bodyRows += '<tr>'
+
+      cols.map(function(colName) {
+        bodyRows += `<td>${row[colName]}</td>`
+      })
+
+      bodyRows += '</tr>'
+    })
+
+    return `<table class="${
+      classes
+    }"><thead><tr>${
+      headerRow
+    }</tr></thead><tbody>${
+      bodyRows
+    }</tbody></table>`
+  }
+
+  /* How to use it */
+
+  var defaultData = [
+    { country: 'China', population: 1379510000 },
+    { country: 'India', population: 1330780000 },
+    { country: 'United States', population: 324788000 },
+    { country: 'Indonesia', population: 260581000 },
+    { country: 'Brazil', population: 206855000 },
+  ]
+  // const someJSONdata = [
+  //   {
+  //     name: 'John Doe',
+  //     email: 'john@doe.com',
+  //     phone: '111-111-1111',
+  //   },
+  //   {
+  //     name: 'Barry Allen',
+  //     email: 'barry@flash.com',
+  //     phone: '222-222-2222',
+  //   },
+  //   {
+  //     name: 'Cool Dude',
+  //     email: 'cool@dude.com',
+  //     phone: '333-333-3333',
+  //   },
+  // ]
+
+  // document.getElementById('tableGoesHere').innerHTML = json2table(defaultData, 'table')
+  const filename = 'ThisIsYourPDFFilename.pdf'
+  const page = (`<div>
+    ${json2table(defaultData, 'table')}
+  </div>`)
+  console.log(page)
+  return html2canvas(page).then(canvas => {
+    const pdf = new jsPDF('p', 'mm', 'a4')
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 211, 298)
+    pdf.save(filename)
+  })
+
+  /* Live example */
+
+  // var dom = {
+  //   data: document.getElementById('data'),
+  //   table: document.getElementById('tableGoesHere'),
+  // }
+
+  // dom.data.value = JSON.stringify(defaultData)
+  // dom.data.addEventListener('input', function() {
+  //   dom.table.innerHTML = json2table(JSON.parse(dom.data.value), 'table')
+  // })
 }
