@@ -11,7 +11,7 @@ const getAppId = () => {
 
 const routes = {
   saveCart: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents`,
-  listCarts: (account, email) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/search?email=${email}&_schema=v5&_fields=id,email,cartName,items,creationDate`,
+  listCarts: (account, email) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/search?email=${email}&_where=creationDate>2018-10-10&_schema=v5&_fields=id,email,cartName,items,creationDate,expirationDate`,
   removeCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents/${id}`,
   saveSchema: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/schemas/v5`,
   clearCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${id}/items/removeAll`,
@@ -25,10 +25,10 @@ const schema = `{
   "cartName": { "type": "string", "title":"Cart Name" },
   "items": { "type": "array", "title":"Cart" },
   "creationDate": { "type": "string", "title":"Creation Date" },
-  "cartLifeSpan": { "type": "string", "title":"Cart Life Span" }
-  },
-  "v-indexed": [ "email", "creationDate", "cartLifeSpan", "cartName" ],
-  "v-default-fields": [ "email", "cart", "creationDate", "cartLifeSpan" ],
+  "expirationDate": { "type": "string", "title":"Expiration Date" },
+},
+  "v-indexed": [ "email", "cartName", "creationDate", "expirationDate" ],
+  "v-default-fields": [ "email", "cartName", "creationDate", "expirationDate" ],
   "v-cache": false
   }`
 
@@ -151,6 +151,8 @@ export const resolvers = {
           data: params.cart,
           headers
         })
+        console.log('saveData', data)
+
         logger.log('CartSaveSuccess', 'info', {cart: params.cart, cartId: data.Id})
         return data.Id
       } catch (e) {
@@ -181,6 +183,8 @@ export const resolvers = {
           url,
           headers
         })
+        console.log('getCart', data)
+
         return data
       } catch (e) {
         console.log(e)

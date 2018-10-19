@@ -4,6 +4,7 @@ import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 import PropTypes from 'prop-types'
 import { path, pick } from 'ramda'
 import _ from 'underscore'
+import moment from 'moment'
 
 import ListCart from './components/ListCart'
 import SaveCart from './components/SaveCart'
@@ -161,6 +162,14 @@ class MyCarts extends Component {
     this.activeLoading(true)
 
     if ((name && name.length > 0) && (this.state.orderForm.items && this.state.orderForm.items.length)) {
+      const { currentTime: { currentTime }, getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
+      const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
+      const today = new Date(currentTime)
+      console.log('today', today, 'today1:', moment(currentTime).format('YYYY MM DD'))
+
+      const expirationDate = new Date(currentTime)
+      expirationDate.setDate(expirationDate.getDate() + cartLifeSpan)
+
       const cart = {
         email: this.state.orderForm.clientProfileData.email,
         cartName: name,
@@ -176,7 +185,8 @@ class MyCarts extends Component {
             sellingPrice: item.sellingPrice,
           }
         }),
-        creationDate: new Date().toISOString(),
+        creationDate: today.toISOString(),
+        expirationDate: expirationDate.toISOString(),
       }
 
       this.props.saveCartMutation({ variables: {
@@ -190,8 +200,7 @@ class MyCarts extends Component {
             carts: carts,
           })
           this.activeLoading(false)
-          const { getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
-          const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
+
           const isPlural = cartLifeSpan < 2 ? '' : 's'
           this.handleUpdateSuccess(this.props.intl.formatMessage({ id: 'cart.saved.success' }, { days: cartLifeSpan, isPlural }))
         } else {
@@ -409,10 +418,10 @@ class MyCarts extends Component {
 }
 
 export default injectIntl(compose(
-  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false }  }),
-  graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false }  }),
+  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
+  graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
-  graphql(removeCart, { name: 'removeCart', options: { ssr: false }  }),
-  graphql(currentTime, { name: 'currentTime', options: { ssr: false }  }),
-  graphql(useCartMutation, { name: 'useCartMutation', options: { ssr: false }  })
+  graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
+  graphql(currentTime, { name: 'currentTime', options: { ssr: false } }),
+  graphql(useCartMutation, { name: 'useCartMutation', options: { ssr: false } })
 )(MyCarts))
