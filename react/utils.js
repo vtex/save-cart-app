@@ -2,12 +2,11 @@ import axios from 'axios'
 import { DEFAULT_LOCALE } from './constants'
 import _ from 'underscore'
 import Delete from '@vtex/styleguide/lib/icon/Delete'
+import Download from '@vtex/styleguide/lib/icon/Download'
 import Button from '@vtex/styleguide/lib/Button'
 import { FormattedMessage } from 'react-intl'
 import React from 'react'
 import PropTypes from 'prop-types'
-import html2canvas from 'html2canvas'
-import jsPDF from 'jspdf'
 
 /**
  * Executa alguns passos que validam os dados do orderForm
@@ -97,7 +96,7 @@ export function createItemListCarts(orderForm, name) {
   }
 }
 
-const formatDate = (date, cartLifeSpan = 0) => {
+export const formatDate = (date, cartLifeSpan = 0) => {
   const tempDate = new Date(date)
   if (cartLifeSpan > 0) {
     tempDate.setDate(tempDate.getDate() + cartLifeSpan)
@@ -122,7 +121,7 @@ export function formatCartList(carts, cartLifeSpan) {
   return formattedCarts
 }
 
-export const itemSchema = ({ openUseModal, openRemoveModal }) => {
+export const itemSchema = ({ openUseModal, openRemoveModal, printCart }) => {
   const rowAction = ({ rowData: { items, cartName, cartId } }) => {
     return (
       <div>
@@ -131,6 +130,9 @@ export const itemSchema = ({ openUseModal, openRemoveModal }) => {
         </Button>
         <Button id="vtex-cart-list-remove-button" variation="tertiary" size="small" onClick={() => openRemoveModal({ removeData: cartId, cartName })}>
           <Delete size={15} />
+        </Button>
+        <Button id="vtex-cart-list-popup-button" variation="tertiary" size="small" onClick={() => printCart({ printData: cartId, cartName })}>
+          <Download size={15} />
         </Button>
       </div>
     )
@@ -185,6 +187,51 @@ export const itemSchema = ({ openUseModal, openRemoveModal }) => {
     },
   }
 }
+
+export function formatCartToPrint(items, storePreferencesData) {
+  items = items.map((item) => {
+    return {
+      ...item,
+      formattedPrice: formatCurrency(item.sellingPrice, storePreferencesData),
+    }
+  })
+  return items
+}
+
+export const printSchema = () => {
+  const cellInfo = (infoString) => {
+    return (<div className="fw2 f5 pv2">{`${infoString}`}</div>)
+  }
+
+  const headerInfo = (id) => {
+    return (<div className="b f6 pv1"><FormattedMessage id={id} /></div>)
+  }
+
+  return {
+    properties: {
+      name: {
+        type: 'string',
+        title: <FormattedMessage id="list.item" />,
+        cellRenderer: ({ rowData: { name } }) => cellInfo(name),
+        headerRenderer: ({ label: { props: { id } } }) => headerInfo(id),
+        width: 50,
+      },
+      quantity: {
+        type: 'number',
+        title: <FormattedMessage id="list.quantity" />,
+        cellRenderer: ({ rowData: { quantity } }) => cellInfo(quantity),
+        headerRenderer: ({ label: { props: { id } } }) => headerInfo(id),
+      },
+      formattedPrice: {
+        type: 'string',
+        title: <FormattedMessage id="list.price" />,
+        cellRenderer: ({ rowData: { formattedPrice } }) => cellInfo(formattedPrice),
+        headerRenderer: ({ label: { props: { id } } }) => headerInfo(id),
+      },
+    },
+  }
+}
+
 /**
  * Obtém o identificador do usuário logado
  *
@@ -224,90 +271,34 @@ export async function saveMarketingData(orderFormId) {
   return result
 }
 
-export function makeHTML() {
-  function json2table(json, classes) {
-    var cols = Object.keys(json[0])
+export function formatCurrency(value, storePreferencesData) {
+  const { currencySymbol, currencyFormatInfo } = storePreferencesData
 
-    var headerRow = ''
-    var bodyRows = ''
+  const {
+    currencyDecimalDigits,
+    currencyDecimalSeparator,
+    currencyGroupSeparator,
+    startsWithCurrencySymbol,
+  } = currencyFormatInfo
 
-    classes = classes || ''
+  value = value / 100
 
-    function capitalizeFirstLetter(string) {
-      return string.charAt(0).toUpperCase() + string.slice(1)
-    }
+  value = value.toFixed(currencyDecimalDigits)
 
-    cols.map(function(col) {
-      headerRow += `<th>${capitalizeFirstLetter(col)}</th>`
-    })
+  const valueDividedInParts = value.split('.')
 
-    json.map(function(row) {
-      bodyRows += '<tr>'
+  const decimalPart = valueDividedInParts[1]
 
-      cols.map(function(colName) {
-        bodyRows += `<td>${row[colName]}</td>`
-      })
+  let wholePart = valueDividedInParts[0]
 
-      bodyRows += '</tr>'
-    })
+  wholePart = wholePart.replace(/\B(?=(\d{3})+(?!\d))/g, currencyGroupSeparator)
 
-    return `<table class="${
-      classes
-    }"><thead><tr>${
-      headerRow
-    }</tr></thead><tbody>${
-      bodyRows
-    }</tbody></table>`
-  }
+  value =
+    currencyDecimalDigits > 0
+      ? wholePart + currencyDecimalSeparator + decimalPart
+      : wholePart
 
-  /* How to use it */
-
-  var defaultData = [
-    { country: 'China', population: 1379510000 },
-    { country: 'India', population: 1330780000 },
-    { country: 'United States', population: 324788000 },
-    { country: 'Indonesia', population: 260581000 },
-    { country: 'Brazil', population: 206855000 },
-  ]
-  // const someJSONdata = [
-  //   {
-  //     name: 'John Doe',
-  //     email: 'john@doe.com',
-  //     phone: '111-111-1111',
-  //   },
-  //   {
-  //     name: 'Barry Allen',
-  //     email: 'barry@flash.com',
-  //     phone: '222-222-2222',
-  //   },
-  //   {
-  //     name: 'Cool Dude',
-  //     email: 'cool@dude.com',
-  //     phone: '333-333-3333',
-  //   },
-  // ]
-
-  // document.getElementById('tableGoesHere').innerHTML = json2table(defaultData, 'table')
-  const filename = 'ThisIsYourPDFFilename.pdf'
-  const page = (`<div>
-    ${json2table(defaultData, 'table')}
-  </div>`)
-  console.log(page)
-  return html2canvas(page).then(canvas => {
-    const pdf = new jsPDF('p', 'mm', 'a4')
-    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 211, 298)
-    pdf.save(filename)
-  })
-
-  /* Live example */
-
-  // var dom = {
-  //   data: document.getElementById('data'),
-  //   table: document.getElementById('tableGoesHere'),
-  // }
-
-  // dom.data.value = JSON.stringify(defaultData)
-  // dom.data.addEventListener('input', function() {
-  //   dom.table.innerHTML = json2table(JSON.parse(dom.data.value), 'table')
-  // })
+  return startsWithCurrencySymbol
+    ? `${currencySymbol} ${value}`
+    : `${value} ${currencySymbol}`
 }

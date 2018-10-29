@@ -1,6 +1,7 @@
 type Query {
   getSetupConfig: GetSetupConfigResponse @cacheControl(scope: PRIVATE)
   currentTime: String
+  getRepresentative: String
 }
 
 type Mutation {

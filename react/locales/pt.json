@@ -25,6 +25,19 @@
   "list.quote.date":"Data de Criação",
   "list.quote.expire":"Data de Vencimento",
   "list.items":"Itens",
+  "list.item": "Item",
+  "list.quantity": "Quantidade",
+  "list.price": "Preço",
+  "list.print": "Imprimir",
+
+  "print.representative": "Representante",
+  "print.customer": "Cliente",
+  "print.document": "CNPJ",
+  "print.quote.name": "Nome da Cotação",
+  "print.total": "TOTAL",
+  "print.subtotal": "Subtotal",
+  "print.discounts": "Descontos",
+  "print.shipping": "Entrega",
 
   "generic.error":"Não foi possível se comunicar com o sistema de Profile."
 }

@@ -47,6 +47,13 @@
       }
     },
     {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "vtexid.vtex.com.br",
+        "path": "/api/vtexid/pub/authenticated/*"
+      }
+    },
+    {
       "name": "ADMIN_CRM"
     },
     {
@@ -79,11 +86,16 @@
 						"title": "Lifespan (in days) of saved cart",
 						"type": "number",
 						"minimum": 1
-					}
+          },
+          "storeLogoUrl": {
+            "title": "Store logo URL",
+            "type": "string"
+          }
 				},
 				"required": [
 					"cartName",
-					"cartLifeSpan"
+          "cartLifeSpan",
+          "storeLogoUrl"
 				]
 			}
 		},
@@ -99,7 +111,8 @@
 		"adminSetup": {
 			"ui:order": [
 				"cartName",
-				"cartLifeSpan"
+        "cartLifeSpan",
+        "storeLogoUrl"
 			]
     },
     "hasSchema": {

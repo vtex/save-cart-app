@@ -25,6 +25,19 @@
   "list.quote.date":"Fecha de Creación de Cotización",
   "list.quote.expire":"Fecha de Caducidad de Cotización",
   "list.items":"Artículos",
+  "list.item": "Artículo",
+  "list.quantity": "Cantidad",
+  "list.price": "Precio",
+  "list.print": "Imprimir",
+
+  "print.representative": "Representante",
+  "print.customer": "Cliente",
+  "print.document": "Número del Documento",
+  "print.quote.name": "Nombre de la cotización",
+  "print.total": "TOTAL",
+  "print.subtotal": "Total Parcial",
+  "print.discounts": "Descuentos",
+  "print.shipping": "Entrega",
 
   "generic.error": "No se pudo comunicar con el sistema de perfil."
 }
