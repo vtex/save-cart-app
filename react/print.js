@@ -87,14 +87,14 @@ class Print extends Component {
                   <div>
                     <FormattedMessage id="print.address" />:
                   </div>
-                  <div className="ml5">
+                  <div className={`${address ? 'ml5' : 'dn'}`}>
                     <div>
                       <FormattedMessage id="print.address.street" />: {shippingAddress.street}
                     </div>
                     <div>
                       <FormattedMessage id="print.address.number" />: {shippingAddress.number}
                     </div>
-                    <div className={`${address.complement ? '' : 'dn'}`}>
+                    <div className={`${shippingAddress.complement ? '' : 'dn'}`}>
                       <FormattedMessage id="print.address.complement" />: {shippingAddress.complement}
                     </div>
                     <div>

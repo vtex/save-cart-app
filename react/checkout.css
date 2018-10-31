@@ -1,4 +1,5 @@
-/* SBD Checkout Save-Cart VTEX App - DO NOT REMOVE */
+/* SBD Save-Cart VTEX App - DO NOT REMOVE */
+/* Import this .css in both your homepage and checkout */
 
 .render-route-legacy-save-cart-list span {
   color: unset !important;
@@ -15,6 +16,7 @@ box-sizing: unset;
 }
 .vtex-modal__modal{
   box-sizing: unset;
+  max-width: unset !important;
 }
 #vtex-cart-list-open-modal-button {
 display: inline-block;
@@ -138,3 +140,4 @@ font-family: HelveticaLTStd;
 }
 .Modal-modal-0-1-3 {
 max-width: none !important;
+}

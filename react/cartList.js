@@ -7,11 +7,13 @@ import _ from 'underscore'
 
 import ListCart from './components/ListCart'
 import MessageDisplay from './components/MessageDisplay'
+import Print from './print'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 import currentTime from './graphql/currentTime.graphql'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
 import useCartMutation from './graphql/useCartMutation.graphql'
+import getRepresentative from './graphql/getRepresentative.graphql'
 
 import Modal from '@vtex/styleguide/lib/Modal'
 import Spinner from '@vtex/styleguide/lib/Spinner'
@@ -26,11 +28,13 @@ import {
 const DEFAULT_ADMIN_SETUP = {
   cartName: 'Save Cart',
   cartLifeSpan: 7,
+  storeLogoUrl: '',
 }
 
 class CartList extends Component {
   static propTypes = {
     getSetupConfig: PropTypes.object,
+    getRepresentative: PropTypes.object,
     useCartMutation: PropTypes.func,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
@@ -48,6 +52,7 @@ class CartList extends Component {
       messageError: '',
       messageSuccess: '',
       enabledLoading: false,
+      cartToPrint: '',
     }
 
     this.listenOrderFormUpdated = this.listenOrderFormUpdated.bind(this)
@@ -61,6 +66,8 @@ class CartList extends Component {
     this.removeCart = this.removeCart.bind(this)
     this.useCart = this.useCart.bind(this)
     this.listCarts = this.listCarts.bind(this)
+    this.printCart = this.printCart.bind(this)
+    this.finishedPrinting = this.finishedPrinting.bind(this)
 
     this.handleOpenModal = this.handleOpenModal.bind(this)
     this.handleCloseModal = this.handleCloseModal.bind(this)
@@ -200,6 +207,15 @@ class CartList extends Component {
     return true
   }
 
+  printCart(cartId) {
+    const cartToPrint = _.find(this.state.carts, (obj) => { return obj.id === cartId })
+    this.setState({ cartToPrint })
+  }
+
+  finishedPrinting() {
+    this.setState({ cartToPrint: '' })
+  }
+
   /**
    * Essa função obtém a lista de carrinhos que o usuário salvou anteriormente
    */
@@ -279,15 +295,19 @@ class CartList extends Component {
   }
 
   render() {
-    if (this.props.getSetupConfig.loading || !this.props.getSetupConfig.getSetupConfig) {
+    if (this.props.getSetupConfig.loading || !this.props.getSetupConfig.getSetupConfig || !this.state.orderForm) {
       return null
     }
-    const { getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
-    const { cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
-    const { items, carts, orderForm, messageError, messageSuccess, enabledLoading } = this.state
+    const { getSetupConfig: { getSetupConfig: { adminSetup } }, getRepresentative: { getRepresentative: representative } } = this.props
+    const { cartLifeSpan, storeLogoUrl } = adminSetup || DEFAULT_ADMIN_SETUP
+    const { items, carts, orderForm, messageError, messageSuccess, enabledLoading, cartToPrint } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
-    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading }
+    const handlePrintCart = this.printCart
+    const finishedPrinting = this.finishedPrinting
+    const { storePreferencesData, clientProfileData, value: total, totalizers } = orderForm
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading, handlePrintCart }
+    const optsPrintCart = { cartToPrint, cartLifeSpan, finishedPrinting, storePreferencesData, storeLogoUrl, clientProfileData, total, totalizers, representative }
 
     return (
       userLogged(orderForm)
@@ -297,7 +317,7 @@ class CartList extends Component {
           </div>
           <Modal isOpen={this.state.isModalOpen} onClose={this.handleCloseModal} >
             <div className="onda-v1">
-              <div style={{ width: '800px' }}></div> {/* minimum modal width */}
+              <div style={{ width: '1000px' }}></div> {/* minimum modal width */}
               <div className="ph2 pv3 mb3">
                 <div className="dib black-70 ttu b f4">
                   <FormattedMessage id="quotes" />
@@ -305,6 +325,7 @@ class CartList extends Component {
                 </div>
               </div>
               <MessageDisplay messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages} />
+              {!!cartToPrint && <Print {...optsPrintCart} />}
               <ListCart {...optsListCart} />
             </div>
           </Modal>
@@ -315,9 +336,10 @@ class CartList extends Component {
 }
 
 export default injectIntl(compose(
-  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false }  }),
+  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
-  graphql(removeCart, { name: 'removeCart', options: { ssr: false }  }),
-  graphql(currentTime, { name: 'currentTime', options: { ssr: false }  }),
-  graphql(useCartMutation, { name: 'useCartMutation', options: { ssr: false }  })
+  graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
+  graphql(currentTime, { name: 'currentTime', options: { ssr: false } }),
+  graphql(useCartMutation, { name: 'useCartMutation', options: { ssr: false } }),
+  graphql(getRepresentative, { name: 'getRepresentative', options: { ssr: false } })
 )(CartList))
