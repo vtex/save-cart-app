@@ -11,13 +11,14 @@ const getAppId = () => {
 
 const routes = {
   saveCart: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents`,
-  listCarts: (account, email) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/search?email=${email}&_schema=v5&_fields=id,email,cartName,items,creationDate,subtotal,discounts,shipping,total`,
+  listCarts: (account, email) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/search?email=${email}&_schema=v5&_fields=id,email,cartName,items,creationDate,subtotal,discounts,shipping,total,paymentTerm,address`,
   removeCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents/${id}`,
   saveSchema: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/schemas/v5`,
   clearCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${id}/items/removeAll`,
   addToCart: (account, orderFormId) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${orderFormId}/items/`,
   addPriceToItems: (account, orderFormId) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${orderFormId}/items/update`,
-  vtexid: (token) => `http://vtexid.vtex.com.br/api/vtexid/pub/authenticated/user?authToken=${token}`
+  vtexid: (token) => `http://vtexid.vtex.com.br/api/vtexid/pub/authenticated/user?authToken=${token}`,
+  getUserName: (account, userEmail) => `http://${account}.vtexcommercestable.com.br/api/dataentities/RP/search?_fields=Name&_where=Email=${userEmail}`
 }
 
 const schema = `{
@@ -31,9 +32,11 @@ const schema = `{
   "discounts": { "type": "integer", "title":"Discounts" },
   "shipping": { "type": "integer", "title":"Shipping" },
   "total": { "type": "integer", "title":"Total" }
+  "paymentTerm": { "type": "string", "title":"Payment Term" }
+  "address": { "type": "object", "title":"Address" }
   },
   "v-indexed": [ "email", "creationDate", "cartLifeSpan", "cartName" ],
-  "v-default-fields": [ "email", "cart", "creationDate", "cartLifeSpan", "subtotal", "discounts", "shipping", "total" ],
+  "v-default-fields": [ "email", "cart", "creationDate", "cartLifeSpan", "subtotal", "discounts", "shipping", "total", "paymentTerm", "address" ],
   "v-cache": false
   }`
 
@@ -83,12 +86,29 @@ export const resolvers = {
       const {vtex: ioContext} = ctx
       const {account, authToken} = ioContext
       const token = ctx.cookies.get(`VtexIdclientAutCookie_${account}`) || ctx.cookies.get(`VtexIdclientAutCookie`)
-      const {data: {user}} = await http({ // Check if cookie was issued by VTEX ID and is still valid
-        method: 'get',
-        url: routes.vtexid(token),
-        headers: {'Proxy-Authorization': `${authToken}`}
-      })
-      return user
+      let userEmail = ''
+      let userName = ''
+      try {
+        const { data } = await http({ // Check if cookie was issued by VTEX ID and is still valid
+          method: 'get',
+          url: routes.vtexid(token),
+          headers: {'Proxy-Authorization': `${authToken}`}
+        })
+        userEmail = data.user
+      } catch (e) {
+        console.log('Error retrieving representative email', e)
+      }
+      try {
+        const { data } = await http({ // Check if cookie was issued by VTEX ID and is still valid
+          method: 'get',
+          url: routes.getUserName(account, userEmail),
+          headers: {'Proxy-Authorization': `${authToken}`}
+        })
+        userName = data[0].Name
+      } catch (e) {
+        console.log('Error retrieving representative user name', e)
+      }
+      return { userEmail, userName }
     },
   },
   Mutation: {

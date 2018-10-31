@@ -19,5 +19,16 @@ mutation getCarts($email: String) @context(scope:"private") {
     discounts
     shipping
     total
+    paymentTerm
+    address {
+      city
+      complement
+      country
+      neighborhood
+      number
+      postalCode
+      state
+      street
+    }
   }
 }

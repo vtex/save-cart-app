@@ -7,6 +7,17 @@ import Table from '@vtex/styleguide/lib/Table'
 import Button from '@vtex/styleguide/lib/Button'
 import NewWindow from './newWindow'
 
+const DEFAULT_ADDRESS = {
+  city: '',
+  complement: '',
+  country: '',
+  neighborhood: '',
+  number: '',
+  postalCode: '',
+  state: '',
+  street: '',
+}
+
 class Print extends Component {
   constructor(props, context) {
     super(props, context)
@@ -31,8 +42,8 @@ class Print extends Component {
     const items = formatCartToPrint(cartToPrint.items, storePreferencesData)
     const creationDate = formatDate(cartToPrint.creationDate)
     const expirationDate = formatDate(cartToPrint.creationDate, cartLifeSpan)
-    const { subtotal, discounts, shipping, total } = cartToPrint
-
+    const { subtotal, discounts, shipping, total, paymentTerm, address } = cartToPrint
+    const shippingAddress = address || DEFAULT_ADDRESS
     return (
       <NewWindow onUnload={finishedPrinting}>
         {popup => {
@@ -45,9 +56,15 @@ class Print extends Component {
                 <div className="mb5">
                   <img src={storeLogoUrl} />
                 </div>
+                <div className="mw5 center ttu f2 pv5 fw6">
+                  <FormattedMessage id="quote" />
+                </div>
                 <div>
                   <div>
-                    <FormattedMessage id="print.representative" />: {representative}
+                    <FormattedMessage id="print.representative.name" />: {representative.userName}
+                  </div>
+                  <div>
+                    <FormattedMessage id="print.representative.email" />: {representative.userEmail}
                   </div>
                   <div>
                     <FormattedMessage id="print.customer" />: {corporateName}
@@ -63,6 +80,38 @@ class Print extends Component {
                   </div>
                   <div>
                     <FormattedMessage id="list.quote.expire" />: {expirationDate}
+                  </div>
+                  <div>
+                    <FormattedMessage id="print.paymentterm" />: {paymentTerm}
+                  </div>
+                  <div>
+                    <FormattedMessage id="print.address" />:
+                  </div>
+                  <div className="ml5">
+                    <div>
+                      <FormattedMessage id="print.address.street" />: {shippingAddress.street}
+                    </div>
+                    <div>
+                      <FormattedMessage id="print.address.number" />: {shippingAddress.number}
+                    </div>
+                    <div className={`${address.complement ? '' : 'dn'}`}>
+                      <FormattedMessage id="print.address.complement" />: {shippingAddress.complement}
+                    </div>
+                    <div>
+                      <FormattedMessage id="print.address.neighborhood" />: {shippingAddress.neighborhood}
+                    </div>
+                    <div>
+                      <FormattedMessage id="print.address.city" />: {shippingAddress.city}
+                    </div>
+                    <div>
+                      <FormattedMessage id="print.address.state" />: {shippingAddress.state}
+                    </div>
+                    <div>
+                      <FormattedMessage id="print.address.postalCode" />: {shippingAddress.postalCode}
+                    </div>
+                    <div>
+                      <FormattedMessage id="print.address.country" />: {shippingAddress.country}
+                    </div>
                   </div>
                 </div>
                 <div className="mt4">
@@ -105,7 +154,7 @@ Print.propTypes = {
   storeLogoUrl: PropTypes.string,
   total: PropTypes.number,
   totalizers: PropTypes.array,
-  representative: PropTypes.string,
+  representative: PropTypes.object,
 }
 
 export default Print

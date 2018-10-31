@@ -17,6 +17,7 @@
   "cart.use.quote": "Use quote",
   "cart.use.overwrite": "It will overwrite your current cart.",
   "quotes": "Quotes",
+  "quote": "Quote",
 
   "cart.yes": "Yes",
   "cart.no":"Cancel",
@@ -30,7 +31,8 @@
   "list.price": "Price",
   "list.print": "Print",
 
-  "print.representative": "Representative",
+  "print.representative.name": "Representative Name",
+  "print.representative.email": "Representative Email",
   "print.customer": "Client",
   "print.document": "Document Number",
   "print.quote.name": "Quote Name",
@@ -38,6 +40,16 @@
   "print.subtotal": "Subtotal",
   "print.discounts": "Discounts",
   "print.shipping": "Delivery",
+  "print.paymentterm": "Payment Term",
+  "print.address": "Address",
+  "print.address.city": "City",
+  "print.address.complement": "Complement",
+  "print.address.country": "Country",
+  "print.address.neighborhood": "Neighborhood",
+  "print.address.number": "Number",
+  "print.address.postalCode": "Postal Code",
+  "print.address.state": "State",
+  "print.address.street": "Street",
 
   "generic.error":"Something went wrong :( We were unable to communcate with the Profile system."
 }

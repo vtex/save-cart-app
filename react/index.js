@@ -168,10 +168,21 @@ class MyCarts extends Component {
     this.activeLoading(true)
 
     if ((name && name.length > 0) && (this.state.orderForm.items && this.state.orderForm.items.length)) {
-      const { totalizers, value } = this.state.orderForm
+      const { totalizers, value, customData: { customApps }, shippingData: { address: { city, complement, country, neighborhood, number, postalCode, state, street } } } = this.state.orderForm
       const subtotal = totalizers.find(x => x.id === 'Items').value
       const discounts = totalizers.find(x => x.id === 'Discounts').value
       const shipping = totalizers.find(x => x.id === 'Shipping').value
+      const paymentTerm = customApps[0].fields.PaymentTermDescription
+      const address = {
+        city,
+        complement,
+        country,
+        neighborhood,
+        number,
+        postalCode,
+        state,
+        street,
+      }
       const cart = {
         email: this.state.orderForm.clientProfileData.email,
         cartName: name,
@@ -193,6 +204,8 @@ class MyCarts extends Component {
         discounts,
         shipping,
         total: value,
+        paymentTerm,
+        address,
       }
 
       this.props.saveCartMutation({ variables: {

@@ -19,6 +19,8 @@ input Cart {
   discounts: Int
   shipping: Int
   total: Int
+  paymentTerm: String
+  address: Address
 }
 
 type CartResponse {
@@ -31,6 +33,8 @@ type CartResponse {
   discounts: Int
   shipping: Int
   total: Int
+  paymentTerm: String
+  address: AddressResponse
 }
 
 type CartResponseItem {
@@ -49,4 +53,31 @@ input CartUseInfo {
   id: String
   quantity: Int
   sellingPrice: Int
+}
+
+type RepresentativeResponse {
+  userEmail: String
+  userName: String
+}
+
+input Address {
+  city: String
+  complement: String
+  country: String
+  neighborhood: String
+  number: String
+  postalCode: String
+  state: String
+  street: String
+}
+
+type AddressResponse {
+  city: String
+  complement: String
+  country: String
+  neighborhood: String
+  number: String
+  postalCode: String
+  state: String
+  street: String
 }

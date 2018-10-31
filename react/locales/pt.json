@@ -16,7 +16,8 @@
   "cart.use.button": "Usar",
   "cart.use.quote": "Usar cotação",
   "cart.use.overwrite": "Ela vai sobrescrever seu carrinho atual.",
-  "quotes": "Cotações",
+  "quotes": "Orçamentos",
+  "quote": "Orçamento",
 
   "cart.yes": "Sim",
   "cart.no": "Cancelar",
@@ -30,7 +31,8 @@
   "list.price": "Preço",
   "list.print": "Imprimir",
 
-  "print.representative": "Representante",
+  "print.representative.name": "Nome do Representante",
+  "print.representative.email": "Email do Representante",
   "print.customer": "Cliente",
   "print.document": "CNPJ",
   "print.quote.name": "Nome da Cotação",
@@ -38,6 +40,16 @@
   "print.subtotal": "Subtotal",
   "print.discounts": "Descontos",
   "print.shipping": "Entrega",
+  "print.paymentterm": "Prazo de Pagamento",
+  "print.address": "Endereço",
+  "print.address.city": "Cidade",
+  "print.address.complement": "Complemento",
+  "print.address.country": "País",
+  "print.address.neighborhood": "Bairro",
+  "print.address.number": "Número",
+  "print.address.postalCode": "CEP",
+  "print.address.state": "Estado",
+  "print.address.street": "Rua",
 
   "generic.error":"Não foi possível se comunicar com o sistema de Profile."
 }
