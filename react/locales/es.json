@@ -17,6 +17,7 @@
   "cart.use.quote": "Usar cotización",
   "cart.use.overwrite": "Se sobrescribirá su carrito actual.",
   "quotes": "Cotizaciones",
+  "quote": "Cotización",
 
   "cart.yes": "Sí",
   "cart.no": "Cancelar",
@@ -25,6 +26,30 @@
   "list.quote.date":"Fecha de Creación de Cotización",
   "list.quote.expire":"Fecha de Caducidad de Cotización",
   "list.items":"Artículos",
+  "list.item": "Artículo",
+  "list.quantity": "Cantidad",
+  "list.price": "Precio",
+  "list.print": "Imprimir",
+
+  "print.representative.name": "Nombre del Representante",
+  "print.representative.email": "Email del Representante",
+  "print.customer": "Cliente",
+  "print.document": "Número del Documento",
+  "print.quote.name": "Nombre de la cotización",
+  "print.total": "TOTAL",
+  "print.subtotal": "Total Parcial",
+  "print.discounts": "Descuentos",
+  "print.shipping": "Entrega",
+  "print.paymentterm": "Plazo de pago",
+  "print.address": "Dirección",
+  "print.address.city": "Ciudad",
+  "print.address.complement": "Complemento",
+  "print.address.country": "País",
+  "print.address.neighborhood": "Barrio",
+  "print.address.number": "Número",
+  "print.address.postalCode": "Código Postal",
+  "print.address.state": "Estado",
+  "print.address.street": "Calle",
 
   "generic.error": "No se pudo comunicar con el sistema de perfil."
 }

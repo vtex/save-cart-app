@@ -2,6 +2,7 @@ import axios from 'axios'
 import { DEFAULT_LOCALE } from './constants'
 import _ from 'underscore'
 import Delete from '@vtex/styleguide/lib/icon/Delete'
+import Download from '@vtex/styleguide/lib/icon/Download'
 import Button from '@vtex/styleguide/lib/Button'
 import { FormattedMessage } from 'react-intl'
 import React from 'react'
@@ -95,7 +96,7 @@ export function createItemListCarts(orderForm, name) {
   }
 }
 
-const formatDate = (date, cartLifeSpan = 0) => {
+export const formatDate = (date, cartLifeSpan = 0) => {
   const tempDate = new Date(date)
   if (cartLifeSpan > 0) {
     tempDate.setDate(tempDate.getDate() + cartLifeSpan)
@@ -120,7 +121,7 @@ export function formatCartList(carts, cartLifeSpan) {
   return formattedCarts
 }
 
-export const itemSchema = ({ openUseModal, openRemoveModal }) => {
+export const itemSchema = ({ openUseModal, openRemoveModal, printCart }) => {
   const rowAction = ({ rowData: { items, cartName, cartId } }) => {
     return (
       <div>
@@ -129,6 +130,9 @@ export const itemSchema = ({ openUseModal, openRemoveModal }) => {
         </Button>
         <Button id="vtex-cart-list-remove-button" variation="tertiary" size="small" onClick={() => openRemoveModal({ removeData: cartId, cartName })}>
           <Delete size={15} />
+        </Button>
+        <Button id="vtex-cart-list-popup-button" variation="tertiary" size="small" onClick={() => printCart({ printData: cartId, cartName })}>
+          <Download size={15} />
         </Button>
       </div>
     )
@@ -183,6 +187,51 @@ export const itemSchema = ({ openUseModal, openRemoveModal }) => {
     },
   }
 }
+
+export function formatCartToPrint(items, storePreferencesData) {
+  items = items.map((item) => {
+    return {
+      ...item,
+      formattedPrice: formatCurrency(item.sellingPrice, storePreferencesData),
+    }
+  })
+  return items
+}
+
+export const printSchema = () => {
+  const cellInfo = (infoString) => {
+    return (<div className="fw2 f5 pv2">{`${infoString}`}</div>)
+  }
+
+  const headerInfo = (id) => {
+    return (<div className="b f6 pv1"><FormattedMessage id={id} /></div>)
+  }
+
+  return {
+    properties: {
+      name: {
+        type: 'string',
+        title: <FormattedMessage id="list.item" />,
+        cellRenderer: ({ rowData: { name } }) => cellInfo(name),
+        headerRenderer: ({ label: { props: { id } } }) => headerInfo(id),
+        width: 50,
+      },
+      quantity: {
+        type: 'number',
+        title: <FormattedMessage id="list.quantity" />,
+        cellRenderer: ({ rowData: { quantity } }) => cellInfo(quantity),
+        headerRenderer: ({ label: { props: { id } } }) => headerInfo(id),
+      },
+      formattedPrice: {
+        type: 'string',
+        title: <FormattedMessage id="list.price" />,
+        cellRenderer: ({ rowData: { formattedPrice } }) => cellInfo(formattedPrice),
+        headerRenderer: ({ label: { props: { id } } }) => headerInfo(id),
+      },
+    },
+  }
+}
+
 /**
  * Obtém o identificador do usuário logado
  *
@@ -210,7 +259,7 @@ export async function saveMarketingData(orderFormId) {
     data: {
       'expectedOrderFormSections': ['items'],
       'attachmentId': 'marketingData',
-      'marketingTags': ['vtex.savecart']
+      'marketingTags': ['vtex.savecart'],
     },
     headers: defaultHeaders,
   }).then(response => {
@@ -220,4 +269,36 @@ export async function saveMarketingData(orderFormId) {
   })
 
   return result
+}
+
+export function formatCurrency(value, storePreferencesData) {
+  const { currencySymbol, currencyFormatInfo } = storePreferencesData
+
+  const {
+    currencyDecimalDigits,
+    currencyDecimalSeparator,
+    currencyGroupSeparator,
+    startsWithCurrencySymbol,
+  } = currencyFormatInfo
+
+  value = value / 100
+
+  value = value.toFixed(currencyDecimalDigits)
+
+  const valueDividedInParts = value.split('.')
+
+  const decimalPart = valueDividedInParts[1]
+
+  let wholePart = valueDividedInParts[0]
+
+  wholePart = wholePart.replace(/\B(?=(\d{3})+(?!\d))/g, currencyGroupSeparator)
+
+  value =
+    currencyDecimalDigits > 0
+      ? wholePart + currencyDecimalSeparator + decimalPart
+      : wholePart
+
+  return startsWithCurrencySymbol
+    ? `${currencySymbol} ${value}`
+    : `${value} ${currencySymbol}`
 }

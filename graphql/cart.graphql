@@ -1,4 +1,5 @@
 input CartItem {
+  name: String
   skuName: String
   id: String
   productId: String
@@ -14,6 +15,12 @@ input Cart {
   cartName: String
   items: [CartItem]
   creationDate: String
+  subtotal: Int
+  discounts: Int
+  shipping: Int
+  total: Int
+  paymentTerm: String
+  address: Address
 }
 
 type CartResponse {
@@ -22,9 +29,16 @@ type CartResponse {
   items: [CartResponseItem]
   creationDate: String
   id: String
+  subtotal: Int
+  discounts: Int
+  shipping: Int
+  total: Int
+  paymentTerm: String
+  address: AddressResponse
 }
 
 type CartResponseItem {
+  name: String
   skuName: String
   id: String
   productId: String
@@ -39,4 +53,31 @@ input CartUseInfo {
   id: String
   quantity: Int
   sellingPrice: Int
+}
+
+type RepresentativeResponse {
+  userEmail: String
+  userName: String
+}
+
+input Address {
+  city: String
+  complement: String
+  country: String
+  neighborhood: String
+  number: String
+  postalCode: String
+  state: String
+  street: String
+}
+
+type AddressResponse {
+  city: String
+  complement: String
+  country: String
+  neighborhood: String
+  number: String
+  postalCode: String
+  state: String
+  street: String
 }

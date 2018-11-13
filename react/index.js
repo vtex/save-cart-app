@@ -8,12 +8,14 @@ import _ from 'underscore'
 import ListCart from './components/ListCart'
 import SaveCart from './components/SaveCart'
 import MessageDisplay from './components/MessageDisplay'
+import Print from './print'
 import saveCartMutation from './graphql/saveCart.graphql'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 import currentTime from './graphql/currentTime.graphql'
 import getSetupConfig from './graphql/getSetupConfig.graphql'
 import useCartMutation from './graphql/useCartMutation.graphql'
+import getRepresentative from './graphql/getRepresentative.graphql'
 
 import Button from '@vtex/styleguide/lib/Button'
 import Modal from '@vtex/styleguide/lib/Modal'
@@ -31,11 +33,13 @@ import {
 const DEFAULT_ADMIN_SETUP = {
   cartName: 'Save Cart',
   cartLifeSpan: 7,
+  storeLogoUrl: '',
 }
 
 class MyCarts extends Component {
   static propTypes = {
     getSetupConfig: PropTypes.object,
+    getRepresentative: PropTypes.object,
     saveCartMutation: PropTypes.func,
     useCartMutation: PropTypes.func,
     getCarts: PropTypes.func,
@@ -55,6 +59,7 @@ class MyCarts extends Component {
       messageSuccess: '',
       enabledLoading: false,
       currentTab: 1,
+      cartToPrint: '',
     }
 
     this.listenOrderFormUpdated = this.listenOrderFormUpdated.bind(this)
@@ -69,6 +74,8 @@ class MyCarts extends Component {
     this.removeCart = this.removeCart.bind(this)
     this.useCart = this.useCart.bind(this)
     this.listCarts = this.listCarts.bind(this)
+    this.printCart = this.printCart.bind(this)
+    this.finishedPrinting = this.finishedPrinting.bind(this)
 
     this.handleOpenModal = this.handleOpenModal.bind(this)
     this.handleCloseModal = this.handleCloseModal.bind(this)
@@ -161,11 +168,27 @@ class MyCarts extends Component {
     this.activeLoading(true)
 
     if ((name && name.length > 0) && (this.state.orderForm.items && this.state.orderForm.items.length)) {
+      const { totalizers, value, customData: { customApps }, shippingData: { address: { city, complement, country, neighborhood, number, postalCode, state, street } } } = this.state.orderForm
+      const subtotal = totalizers.find(x => x.id === 'Items').value
+      const discounts = totalizers.find(x => x.id === 'Discounts').value
+      const shipping = totalizers.find(x => x.id === 'Shipping').value
+      const paymentTerm = customApps[0].fields.PaymentTermDescription
+      const address = {
+        city,
+        complement,
+        country,
+        neighborhood,
+        number,
+        postalCode,
+        state,
+        street,
+      }
       const cart = {
         email: this.state.orderForm.clientProfileData.email,
         cartName: name,
         items: _.map(this.state.orderForm.items, function(item) {
           return {
+            name: item.name,
             skuName: item.skuName,
             id: item.id,
             productId: item.productId,
@@ -177,6 +200,12 @@ class MyCarts extends Component {
           }
         }),
         creationDate: new Date().toISOString(),
+        subtotal,
+        discounts,
+        shipping,
+        total: value,
+        paymentTerm,
+        address,
       }
 
       this.props.saveCartMutation({ variables: {
@@ -267,6 +296,15 @@ class MyCarts extends Component {
     this.activeLoading(false)
     location.reload()
     return true
+  }
+
+  printCart(cartId) {
+    const cartToPrint = _.find(this.state.carts, (obj) => { return obj.id === cartId })
+    this.setState({ cartToPrint })
+  }
+
+  finishedPrinting() {
+    this.setState({ cartToPrint: '' })
   }
 
   /**
@@ -363,16 +401,20 @@ class MyCarts extends Component {
   }
 
   render() {
-    if (this.props.getSetupConfig.loading || !this.props.getSetupConfig.getSetupConfig) {
+    if (this.props.getSetupConfig.loading || !this.props.getSetupConfig.getSetupConfig || !this.state.orderForm) {
       return null
     }
     const intl = this.props.intl
-    const { getSetupConfig: { getSetupConfig: { adminSetup } } } = this.props
-    const { cartName, cartLifeSpan } = adminSetup || DEFAULT_ADMIN_SETUP
-    const { items, carts, messageError, messageSuccess, enabledLoading } = this.state
+    const { getSetupConfig: { getSetupConfig: { adminSetup } }, getRepresentative: { getRepresentative: representative } } = this.props
+    const { cartName, cartLifeSpan, storeLogoUrl } = adminSetup || DEFAULT_ADMIN_SETUP
+    const { items, carts, messageError, messageSuccess, enabledLoading, cartToPrint } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
-    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading }
+    const handlePrintCart = this.printCart
+    const finishedPrinting = this.finishedPrinting
+    const { storePreferencesData, clientProfileData, value: total, totalizers } = this.state.orderForm
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading, handlePrintCart }
+    const optsPrintCart = { cartToPrint, cartLifeSpan, finishedPrinting, storePreferencesData, storeLogoUrl, clientProfileData, total, totalizers, representative }
 
     return (
       <div className="onda-v1">
@@ -383,7 +425,7 @@ class MyCarts extends Component {
         </div>
         <Modal isOpen={this.state.isModalOpen} onClose={this.handleCloseModal} >
           <div className="onda-v1">
-            <div style={{ width: '800px' }}></div> {/* minimum modal width */}
+            <div style={{ width: '1000px' }}></div> {/* minimum modal width */}
             <div className="bb b--black-20 ph2 pv3 mb3">
               <div className="dib black-70 ttu b f4">
                 <FormattedMessage id="quotes" />
@@ -391,6 +433,7 @@ class MyCarts extends Component {
               </div>
             </div>
             <MessageDisplay messageSuccess={messageSuccess} messageError={messageError} clearMessage={this.clearMessages} />
+            {!!cartToPrint && <Print {...optsPrintCart} />}
             <Tabs>
               <Tab label={intl.formatMessage({ id: 'modal.tab.save' })} active={this.state.currentTab === 1} onClick={() => this.handleTabChange(1)}>
                 {
@@ -409,10 +452,11 @@ class MyCarts extends Component {
 }
 
 export default injectIntl(compose(
-  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false }  }),
-  graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false }  }),
+  graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
+  graphql(saveCartMutation, { name: 'saveCartMutation', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
-  graphql(removeCart, { name: 'removeCart', options: { ssr: false }  }),
-  graphql(currentTime, { name: 'currentTime', options: { ssr: false }  }),
-  graphql(useCartMutation, { name: 'useCartMutation', options: { ssr: false }  })
+  graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
+  graphql(currentTime, { name: 'currentTime', options: { ssr: false } }),
+  graphql(useCartMutation, { name: 'useCartMutation', options: { ssr: false } }),
+  graphql(getRepresentative, { name: 'getRepresentative', options: { ssr: false } })
 )(MyCarts))

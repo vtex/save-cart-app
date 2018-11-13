@@ -3,6 +3,7 @@ mutation getCarts($email: String) @context(scope:"private") {
     email
     cartName
     items {
+      name
       skuName
       id
       productId
@@ -14,5 +15,20 @@ mutation getCarts($email: String) @context(scope:"private") {
     }
     creationDate
     id
+    subtotal
+    discounts
+    shipping
+    total
+    paymentTerm
+    address {
+      city
+      complement
+      country
+      neighborhood
+      number
+      postalCode
+      state
+      street
+    }
   }
 }

@@ -11,12 +11,14 @@ const getAppId = () => {
 
 const routes = {
   saveCart: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents`,
-  listCarts: (account, email) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/search?email=${email}&_schema=v5&_fields=id,email,cartName,items,creationDate`,
+  listCarts: (account, email) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/search?email=${email}&_schema=v5&_fields=id,email,cartName,items,creationDate,subtotal,discounts,shipping,total,paymentTerm,address`,
   removeCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents/${id}`,
   saveSchema: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/schemas/v5`,
   clearCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${id}/items/removeAll`,
   addToCart: (account, orderFormId) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${orderFormId}/items/`,
-  addPriceToItems: (account, orderFormId, key) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${orderFormId}/items/${key}/price`
+  addPriceToItems: (account, orderFormId) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${orderFormId}/items/update`,
+  vtexid: (token) => `http://vtexid.vtex.com.br/api/vtexid/pub/authenticated/user?authToken=${token}`,
+  getUserName: (account, userEmail) => `http://${account}.vtexcommercestable.com.br/api/dataentities/RP/search?_fields=Name&_where=Email=${userEmail}`
 }
 
 const schema = `{
@@ -25,10 +27,16 @@ const schema = `{
   "cartName": { "type": "string", "title":"Cart Name" },
   "items": { "type": "array", "title":"Cart" },
   "creationDate": { "type": "string", "title":"Creation Date" },
-  "cartLifeSpan": { "type": "string", "title":"Cart Life Span" }
+  "cartLifeSpan": { "type": "string", "title":"Cart Life Span" },
+  "subtotal": { "type": "integer", "title":"Subtotal" },
+  "discounts": { "type": "integer", "title":"Discounts" },
+  "shipping": { "type": "integer", "title":"Shipping" },
+  "total": { "type": "integer", "title":"Total" }
+  "paymentTerm": { "type": "string", "title":"Payment Term" }
+  "address": { "type": "object", "title":"Address" }
   },
   "v-indexed": [ "email", "creationDate", "cartLifeSpan", "cartName" ],
-  "v-default-fields": [ "email", "cart", "creationDate", "cartLifeSpan" ],
+  "v-default-fields": [ "email", "cart", "creationDate", "cartLifeSpan", "subtotal", "discounts", "shipping", "total", "paymentTerm", "address" ],
   "v-cache": false
   }`
 
@@ -69,9 +77,39 @@ export const resolvers = {
       }
       return settings
     },
+
     currentTime: async (_, __, ___) => {
       return new Date().toISOString()
-    }
+    },
+
+    getRepresentative: async (_, __, ctx) => {
+      const {vtex: ioContext} = ctx
+      const {account, authToken} = ioContext
+      const token = ctx.cookies.get(`VtexIdclientAutCookie_${account}`) || ctx.cookies.get(`VtexIdclientAutCookie`)
+      let userEmail = ''
+      let userName = ''
+      try {
+        const { data } = await http({ // Check if cookie was issued by VTEX ID and is still valid
+          method: 'get',
+          url: routes.vtexid(token),
+          headers: {'Proxy-Authorization': `${authToken}`}
+        })
+        userEmail = data.user
+      } catch (e) {
+        console.log('Error retrieving representative email', e)
+      }
+      try {
+        const { data } = await http({ // Check if cookie was issued by VTEX ID and is still valid
+          method: 'get',
+          url: routes.getUserName(account, userEmail),
+          headers: {'Proxy-Authorization': `${authToken}`}
+        })
+        userName = data[0].Name
+      } catch (e) {
+        console.log('Error retrieving representative user name', e)
+      }
+      return { userEmail, userName }
+    },
   },
   Mutation: {
     useCart: async (_, params, ctx) => {
@@ -109,20 +147,23 @@ export const resolvers = {
           },
           headers: useHeaders,
         })
-        // IF CALLCENTER OPERATOR, SAVE PRICES
         if (params.userType === 'callCenterOperator') {
-          const priceRequests = []
+          const orderItems = []
           params.items.forEach((item, key) => {
-          priceRequests.push(http({
-            url: routes.addPriceToItems(account, params.orderFormId, key),
-            method: 'put',
+            orderItems.push({
+              index: key,
+              quantity: null,
+              price: item.sellingPrice
+            })
+          })
+          await http({
+            url: routes.addPriceToItems(account, params.orderFormId),
+            method: 'post',
             data: {
-              'price': item.sellingPrice,
+              'orderItems': orderItems,
             },
             headers: useHeaders,
-          }))
-        })
-        await http.all(priceRequests)
+          })
         }
       } catch (e) {
         console.log(e)
@@ -199,7 +240,11 @@ export const resolvers = {
       const {vtex: ioContext} = ctx
       const {account, authToken} = ioContext
       const token = ctx.cookies.get(`VtexIdclientAutCookie_${account}`) || ctx.cookies.get(`VtexIdclientAutCookie`)
-      const user: string = jwt.decode(token).sub
+      const {data: {user}} = await http({ // Check if cookie was issued by VTEX ID and is still valid
+        method: 'get',
+        url: routes.vtexid(token),
+        headers: {'Proxy-Authorization': `${authToken}`}
+      })
       const logger = colossus(ioContext)
       const headers = defaultHeaders(authToken)
       const url = routes.removeCart(account, params.id)

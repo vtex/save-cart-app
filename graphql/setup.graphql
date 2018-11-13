@@ -4,4 +4,5 @@ type GetSetupConfigResponse {
  type AdminSetupResponse {
     cartName: String
     cartLifeSpan: Int
+    storeLogoUrl: String
 }

@@ -22,6 +22,7 @@ class ListCart extends Component {
     this.handleOpenRemoveModal = this.handleOpenRemoveModal.bind(this)
     this.handleCloseUseModal = this.handleCloseUseModal.bind(this)
     this.handleCloseRemoveModal = this.handleCloseRemoveModal.bind(this)
+    this.handleOpenPrintCart = this.handleOpenPrintCart.bind(this)
     this.modalContent = this.modalContent.bind(this)
   }
 
@@ -39,6 +40,10 @@ class ListCart extends Component {
       removeData: removeData,
       cartName: cartName,
     })
+  }
+
+  handleOpenPrintCart({ printData }) {
+    this.props.handlePrintCart(printData)
   }
 
   handleCloseUseModal() {
@@ -77,12 +82,13 @@ class ListCart extends Component {
   render() {
     const { handleRemoveCart, handleUseCart, cartLifeSpan, carts, enabledLoading } = this.props
     const { isRemoveModalOpen, isUseModalOpen, useData, removeData, cartName } = this.state
+
     const items = formatCartList(carts, cartLifeSpan)
     return (
       <div className="onda-v1">
         {items.length > 0
           ? <Table
-            schema={itemSchema({ openUseModal: this.handleOpenUseModal, openRemoveModal: this.handleOpenRemoveModal })}
+            schema={itemSchema({ openUseModal: this.handleOpenUseModal, openRemoveModal: this.handleOpenRemoveModal, printCart: this.handleOpenPrintCart })}
             items={items}
           />
           : !enabledLoading
@@ -113,6 +119,7 @@ class ListCart extends Component {
 ListCart.propTypes = {
   handleRemoveCart: PropTypes.func,
   handleUseCart: PropTypes.func,
+  handlePrintCart: PropTypes.func,
   carts: PropTypes.array,
   cartLifeSpan: PropTypes.number,
   enabledLoading: PropTypes.bool,
