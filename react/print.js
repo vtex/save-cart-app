@@ -155,15 +155,13 @@ class Print extends Component {
     )
   }
 
-  makeRows = items => map(item => this.makeRow(item), items)
-
-  makeRow = item => (
+  makeRows = map(item => (
     <tr className="bb">
       <td className="fw2 f5 pv6">{item.name}</td>
       <td className="fw2 f5 pv6">{item.quantity}</td>
       <td className="fw2 f5 pv6">{item.formattedPrice}</td>
     </tr>
-  )
+  ))
 }
 
 Print.propTypes = {
