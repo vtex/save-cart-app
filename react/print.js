@@ -2,12 +2,11 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage } from 'react-intl'
 
-import { printSchema, formatCartToPrint, formatDate, formatCurrency } from './utils'
-import Table from '@vtex/styleguide/lib/Table'
+import { formatCartToPrint, formatDate, formatCurrency } from './utils'
 import Button from '@vtex/styleguide/lib/Button'
 import NewWindow from './newWindow'
 
-import {map, mapObjIndexed} from 'ramda'
+import { map } from 'ramda'
 
 const DEFAULT_ADDRESS = {
   city: '',
