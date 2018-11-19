@@ -1,7 +1,7 @@
 {
   "name": "savecart",
   "vendor": "vtex",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "title": "Save Cart",
   "description": "Save Cart",
   "defaultLocale": "pt-BR",
@@ -67,56 +67,56 @@
     }
   ],
   "settingsSchema": {
-		"title": "Save Cart",
-		"type": "object",
-		"properties": {
+    "title": "Save Cart",
+    "type": "object",
+    "properties": {
       "hasSchema": {
         "type": "boolean",
         "default": false
       },
-			"adminSetup": {
-				"title": "Save Cart Settings",
-				"type": "object",
-				"properties": {
-					"cartName": {
-						"title": "Save Cart Button Name",
-						"type": "string"
-					},
-					"cartLifeSpan": {
-						"title": "Lifespan (in days) of saved cart",
-						"type": "number",
-						"minimum": 1
+      "adminSetup": {
+        "title": "Save Cart Settings",
+        "type": "object",
+        "properties": {
+          "cartName": {
+            "title": "Save Cart Button Name",
+            "type": "string"
+          },
+          "cartLifeSpan": {
+            "title": "Lifespan (in days) of saved cart",
+            "type": "number",
+            "minimum": 1
           },
           "storeLogoUrl": {
             "title": "Store logo URL",
             "type": "string"
           }
-				},
-				"required": [
-					"cartName",
+        },
+        "required": [
+          "cartName",
           "cartLifeSpan",
           "storeLogoUrl"
-				]
-			}
-		},
-		"required": [
-			"adminSetup"
-		]
-	},
-	"settingsUiSchema": {
-		"ui:order": [
+        ]
+      }
+    },
+    "required": [
+      "adminSetup"
+    ]
+  },
+  "settingsUiSchema": {
+    "ui:order": [
       "adminSetup",
       "hasSchema"
-		],
-		"adminSetup": {
-			"ui:order": [
-				"cartName",
+    ],
+    "adminSetup": {
+      "ui:order": [
+        "cartName",
         "cartLifeSpan",
         "storeLogoUrl"
-			]
+      ]
     },
     "hasSchema": {
       "ui:widget": "hidden"
     }
-	}
+  }
 }
