@@ -2,10 +2,11 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage } from 'react-intl'
 
-import { printSchema, formatCartToPrint, formatDate, formatCurrency } from './utils'
-import Table from '@vtex/styleguide/lib/Table'
+import { formatCartToPrint, formatDate, formatCurrency } from './utils'
 import Button from '@vtex/styleguide/lib/Button'
 import NewWindow from './newWindow'
+
+import { map } from 'ramda'
 
 const DEFAULT_ADDRESS = {
   city: '',
@@ -59,32 +60,32 @@ class Print extends Component {
                 <div className="mw5 center ttu f2 pv5 fw6">
                   <FormattedMessage id="quote" />
                 </div>
-                <div>
-                  <div>
+                <div className="mb7">
+                  <div className="mb2">
                     <FormattedMessage id="print.representative.name" />: {representative.userName}
                   </div>
-                  <div>
+                  <div className="mb2">
                     <FormattedMessage id="print.representative.email" />: {representative.userEmail}
                   </div>
-                  <div>
+                  <div className="mb2">
                     <FormattedMessage id="print.customer" />: {corporateName}
                   </div>
-                  <div>
+                  <div className="mb2">
                     <FormattedMessage id="print.document" />: {cnpj}
                   </div>
-                  <div>
+                  <div className="mb2">
                     <FormattedMessage id="print.quote.name" />: {cartToPrint.cartName}
                   </div>
-                  <div>
+                  <div className="mb2">
                     <FormattedMessage id="list.quote.date" />: {creationDate}
                   </div>
-                  <div>
+                  <div className="mb2">
                     <FormattedMessage id="list.quote.expire" />: {expirationDate}
                   </div>
-                  <div>
+                  <div className="mb4">
                     <FormattedMessage id="print.paymentterm" />: {paymentTerm}
                   </div>
-                  <div>
+                  <div className="mb2">
                     <FormattedMessage id="print.address" />:
                   </div>
                   <div className={`${address ? 'ml5' : 'dn'}`}>
@@ -114,11 +115,8 @@ class Print extends Component {
                     </div>
                   </div>
                 </div>
-                <div className="mt4">
-                  <Table
-                    schema={printSchema()}
-                    items={items}
-                  />
+                <div className="mt4 mb7">
+                  {this.makeTable(items)}
                 </div>
                 <div className="fr pr7 mr7">
                   <div className="fr pr7 mr7 f4">
@@ -143,6 +141,27 @@ class Print extends Component {
       </NewWindow>
     )
   }
+
+  makeTable = (items) => {
+    return (
+      <table>
+        <tr className="bb">
+          <th className="fw7 f4 pv2 tl"><FormattedMessage id="list.item" /></th>
+          <th className="fw7 f4 pv2 tl"><FormattedMessage id="list.quantity" /></th>
+          <th className="fw7 f4 pv2 tl"><FormattedMessage id="list.price" /></th>
+        </tr>
+        {this.makeRows(items)}
+      </table>
+    )
+  }
+
+  makeRows = map(item => (
+    <tr className="bb">
+      <td className="fw2 f5 pv6">{item.name}</td>
+      <td className="fw2 f5 pv6">{item.quantity}</td>
+      <td className="fw2 f5 pv6">{item.formattedPrice}</td>
+    </tr>
+  ))
 }
 
 Print.propTypes = {
