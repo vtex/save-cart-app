@@ -7,7 +7,6 @@ import Button from '@vtex/styleguide/lib/Button'
 import { FormattedMessage } from 'react-intl'
 import React from 'react'
 import PropTypes from 'prop-types'
-
 /**
  * Executa alguns passos que validam os dados do orderForm
  */
@@ -248,7 +247,7 @@ export function getUserProfileId(orderForm) {
  * @param {*} orderForm Dados do orderForm
  */
 export function userLogged(orderForm) {
-  return orderForm != null && orderForm.loggedIn
+  return orderForm != null && orderForm.userType === 'callCenterOperator' && orderForm.clientProfileData && orderForm.clientProfileData.email
 }
 
 export async function saveMarketingData(orderFormId) {
@@ -262,9 +261,9 @@ export async function saveMarketingData(orderFormId) {
       'marketingTags': ['vtex.savecart'],
     },
     headers: defaultHeaders,
-  }).then(response => {
+  }).then(() => {
     result = true
-  }).catch((error) => {
+  }).catch(() => {
     result = false
   })
 
