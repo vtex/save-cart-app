@@ -7,8 +7,6 @@ import Button from '@vtex/styleguide/lib/Button'
 import { FormattedMessage } from 'react-intl'
 import React from 'react'
 import PropTypes from 'prop-types'
-import { connectableObservableDescriptor } from 'rxjs/observable/ConnectableObservable';
-
 /**
  * Executa alguns passos que validam os dados do orderForm
  */
