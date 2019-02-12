@@ -200,7 +200,7 @@ class CartList extends Component {
       this.handleUpdateError(err)
     })
 
-    await saveMarketingData(orderForm.orderFormId)
+    await saveMarketingData(orderForm)
 
     this.activeLoading(false)
     window.location.href = '/checkout/'

@@ -7,7 +7,7 @@ import Button from '@vtex/styleguide/lib/Button'
 import { FormattedMessage } from 'react-intl'
 import React from 'react'
 import PropTypes from 'prop-types'
-import { uniq, T, F } from 'ramda'
+import { defaultTo, uniq, T, F, path } from 'ramda'
 /**
  * Executa alguns passos que validam os dados do orderForm
  */
@@ -251,28 +251,20 @@ export function userLogged(orderForm) {
   return orderForm != null && orderForm.userType === 'callCenterOperator' && orderForm.clientProfileData && orderForm.clientProfileData.email
 }
 
-export async function saveMarketingData(orderFormId) {
-  const orderForm = await window.vtexjs.checkout.getOrderForm()
-  let marketingTags = []
-  if (orderForm) {
-    marketingTags = orderForm.marketingData && orderForm.marketingData.marketingTags && orderForm.marketingData.marketingTags.length
-      ? orderForm.marketingData.marketingTags
-      : []
-  }
+export async function saveMarketingData(orderForm) {
+  const marketingTags = defaultTo([], path(['marketingData', 'marketingTags'], orderForm))
   return await axios({
-    url: `/api/checkout/pub/orderForm/${orderFormId}/attachments/marketingData`,
+    url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/attachments/marketingData`,
     method: 'post',
     data: {
-      'expectedOrderFormSections': ['items'],
       'attachmentId': 'marketingData',
+      'expectedOrderFormSections': ['items'],
       'marketingTags': uniq([...marketingTags, 'vtex.savecart']),
     },
     headers: defaultHeaders,
-  }).then(() => {
-    T()
-  }).catch(() => {
-    F()
   })
+    .then(T)
+    .catch(F)
 }
 
 export function formatCurrency(value, storePreferencesData) {
