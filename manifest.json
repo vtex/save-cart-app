@@ -1,7 +1,7 @@
 {
   "name": "savecart",
   "vendor": "vtex",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "title": "Save Cart",
   "description": "Save Cart",
   "defaultLocale": "pt-BR",
