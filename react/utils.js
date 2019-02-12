@@ -7,6 +7,7 @@ import Button from '@vtex/styleguide/lib/Button'
 import { FormattedMessage } from 'react-intl'
 import React from 'react'
 import PropTypes from 'prop-types'
+import { defaultTo, uniq, T, F, path } from 'ramda'
 /**
  * Executa alguns passos que validam os dados do orderForm
  */
@@ -250,24 +251,20 @@ export function userLogged(orderForm) {
   return orderForm != null && orderForm.userType === 'callCenterOperator' && orderForm.clientProfileData && orderForm.clientProfileData.email
 }
 
-export async function saveMarketingData(orderFormId) {
-  let result = false
-  await axios({
-    url: `/api/checkout/pub/orderForm/${orderFormId}/attachments/marketingData`,
+export async function saveMarketingData(orderForm) {
+  const marketingTags = defaultTo([], path(['marketingData', 'marketingTags'], orderForm))
+  return await axios({
+    url: `/api/checkout/pub/orderForm/${orderForm.orderFormId}/attachments/marketingData`,
     method: 'post',
     data: {
-      'expectedOrderFormSections': ['items'],
       'attachmentId': 'marketingData',
-      'marketingTags': ['vtex.savecart'],
+      'expectedOrderFormSections': ['items'],
+      'marketingTags': uniq([...marketingTags, 'vtex.savecart']),
     },
     headers: defaultHeaders,
-  }).then(() => {
-    result = true
-  }).catch(() => {
-    result = false
   })
-
-  return result
+    .then(T)
+    .catch(F)
 }
 
 export function formatCurrency(value, storePreferencesData) {

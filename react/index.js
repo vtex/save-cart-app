@@ -291,7 +291,7 @@ class MyCarts extends Component {
       this.handleUpdateError(err)
     })
 
-    await saveMarketingData(orderForm.orderFormId)
+    await saveMarketingData(orderForm)
 
     this.activeLoading(false)
     location.reload()
