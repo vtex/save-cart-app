@@ -169,9 +169,9 @@ class MyCarts extends Component {
 
     if ((name && name.length > 0) && (this.state.orderForm.items && this.state.orderForm.items.length)) {
       const { totalizers, value, customData: { customApps }, shippingData: { address: { city, complement, country, neighborhood, number, postalCode, state, street } } } = this.state.orderForm
-      const subtotal = totalizers.find(x => x.id === 'Items').value
-      const discounts = totalizers.find(x => x.id === 'Discounts').value
-      const shipping = totalizers.find(x => x.id === 'Shipping').value
+      const subtotal = (totalizers.find(x => x.id === 'Items') || { value: 0 }).value
+      const discounts = (totalizers.find(x => x.id === 'Discounts') || { value: 0 }).value
+      const shipping = (totalizers.find(x => x.id === 'Shipping') || { value: 0 }).value
       const paymentTerm = customApps[0].fields.PaymentTermDescription
       const address = {
         city,
