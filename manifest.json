@@ -1,7 +1,7 @@
 {
   "name": "savecart",
   "vendor": "vtex",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "title": "Save Cart",
   "description": "Save Cart",
   "defaultLocale": "pt-BR",
@@ -21,7 +21,8 @@
     "graphql": "1.x",
     "node": "3.x",
     "react": "2.x",
-    "pages": "0.x"
+    "pages": "0.x",
+    "messages": "0.x"
   },
   "scripts": {
     "postreleasy": "vtex publish"

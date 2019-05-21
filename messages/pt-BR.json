@@ -1,0 +1,55 @@
+{
+  "modal.save": "Salvar",
+  "modal.tab.list": "Listar Orçamentos",
+  "modal.tab.save": "Salvar Orçamento",
+  "modal.name": "Nome",
+
+  "cart.saved.success": "Orçamento salvo com sucesso! Orçamento válido por {days} dia{isPlural}",
+  "cart.saved.error": "Erro ao tentar salvar orçamento!",
+  "cart.saved.noname": "Por favor informe o nome do orçamento a ser salvo!",
+
+  "cart.delete.confirm": "Deletar orçamento",
+  "cart.delete.warning": "Os valores de orçamento dos produtos escolhidos serão perdidos.",
+  "cart.delete.success": "Orçamento removido com sucesso!",
+  "cart.remove.confirm": "Apagar",
+
+  "cart.use.button": "Usar",
+  "cart.use.quote": "Usar orçamento",
+  "cart.use.overwrite": "Ela vai sobrescrever seu carrinho atual.",
+  "quotes": "Orçamentos",
+  "quote": "Orçamento",
+
+  "cart.yes": "Sim",
+  "cart.no": "Cancelar",
+
+  "list.empty":"Seu orçamento está vazio",
+  "list.quote.date":"Data de Criação",
+  "list.quote.expire":"Data de Vencimento",
+  "list.items":"Itens",
+  "list.item": "Item",
+  "list.quantity": "Quantidade",
+  "list.price": "Preço",
+  "list.print": "Imprimir",
+
+  "print.representative.name": "Nome do Representante",
+  "print.representative.email": "Email do Representante",
+  "print.customer": "Cliente",
+  "print.document": "CNPJ",
+  "print.quote.name": "Nome do Orçamento",
+  "print.total": "TOTAL",
+  "print.subtotal": "Subtotal",
+  "print.discounts": "Descontos",
+  "print.shipping": "Entrega",
+  "print.paymentterm": "Prazo de Pagamento",
+  "print.address": "Endereço",
+  "print.address.city": "Cidade",
+  "print.address.complement": "Complemento",
+  "print.address.country": "País",
+  "print.address.neighborhood": "Bairro",
+  "print.address.number": "Número",
+  "print.address.postalCode": "CEP",
+  "print.address.state": "Estado",
+  "print.address.street": "Rua",
+
+  "generic.error":"Não foi possível se comunicar com o sistema de Profile."
+}
