@@ -1,19 +1,10 @@
 {
   "name": "savecart",
   "vendor": "vtex",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "title": "Save Cart",
   "description": "Save Cart",
-  "defaultLocale": "pt-BR",
-  "credentialType": "absolute",
-  "registries": [
-    "smartcheckout"
-  ],
-  "categories": [
-    "smartcheckout"
-  ],
   "dependencies": {
-    "vtex.admin": "1.x",
     "vtex.checkout": "0.x",
     "vtex.render-runtime": "7.x"
   },
@@ -25,7 +16,7 @@
     "messages": "0.x"
   },
   "scripts": {
-    "postreleasy": "vtex publish"
+    "postreleasy": "vtex publish --verbose"
   },
   "billingOptions": {
     "free": true
@@ -119,5 +110,6 @@
     "hasSchema": {
       "ui:widget": "hidden"
     }
-  }
+  },
+  "$schema": "https://raw.githubusercontent.com/vtex/node-vtex-api/master/gen/manifest.schema"
 }
