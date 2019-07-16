@@ -24,6 +24,9 @@
     "eslint-plugin-react": "^7.0.0",
     "prop-types": "^15.5.10",
     "react": "^16.2.0",
-    "react-dom": "16.4.2"
+    "react-dom": "16.4.2",
+    "vtex.admin": "http://vtex.vteximg.com.br/_v/public/typings/v1/vtex.admin@1.16.0/public/_types/react",
+    "vtex.checkout": "http://vtex.vteximg.com.br/_v/public/typings/v1/vtex.checkout@0.5.0/public/_types/react",
+    "vtex.render-runtime": "http://vtex.vteximg.com.br/_v/public/typings/v1/vtex.render-runtime@7.39.1/public/_types/react"
   }
 }
