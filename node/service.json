@@ -6,27 +6,27 @@
   "routes": {
     "getSetupConfig": {
       "path": "/_v/0/savecart/config",
-      "public": true
+      "public": false
     },
     "getRepresentative": {
       "path": "/_v/0/savecart/representative",
-      "public": true
+      "public": false
     },
     "getCarts": {
       "path": "/_v/0/savecart/:email/carts/",
-      "public": true
+      "public": false
     },
     "saveCart": {
       "path": "/_v/0/savecart/carts/",
-      "public": true
+      "public": false
     },
     "removeCart": {
       "path": "/_v/0/savecart/carts/:cartId",
-      "public": true
+      "public": false
     },
     "useCart": {
       "path": "/_v/0/savecart/carts/:cartId/use",
-      "public": true
+      "public": false
     }
   }
 }
