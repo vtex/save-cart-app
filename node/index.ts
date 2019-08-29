@@ -1,5 +1,6 @@
 import * as json from 'co-body'
 import { mapObjIndexed } from 'ramda'
+import * as url from 'url'
 
 import { resolvers } from './graphql'
 
@@ -49,8 +50,8 @@ export default {
     },
     useCart: async (ctx: any) => {
       try {
+        const { orderFormId } = url.parse(ctx.request.url, true).query
         const { items, userType } = await json(ctx.req)
-        const { orderFormId } = ctx.vtex.route.params
 
         ctx.body = await resolvers.Mutation.useCart({}, {
           items,
