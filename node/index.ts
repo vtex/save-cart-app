@@ -14,8 +14,8 @@ export default {
   routes: {
     ...mapObjIndexed(
       handler => async (ctx: any) => {
+        setDefaultHeaders(ctx)
         try {
-          setDefaultHeaders(ctx)
           ctx.body = await handler({}, ctx.vtex.route.params, ctx)
           ctx.status = 200
         } catch (e) {
