@@ -1,14 +1,21 @@
 import * as json from 'co-body'
 import { mapObjIndexed } from 'ramda'
-import * as url from 'url'
 
 import { resolvers } from './graphql'
+
+const setDefaultHeaders = (ctx: any) => {
+  ctx.set('Access-Control-Allow-Origin', '*')
+  ctx.set('Access-Control-Allow-Methods', 'POST, GET, DELETE, OPTIONS')
+  ctx.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, authorization')
+  ctx.set('Cache-Control', 'no-cache')
+}
 
 export default {
   routes: {
     ...mapObjIndexed(
       handler => async (ctx: any) => {
         try {
+          setDefaultHeaders(ctx)
           ctx.body = await handler({}, ctx.vtex.route.params, ctx)
           ctx.status = 200
         } catch (e) {
@@ -22,6 +29,7 @@ export default {
       }
     ),
     saveCart: async (ctx: any) => {
+      setDefaultHeaders(ctx)
       try {
         ctx.body = await resolvers.Mutation.saveCart({}, {
           cart: await json(ctx.req)
@@ -33,9 +41,10 @@ export default {
       }
     },
     removeCart: async (ctx: any) => {
+      setDefaultHeaders(ctx)
       try {
         const { cartName, expired } = await json(ctx.req)
-        const { id } = ctx.vtex.route.params
+        const { cartId: id } = ctx.vtex.route.params
 
         ctx.body = await resolvers.Mutation.removeCart({}, {
           cartName,
@@ -49,9 +58,10 @@ export default {
       }
     },
     useCart: async (ctx: any) => {
+      setDefaultHeaders(ctx)
       try {
-        const { orderFormId } = url.parse(ctx.request.url, true).query
         const { items, userType } = await json(ctx.req)
+        const { orderFormId } = ctx.vtex.route.params
 
         ctx.body = await resolvers.Mutation.useCart({}, {
           items,

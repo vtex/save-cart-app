@@ -25,7 +25,7 @@
       "public": false
     },
     "useCart": {
-      "path": "/_v/0/savecart/carts/:cartId/use",
+      "path": "/_v/0/savecart/carts/:orderFormId/use",
       "public": false
     }
   }
