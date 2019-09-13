@@ -1654,6 +1654,18 @@ vtex-tachyons@^2.7.0:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/vtex-tachyons/-/vtex-tachyons-2.7.0.tgz#a4dcb53d09f80fb5ce2a583d77e09c33b4e48805"
 
+"vtex.admin@http://vtex.vteximg.com.br/_v/public/typings/v1/vtex.admin@1.16.0/public/_types/react":
+  version "0.0.0"
+  resolved "http://vtex.vteximg.com.br/_v/public/typings/v1/vtex.admin@1.16.0/public/_types/react#fa7a0347e046eab3dd768998fc9252b2c0dd5aef"
+
+"vtex.checkout@http://vtex.vteximg.com.br/_v/public/typings/v1/vtex.checkout@0.5.0/public/_types/react":
+  version "0.0.0"
+  resolved "http://vtex.vteximg.com.br/_v/public/typings/v1/vtex.checkout@0.5.0/public/_types/react#fa7a0347e046eab3dd768998fc9252b2c0dd5aef"
+
+"vtex.render-runtime@http://vtex.vteximg.com.br/_v/public/typings/v1/vtex.render-runtime@7.39.1/public/_types/react":
+  version "7.39.1"
+  resolved "http://vtex.vteximg.com.br/_v/public/typings/v1/vtex.render-runtime@7.39.1/public/_types/react#8c51998a3db63bb726dd4a61e4ad112c9db308a3"
+
 warning@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/warning/-/warning-3.0.0.tgz#32e5377cb572de4ab04753bdf8821c01ed605b7c"

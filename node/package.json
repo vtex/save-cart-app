@@ -24,6 +24,8 @@
     "@types/koa-compose": "^3.2.0",
     "@types/node": "^10.9.3",
     "@types/ramda": "types/npm-ramda#dist",
+    "eslint": "^5.15.1",
+    "eslint-config-vtex": "^10.1.0",
     "tslint": "^5.9.1",
     "tslint-config-vtex": "^2.0.0"
   }
