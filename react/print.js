@@ -88,29 +88,29 @@ class Print extends Component {
                   <div className="mb2">
                     <FormattedMessage id="print.address" />:
                   </div>
-                  <div className={`${address ? 'ml5' : 'dn'}`}>
-                    <div>
+                  <div className={`${address ? '' : 'dn'}`}>
+                    <div className="mb2">
                       <FormattedMessage id="print.address.street" />: {shippingAddress.street}
                     </div>
-                    <div>
+                    <div className="mb2">
                       <FormattedMessage id="print.address.number" />: {shippingAddress.number}
                     </div>
-                    <div className={`${shippingAddress.complement ? '' : 'dn'}`}>
+                    <div className={`${shippingAddress.complement ? 'mb2' : 'dn'}`}>
                       <FormattedMessage id="print.address.complement" />: {shippingAddress.complement}
                     </div>
-                    <div>
+                    <div className="mb2">
                       <FormattedMessage id="print.address.neighborhood" />: {shippingAddress.neighborhood}
                     </div>
-                    <div>
+                    <div className="mb2">
                       <FormattedMessage id="print.address.city" />: {shippingAddress.city}
                     </div>
-                    <div>
+                    <div className="mb2">
                       <FormattedMessage id="print.address.state" />: {shippingAddress.state}
                     </div>
-                    <div>
+                    <div className="mb2">
                       <FormattedMessage id="print.address.postalCode" />: {shippingAddress.postalCode}
                     </div>
-                    <div>
+                    <div className="mb2">
                       <FormattedMessage id="print.address.country" />: {shippingAddress.country}
                     </div>
                   </div>
@@ -118,20 +118,18 @@ class Print extends Component {
                 <div className="mt4 mb7">
                   {this.makeTable(items)}
                 </div>
-                <div className="fr pr7 mr7">
-                  <div className="fr pr7 mr7 f4">
-                    <div>
-                      <FormattedMessage id="print.subtotal" />: {formatCurrency(subtotal, storePreferencesData)}
-                    </div>
-                    <div>
-                      <FormattedMessage id="print.discounts" />: {formatCurrency(discounts, storePreferencesData)}
-                    </div>
-                    <div>
-                      <FormattedMessage id="print.shipping" />: {formatCurrency(shipping, storePreferencesData)}
-                    </div>
-                    <div>
-                      <FormattedMessage id="print.total" />: {formatCurrency(total, storePreferencesData)}
-                    </div>
+                <div className="fr tr mb6">
+                  <div className="mb2">
+                    <FormattedMessage id="print.subtotal" />: {formatCurrency(subtotal, storePreferencesData)}
+                  </div>
+                  <div className="mb2">
+                    <FormattedMessage id="print.discounts" />: {formatCurrency(discounts, storePreferencesData)}
+                  </div>
+                  <div className="mb2">
+                    <FormattedMessage id="print.shipping" />: {formatCurrency(shipping, storePreferencesData)}
+                  </div>
+                  <div className="mb2">
+                    <FormattedMessage id="print.total" />: {formatCurrency(total, storePreferencesData)}
                   </div>
                 </div>
               </div>
@@ -146,9 +144,9 @@ class Print extends Component {
     return (
       <table>
         <tr className="bb">
-          <th className="fw7 f4 pv2 tl"><FormattedMessage id="list.item" /></th>
-          <th className="fw7 f4 pv2 tl"><FormattedMessage id="list.quantity" /></th>
-          <th className="fw7 f4 pv2 tl"><FormattedMessage id="list.price" /></th>
+          <th className="fw7 f5 tl pb3"><FormattedMessage id="list.item" /></th>
+          <th className="fw7 f5 tl pb3 pl3"><FormattedMessage id="list.quantity" /></th>
+          <th className="fw7 f5 tl pb3 pl3"><FormattedMessage id="list.price" /></th>
         </tr>
         {this.makeRows(items)}
       </table>
@@ -158,8 +156,8 @@ class Print extends Component {
   makeRows = map(item => (
     <tr className="bb">
       <td className="fw2 f5 pv6">{item.name}</td>
-      <td className="fw2 f5 pv6">{item.quantity}</td>
-      <td className="fw2 f5 pv6">{item.formattedPrice}</td>
+      <td className="fw2 f5 pv6 pl3">{item.quantity}</td>
+      <td className="fw2 f5 pv6 pl3">{item.formattedPrice}</td>
     </tr>
   ))
 }
