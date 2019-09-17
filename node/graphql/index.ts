@@ -93,7 +93,6 @@ export const resolvers = {
       const apps = new Apps(ctx.vtex)
       const app = getAppId()
       const settings = await apps.getAppSettings(app)
-      console.log('settings', settings)
       if (settings.adminSetup && !settings.adminSetup.hasSchema) {
         try {
           console.log('Starting to put schema in MD')
