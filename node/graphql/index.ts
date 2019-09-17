@@ -12,7 +12,7 @@ const getAppId = () => {
 const routes = {
   baseUrl: (account) => `http://${account}.vtexcommercestable.com.br/api`,
   orderForm: (account) => `${routes.baseUrl(account)}/checkout/pub/orderForm`,
-  cartEntity: (account) => `${routes.baseUrl(account)}/dataentitites/cart`,
+  cartEntity: (account) => `${routes.baseUrl(account)}/dataentities/cart`,
   cartDocuments: (account) => `${routes.cartEntity(account)}/documents`,
   saveCart: (account) => routes.cartDocuments(account),
   listCarts: (account, email) => `${routes.cartEntity(account)}/search?email=${email}&_schema=v5&_fields=id,email,cartName,items,creationDate,subtotal,discounts,shipping,total,paymentTerm,address`,
