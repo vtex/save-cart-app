@@ -10,35 +10,74 @@ const getAppId = () => {
 }
 
 const routes = {
-  saveCart: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents`,
-  listCarts: (account, email) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/search?email=${email}&_schema=v5&_fields=id,email,cartName,items,creationDate,subtotal,discounts,shipping,total,paymentTerm,address`,
-  removeCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/documents/${id}`,
-  saveSchema: (account) => `http://${account}.vtexcommercestable.com.br/api/dataentities/cart/schemas/v5`,
-  clearCart: (account, id) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${id}/items/removeAll`,
-  addToCart: (account, orderFormId) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${orderFormId}/items/`,
-  addPriceToItems: (account, orderFormId) => `http://${account}.vtexcommercestable.com.br/api/checkout/pub/orderForm/${orderFormId}/items/update`,
+  baseUrl: (account) => `http://${account}.vtexcommercestable.com.br/api`,
+  orderForm: (account) => `${routes.baseUrl(account)}/checkout/pub/orderForm`,
+  cartEntity: (account) => `${routes.baseUrl(account)}/dataentitites/cart`,
+  cartDocuments: (account) => `${routes.cartEntity(account)}/documents`,
+  saveCart: (account) => routes.cartDocuments(account),
+  listCarts: (account, email) => `${routes.cartEntity(account)}/search?email=${email}&_schema=v5&_fields=id,email,cartName,items,creationDate,subtotal,discounts,shipping,total,paymentTerm,address`,
+  removeCart: (account, id) => `${routes.cartDocuments(account)}/${id}`,
+  saveSchema: (account) => `${routes.cartEntity(account)}/schemas/v5`,
+  clearCart: (account, id) => `${routes.orderForm(account)}/${id}/items/removeAll`,
+  addToCart: (account, orderFormId) => `${routes.orderForm(account)}/${orderFormId}/items/`,
+  addPriceToItems: (account, orderFormId) => `${routes.orderForm(account)}/${orderFormId}/items/update`,
   vtexid: (token) => `http://vtexid.vtex.com.br/api/vtexid/pub/authenticated/user?authToken=${token}`,
-  getUserName: (account, userEmail) => `http://${account}.vtexcommercestable.com.br/api/dataentities/RP/search?_fields=Name&_where=Email=${userEmail}`
+  getUserName: (account, userEmail) => `${routes.baseUrl(account)}/dataentities/RP/search?_fields=Name&_where=Email=${userEmail}`
 }
 
-const schema = `{
-  "properties": {
-  "email": { "type": "string", "title":"Email" },
-  "cartName": { "type": "string", "title":"Cart Name" },
-  "items": { "type": "array", "title":"Cart" },
-  "creationDate": { "type": "string", "title":"Creation Date" },
-  "cartLifeSpan": { "type": "string", "title":"Cart Life Span" },
-  "subtotal": { "type": "integer", "title":"Subtotal" },
-  "discounts": { "type": "integer", "title":"Discounts" },
-  "shipping": { "type": "integer", "title":"Shipping" },
-  "total": { "type": "integer", "title":"Total" }
-  "paymentTerm": { "type": "string", "title":"Payment Term" }
-  "address": { "type": "object", "title":"Address" }
+const schema = {
+  properties: {
+    email: {
+      type: 'string',
+      title:'Email'
+    },
+    cartName: {
+      type: 'string',
+      title:'Cart Name'
+    },
+    items: {
+      type: 'array',
+      title:'Cart'
+    },
+    creationDate: {
+      type: 'string',
+      title:'Creation Date'
+    },
+    cartLifeSpan: {
+      type: 'string',
+      title:'Cart Life Span'
+    },
+    subtotal: {
+      type: 'integer',
+      title:'Subtotal'
+    },
+    discounts: {
+      type: 'integer',
+      title:'Discounts'
+    },
+    shipping: {
+      type: 'integer',
+      title:'Shipping'
+    },
+    total: {
+      type: 'integer',
+      title:'Total'
+    }
   },
-  "v-indexed": [ "email", "creationDate", "cartLifeSpan", "cartName" ],
-  "v-default-fields": [ "email", "cart", "creationDate", "cartLifeSpan", "subtotal", "discounts", "shipping", "total", "paymentTerm", "address" ],
-  "v-cache": false
-  }`
+  'v-indexed': [
+    'email',
+    'creationDate',
+    'cartLifeSpan',
+    'cartName'
+  ],
+  'v-default-fields': [
+    'email',
+    'cart',
+    'creationDate',
+    'cartLifeSpan'
+  ],
+  'v-cache': false
+}
 
 const defaultHeaders = (authToken) => ({
   'Content-Type': 'application/json',
@@ -54,6 +93,7 @@ export const resolvers = {
       const apps = new Apps(ctx.vtex)
       const app = getAppId()
       const settings = await apps.getAppSettings(app)
+      console.log('settings', settings)
       if (settings.adminSetup && !settings.adminSetup.hasSchema) {
         try {
           console.log('Starting to put schema in MD')
