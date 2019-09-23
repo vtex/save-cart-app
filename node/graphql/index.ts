@@ -1,6 +1,11 @@
 import { Apps } from '@vtex/api'
 import http from 'axios'
 import * as jwt from 'jsonwebtoken'
+import {
+  indexBy,
+  map,
+  prop
+} from 'ramda'
 import colossus from '../resources/colossus'
 import {errorResponse} from '../utils/error'
 import GraphQLError from '../utils/GraphQLError'
@@ -170,8 +175,13 @@ export const resolvers = {
         data: {'expectedOrderFormSections': ['items'],},
         headers: useHeaders,
         })
+
         // ADD ITEMS TO CART
-        await http({
+        const {
+          data: {
+            items: itemsAdded
+          }
+        } = await http({
           url: routes.addToCart(account, params.orderFormId),
           method: 'post',
           data: {
@@ -186,26 +196,38 @@ export const resolvers = {
           },
           headers: useHeaders,
         })
+
+        const sellingPriceMap = indexBy(
+          prop('id'),
+          map(
+            (item : any) => ({
+              id: item.id,
+              price: item.sellingPrice
+            }),
+            params.items
+          )
+        )
+
         if (params.userType === 'callCenterOperator') {
           const orderItems = []
-          params.items.forEach((item, key) => {
+          itemsAdded.forEach((item, key) => {
             orderItems.push({
               index: key,
               quantity: null,
-              price: item.sellingPrice
+              price: prop(item.id, sellingPriceMap).price
             })
           })
+
           await http({
             url: routes.addPriceToItems(account, params.orderFormId),
             method: 'post',
             data: {
-              'orderItems': orderItems,
+              orderItems,
             },
             headers: useHeaders,
           })
         }
       } catch (e) {
-        console.log(e)
         const {status, body, details} = errorResponse(e)
         logger.log('CartUseError', 'error', {orderFormId: params.orderFormId, status, body, details})
         if (e.message) {
@@ -234,7 +256,6 @@ export const resolvers = {
         logger.log('CartSaveSuccess', 'info', {cart: params.cart, cartId: data.Id})
         return data.Id
       } catch (e) {
-        console.log(e)
         const {status, body, details} = errorResponse(e)
         logger.log('CartSaveError', 'error', {cart: params.cart, user, status, body, details})
         if (e.message) {
