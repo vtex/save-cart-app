@@ -10,7 +10,6 @@ import xlsx from 'xlsx'
 import ListCart from './components/ListCart'
 import MessageDisplay from './components/MessageDisplay'
 import Print from './print'
-import downloadCart from './graphql/downloadCart.graphql'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 import currentTime from './graphql/currentTime.graphql'
@@ -432,7 +431,6 @@ class CartList extends Component {
 }
 
 export default injectIntl(compose(
-  graphql(downloadCart, {name: 'downloadCart', options: { ssr: false}}),
   graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),
