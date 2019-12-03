@@ -1,13 +1,16 @@
 import React, { Component } from 'react'
+import { render as renderDom } from 'react-dom'
 import { graphql, compose } from 'react-apollo'
 import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 import PropTypes from 'prop-types'
-import { path, pick } from 'ramda'
+import { path, pick, find, propEq } from 'ramda'
 import _ from 'underscore'
+import xlsx from 'xlsx'
 
 import ListCart from './components/ListCart'
 import MessageDisplay from './components/MessageDisplay'
 import Print from './print'
+import downloadCart from './graphql/downloadCart.graphql'
 import getCarts from './graphql/getCarts.graphql'
 import removeCart from './graphql/removeCart.graphql'
 import currentTime from './graphql/currentTime.graphql'
@@ -35,6 +38,7 @@ class CartList extends Component {
   static propTypes = {
     getSetupConfig: PropTypes.object,
     getRepresentative: PropTypes.object,
+    downloadCart: PropTypes.func,
     useCartMutation: PropTypes.func,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
@@ -67,6 +71,7 @@ class CartList extends Component {
     this.useCart = this.useCart.bind(this)
     this.listCarts = this.listCarts.bind(this)
     this.printCart = this.printCart.bind(this)
+    this.exportXlsx = this.exportXlsx.bind(this)
     this.finishedPrinting = this.finishedPrinting.bind(this)
 
     this.handleOpenModal = this.handleOpenModal.bind(this)
@@ -212,6 +217,96 @@ class CartList extends Component {
     this.setState({ cartToPrint })
   }
 
+  async exportXlsx(cartId) {
+    const cart = find(
+      propEq('id', cartId),
+      this.state.carts
+    )
+
+    const {
+      address,
+      cartName,
+      creationDate,
+      items: cartItems,
+      subtotal,
+      discounts,
+      total,
+      shipping,
+      paymentTerm
+    } = cart
+
+    const {
+      clientProfileData: {
+        corporateName,
+        corporateDocument: cnpj
+      }
+    } = this.state.orderForm
+
+    const {
+      getRepresentative: {
+        getRepresentative: representative
+      }
+    } = this.props
+
+    const createdTime = new Date(creationDate)
+
+    const sheetMatrix = [
+      ['Nome do Representante', representative.userName, '', 'Endereço', address.street],
+      ['Email do Representante', representative.userEmail , '', 'Número', address.number],
+      ['Cliente', corporateName, '', 'Bairro', address.neighborhood],
+      ['CNPJ', cnpj, '', 'Cidade', address.city],
+      ['Nome', cartName, '', 'Estado', address.state],
+      ['Data de Criação', createdTime.toDateString(), '', 'CEP', address.postalCode],
+      ['Data de Vencimento', createdTime.toDateString(), '', 'País', address.country],
+      ['Prazo de Pagamento', paymentTerm],
+      [],
+      ['Código', 'Descrição', 'Quantidade', 'Preço Unitário', 'Preço Total']
+    ].concat(
+      cartItems.map(({
+        skuName,
+        id,
+        price,
+        quantity
+      }) => ([
+        id,
+        skuName,
+        quantity,
+        `R$ ${(price/100).toFixed(2)}`,
+        `R$ ${(quantity * price/100).toFixed(2)}`
+      ])
+    )).concat([
+      [],
+      [],
+      ['','','','Subtotal', `R$ ${(subtotal/100).toFixed(2)}`],
+      ['','','','Descontos', `R$ ${(discounts/100).toFixed(2)}`],
+      ['','','','Entrega', `R$ ${(shipping/100).toFixed(2)}`],
+      ['','','','Total', `R$ ${(total/100).toFixed(2)}`],
+    ])
+
+    const worksheet = xlsx.utils.aoa_to_sheet(sheetMatrix)
+    worksheet['!cols'] = [
+      {
+        wch: 23
+      },
+      {
+        wch: corporateName.length + 3
+      },
+      {
+        wch: 12
+      },
+      {
+        wch: 15
+      },
+      {
+        wch: address.street.length
+      }
+    ]
+    const wb = xlsx.utils.book_new()
+    xlsx.utils.book_append_sheet(wb, worksheet)
+
+    await xlsx.writeFile(wb, `${cartName}.xlsx`, {bookType: 'xlsx'})
+  }
+
   finishedPrinting() {
     this.setState({ cartToPrint: '' })
   }
@@ -304,9 +399,10 @@ class CartList extends Component {
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
     const handlePrintCart = this.printCart
+    const handleXlsxExport = this.exportXlsx
     const finishedPrinting = this.finishedPrinting
     const { storePreferencesData, clientProfileData, value: total, totalizers } = orderForm
-    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading, handlePrintCart }
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading, handlePrintCart, handleXlsxExport }
     const optsPrintCart = { cartToPrint, cartLifeSpan, finishedPrinting, storePreferencesData, storeLogoUrl, clientProfileData, total, totalizers, representative }
 
     return (
@@ -336,6 +432,7 @@ class CartList extends Component {
 }
 
 export default injectIntl(compose(
+  graphql(downloadCart, {name: 'downloadCart', options: { ssr: false}}),
   graphql(getSetupConfig, { name: 'getSetupConfig', options: { ssr: false } }),
   graphql(getCarts, { name: 'getCarts', options: { ssr: false } }),
   graphql(removeCart, { name: 'removeCart', options: { ssr: false } }),

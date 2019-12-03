@@ -3,6 +3,7 @@ import { DEFAULT_LOCALE } from './constants'
 import _ from 'underscore'
 import Delete from '@vtex/styleguide/lib/icon/Delete'
 import Download from '@vtex/styleguide/lib/icon/Download'
+import ExternalLink from '@vtex/styleguide/lib/icon/ExternalLink'
 import Button from '@vtex/styleguide/lib/Button'
 import { FormattedMessage } from 'react-intl'
 import React from 'react'
@@ -121,7 +122,7 @@ export function formatCartList(carts, cartLifeSpan) {
   return formattedCarts
 }
 
-export const itemSchema = ({ openUseModal, openRemoveModal, printCart }) => {
+export const itemSchema = ({ openUseModal, openRemoveModal, printCart, exportXlsx }) => {
   const rowAction = ({ rowData: { items, cartName, cartId } }) => {
     return (
       <div>
@@ -131,7 +132,10 @@ export const itemSchema = ({ openUseModal, openRemoveModal, printCart }) => {
         <Button id="vtex-cart-list-remove-button" variation="tertiary" size="small" onClick={() => openRemoveModal({ removeData: cartId, cartName })}>
           <Delete size={15} />
         </Button>
-        <Button id="vtex-cart-list-popup-button" variation="tertiary" size="small" onClick={() => printCart({ printData: cartId, cartName })}>
+        <Button id="vtex-cart-list-xlsx" title="Baixar orçamento (xlsx)" variation="tertiary" size="small" onClick={() => exportXlsx({ cartId })}>
+          <ExternalLink size={15} />
+        </Button>
+        <Button id="vtex-cart-list-popup-button" title="Imprimir" variation="tertiary" size="small" onClick={() => printCart({ printData: cartId, cartName })}>
           <Download size={15} />
         </Button>
       </div>

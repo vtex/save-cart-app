@@ -11,6 +11,7 @@ input CartItem {
 }
 
 input Cart {
+  id: String,
   email: String
   cartName: String
   items: [CartItem]
