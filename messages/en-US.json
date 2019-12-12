@@ -30,6 +30,10 @@
   "list.quantity": "Quantidade",
   "list.price": "Preço",
   "list.print": "Imprimir",
+  "list.totalPrice": "Total Amount",
+  "list.unitPrice": "Unit Amount",
+  "list.code": "Code",
+  "list.description": "Description",
 
   "print.representative.name": "Nome do Representante",
   "print.representative.email": "Email do Representante",

@@ -25,7 +25,12 @@ import './global.css'
 import {
   userLogged,
   saveMarketingData,
+  formatCurrency,
 } from './utils'
+
+import {
+  createQuotationXlsx
+} from './resources/xlsx'
 
 const DEFAULT_ADMIN_SETUP = {
   cartName: 'Save Cart',
@@ -217,93 +222,20 @@ class CartList extends Component {
   }
 
   async exportXlsx(cartId) {
-    const cart = find(
-      propEq('id', cartId),
-      this.state.carts
-    )
-
     const {
-      address,
-      cartName,
-      creationDate,
-      items: cartItems,
-      subtotal,
-      discounts,
-      total,
-      shipping,
-      paymentTerm
-    } = cart
-
-    const {
-      clientProfileData: {
-        corporateName,
-        corporateDocument: cnpj
-      }
-    } = this.state.orderForm
-
-    const {
+      intl,
       getRepresentative: {
         getRepresentative: representative
-      }
+      },
     } = this.props
 
-    const createdTime = new Date(creationDate)
-
-    const sheetMatrix = [
-      ['Nome do Representante', representative.userName, '', 'Endereço', address.street],
-      ['Email do Representante', representative.userEmail , '', 'Número', address.number],
-      ['Cliente', corporateName, '', 'Bairro', address.neighborhood],
-      ['CNPJ', cnpj, '', 'Cidade', address.city],
-      ['Nome', cartName, '', 'Estado', address.state],
-      ['Data de Criação', createdTime.toDateString(), '', 'CEP', address.postalCode],
-      ['Data de Vencimento', createdTime.toDateString(), '', 'País', address.country],
-      ['Prazo de Pagamento', paymentTerm],
-      [],
-      ['Código', 'Descrição', 'Quantidade', 'Preço Unitário', 'Preço Total']
-    ].concat(
-      cartItems.map(({
-        skuName,
-        id,
-        price,
-        quantity
-      }) => ([
-        id,
-        skuName,
-        quantity,
-        `R$ ${(price/100).toFixed(2)}`,
-        `R$ ${(quantity * price/100).toFixed(2)}`
-      ])
-    )).concat([
-      [],
-      [],
-      ['','','','Subtotal', `R$ ${(subtotal/100).toFixed(2)}`],
-      ['','','','Descontos', `R$ ${(discounts/100).toFixed(2)}`],
-      ['','','','Entrega', `R$ ${(shipping/100).toFixed(2)}`],
-      ['','','','Total', `R$ ${(total/100).toFixed(2)}`],
-    ])
-
-    const worksheet = xlsx.utils.aoa_to_sheet(sheetMatrix)
-    worksheet['!cols'] = [
-      {
-        wch: 23
-      },
-      {
-        wch: corporateName.length + 3
-      },
-      {
-        wch: 12
-      },
-      {
-        wch: 15
-      },
-      {
-        wch: address.street.length
-      }
-    ]
-    const wb = xlsx.utils.book_new()
-    xlsx.utils.book_append_sheet(wb, worksheet)
-
-    await xlsx.writeFile(wb, `${cartName}.xlsx`, {bookType: 'xlsx'})
+    await createQuotationXlsx(
+      cartId,
+      this.state.carts,
+      this.state.orderForm,
+      intl,
+      representative
+    )
   }
 
   finishedPrinting() {
@@ -412,7 +344,7 @@ class CartList extends Component {
           </div>
           <Modal isOpen={this.state.isModalOpen} onClose={this.handleCloseModal} >
             <div className="onda-v1">
-              <div style={{ width: '1000px' }}></div> {/* minimum modal width */}
+              <div style={{ minWidth: '1000px' }}></div> {/* minimum modal width */}
               <div className="ph2 pv3 mb3">
                 <div className="dib black-70 ttu b f4">
                   <FormattedMessage id="quotes" />

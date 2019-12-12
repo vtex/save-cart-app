@@ -175,7 +175,7 @@ export const itemSchema = ({ openUseModal, openRemoveModal, printCart, exportXls
         title: <FormattedMessage id="modal.name" />,
         cellRenderer: ({ rowData: { cartName } }) => cellInfo(cartName),
         headerRenderer: ({ label: { props: { id } } }) => headerInfo(id),
-        width: 30,
+        width: 23,
       },
       itemQuantity: {
         type: 'number',
@@ -188,7 +188,7 @@ export const itemSchema = ({ openUseModal, openRemoveModal, printCart, exportXls
         type: 'object',
         title: '',
         cellRenderer: rowAction,
-        width: 25,
+        width: 32,
       },
     },
   }
