@@ -1,6 +1,6 @@
 {
   "name": "vtex.savecart",
-  "version": "0.0.16",
+  "version": "0.6.1",
   "dependencies": {
     "@vtex/api": "^0.43.0",
     "axios": "^0.18.0",

@@ -1,6 +1,6 @@
 {
   "name": "vtex.save-cart",
-  "version": "0.0.16",
+  "version": "0.6.1",
   "dependencies": {
     "@vtex/styleguide": "6.1.3",
     "apollo-client": "2.4.1",
