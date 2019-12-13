@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
+import { render as renderDom } from 'react-dom'
 import { graphql, compose } from 'react-apollo'
 import { FormattedMessage, injectIntl, intlShape } from 'react-intl'
 import PropTypes from 'prop-types'
-import { path, pick } from 'ramda'
+import { path, pick, find, propEq } from 'ramda'
 import _ from 'underscore'
+import xlsx from 'xlsx'
 
 import ListCart from './components/ListCart'
 import MessageDisplay from './components/MessageDisplay'
@@ -23,7 +25,12 @@ import './global.css'
 import {
   userLogged,
   saveMarketingData,
+  formatCurrency,
 } from './utils'
+
+import {
+  createQuotationXlsx
+} from './resources/xlsx'
 
 const DEFAULT_ADMIN_SETUP = {
   cartName: 'Save Cart',
@@ -35,6 +42,7 @@ class CartList extends Component {
   static propTypes = {
     getSetupConfig: PropTypes.object,
     getRepresentative: PropTypes.object,
+    downloadCart: PropTypes.func,
     useCartMutation: PropTypes.func,
     getCarts: PropTypes.func,
     removeCart: PropTypes.func,
@@ -67,6 +75,7 @@ class CartList extends Component {
     this.useCart = this.useCart.bind(this)
     this.listCarts = this.listCarts.bind(this)
     this.printCart = this.printCart.bind(this)
+    this.exportXlsx = this.exportXlsx.bind(this)
     this.finishedPrinting = this.finishedPrinting.bind(this)
 
     this.handleOpenModal = this.handleOpenModal.bind(this)
@@ -212,6 +221,23 @@ class CartList extends Component {
     this.setState({ cartToPrint })
   }
 
+  async exportXlsx(cartId) {
+    const {
+      intl,
+      getRepresentative: {
+        getRepresentative: representative
+      },
+    } = this.props
+
+    await createQuotationXlsx(
+      cartId,
+      this.state.carts,
+      this.state.orderForm,
+      intl,
+      representative
+    )
+  }
+
   finishedPrinting() {
     this.setState({ cartToPrint: '' })
   }
@@ -304,9 +330,10 @@ class CartList extends Component {
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
     const handlePrintCart = this.printCart
+    const handleXlsxExport = this.exportXlsx
     const finishedPrinting = this.finishedPrinting
     const { storePreferencesData, clientProfileData, value: total, totalizers } = orderForm
-    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading, handlePrintCart }
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading, handlePrintCart, handleXlsxExport }
     const optsPrintCart = { cartToPrint, cartLifeSpan, finishedPrinting, storePreferencesData, storeLogoUrl, clientProfileData, total, totalizers, representative }
 
     return (
@@ -317,7 +344,7 @@ class CartList extends Component {
           </div>
           <Modal isOpen={this.state.isModalOpen} onClose={this.handleCloseModal} >
             <div className="onda-v1">
-              <div style={{ width: '1000px' }}></div> {/* minimum modal width */}
+              <div style={{ minWidth: '1000px' }}></div> {/* minimum modal width */}
               <div className="ph2 pv3 mb3">
                 <div className="dib black-70 ttu b f4">
                   <FormattedMessage id="quotes" />

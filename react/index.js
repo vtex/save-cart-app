@@ -30,6 +30,10 @@ import {
   saveMarketingData,
 } from './utils'
 
+import {
+  createQuotationXlsx
+} from './resources/xlsx'
+
 const DEFAULT_ADMIN_SETUP = {
   cartName: 'Save Cart',
   cartLifeSpan: 7,
@@ -75,6 +79,7 @@ class MyCarts extends Component {
     this.useCart = this.useCart.bind(this)
     this.listCarts = this.listCarts.bind(this)
     this.printCart = this.printCart.bind(this)
+    this.exportXlsx = this.exportXlsx.bind(this)
     this.finishedPrinting = this.finishedPrinting.bind(this)
 
     this.handleOpenModal = this.handleOpenModal.bind(this)
@@ -303,6 +308,23 @@ class MyCarts extends Component {
     this.setState({ cartToPrint })
   }
 
+  async exportXlsx(cartId) {
+    const {
+      intl,
+      getRepresentative: {
+        getRepresentative: representative
+      },
+    } = this.props
+
+    await createQuotationXlsx(
+      cartId,
+      this.state.carts,
+      this.state.orderForm,
+      intl,
+      representative
+    )
+  }
+
   finishedPrinting() {
     this.setState({ cartToPrint: '' })
   }
@@ -410,10 +432,11 @@ class MyCarts extends Component {
     const { items, carts, messageError, messageSuccess, enabledLoading, cartToPrint } = this.state
     const handleRemoveCart = this.removeCart
     const handleUseCart = this.useCart
+    const handleXlsxExport = this.exportXlsx
     const handlePrintCart = this.printCart
     const finishedPrinting = this.finishedPrinting
     const { storePreferencesData, clientProfileData, value: total, totalizers } = this.state.orderForm
-    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading, handlePrintCart }
+    const optsListCart = { items, carts, handleRemoveCart, handleUseCart, cartLifeSpan, enabledLoading, handlePrintCart, handleXlsxExport }
     const optsPrintCart = { cartToPrint, cartLifeSpan, finishedPrinting, storePreferencesData, storeLogoUrl, clientProfileData, total, totalizers, representative }
 
     return (
@@ -425,7 +448,7 @@ class MyCarts extends Component {
         </div>
         <Modal isOpen={this.state.isModalOpen} onClose={this.handleCloseModal} >
           <div className="onda-v1">
-            <div style={{ width: '1000px' }}></div> {/* minimum modal width */}
+            <div style={{ minWidth: '1000px' }}></div> {/* minimum modal width */}
             <div className="bb b--black-20 ph2 pv3 mb3">
               <div className="dib black-70 ttu b f4">
                 <FormattedMessage id="quotes" />
