@@ -1,7 +1,7 @@
 {
   "name": "savecart",
   "vendor": "vtex",
-  "version": "0.6.2",
+  "version": "0.6.3-beta.0",
   "title": "Save Cart",
   "description": "Save Cart",
   "dependencies": {
