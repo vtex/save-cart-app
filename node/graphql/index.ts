@@ -24,7 +24,7 @@ const routes = {
   removeCart: (account, id) => `${routes.cartDocuments(account)}/${id}`,
   saveSchema: (account) => `${routes.cartEntity(account)}/schemas/v5`,
   clearCart: (account, id) => `${routes.orderForm(account)}/${id}/items/removeAll`,
-  addToCart: (account, orderFormId) => `${routes.orderForm(account)}/${orderFormId}/items/`,
+  addToCart: (account, orderFormId, salesChannel) => `${routes.orderForm(account)}/${orderFormId}/items/?${salesChannel}`,
   addPriceToItems: (account, orderFormId) => `${routes.orderForm(account)}/${orderFormId}/items/update`,
   vtexid: (token) => `http://vtexid.vtex.com.br/api/vtexid/pub/authenticated/user?authToken=${token}`,
   getUserName: (account, userEmail) => `${routes.baseUrl(account)}/dataentities/RP/search?_fields=Name&_where=Email=${userEmail}`
@@ -182,7 +182,7 @@ export const resolvers = {
             items: itemsAdded
           }
         } = await http({
-          url: routes.addToCart(account, params.orderFormId),
+          url: routes.addToCart(account, params.orderFormId, ctx.cookies.get(`VTEXSC`)),
           method: 'post',
           data: {
             'expectedOrderFormSections': ['items'],
