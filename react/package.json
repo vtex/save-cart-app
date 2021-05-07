@@ -13,7 +13,7 @@
     "react-intl": "^2.4.0",
     "react-new-window": "^0.0.9",
     "tachyons-svg": "^1.0.1",
-    "underscore": "1.9.1",
+    "underscore": "1.12.1",
     "vtex-tachyons": "^2.7.0",
     "xlsx": "0.12.0"
   },
