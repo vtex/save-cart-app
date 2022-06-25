@@ -10,7 +10,7 @@
     "jsonwebtoken": "^8.2.0",
     "koa-bodyparser": "^4.2.1",
     "koa-compose": "^4.0.0",
-    "node-fetch": "2.2.0",
+    "node-fetch": "2.6.7",
     "ramda": "^0.25.0",
     "ts-node": "^7.0.1",
     "typescript": "3.7.3",
