@@ -7,7 +7,7 @@
     "axios": "^0.18.0",
     "bluebird": "^3.4.7",
     "graphql": "^0.13.2",
-    "jszip": "^3.2.2",
+    "jszip": "^3.7.0",
     "ramda": "^0.26.1",
     "react-apollo": "^2.3.3",
     "react-intl": "^2.4.0",
